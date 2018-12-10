@@ -99,7 +99,7 @@ echo 'YOUR_DEVICENAME' >> ~/Documents/RTOC/autorun_devices
 
 **Files**: INA219_Modul.py
 
-**Dependencies**: `pip3 install ina219`
+**Dependencies**: `pip3 install pi-ina219`
 
 **Target system**: RaspberryPi (connected to INA219 via I2C)
 
