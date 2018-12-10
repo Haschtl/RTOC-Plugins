@@ -51,7 +51,12 @@ echo 'YOUR_DEVICENAME' >> ~/Documents/RTOC/autorun_devices
 
 **Info**:
 
-
+- You can set a parameters in file DPS5020.py:
+  - default_device = '/dev/ttyUSB0'
+  - SERIAL_BAUDRATE = 9600
+  - SERIAL_BYTESIZE = 8
+  - SERIAL_TIMEOUT = 2
+- You will need to run RTOC as root unless you set devices rules. See [this tutorial](http://ask.xmodulo.com/change-usb-device-permission-linux.html) for how to set device rules.
 
 ### Funktionsgenerator
 
@@ -79,6 +84,13 @@ echo 'YOUR_DEVICENAME' >> ~/Documents/RTOC/autorun_devices
 
 **Info**:
 
+- You can set a parameters in file HoldPeak\ VC820.py:
+  - default_device = 'COM7'
+  - SERIAL_BAUDRATE = 2400
+  - SERIAL_BYTESIZE = 8
+  - SERIAL_TIMEOUT = 1
+- You will need to run RTOC as root unless you set devices rules. See [this tutorial](http://ask.xmodulo.com/change-usb-device-permission-linux.html) for how to set device rules.
+
 
 
 ### INA219_Modul
@@ -93,6 +105,14 @@ echo 'YOUR_DEVICENAME' >> ~/Documents/RTOC/autorun_devices
 
 **Info**:
 
+- You can set a parameters in file INA219_Modul.py:
+
+  - SHUNT_OHMS = 0.1
+  - MAX_EXPECTED_AMPS = 0.2
+
+  - SAMPLERATE = 1/60# frequency in Hz (1/sec)
+  - I2C_ADDRESS = 0x41
+
 
 
 ### Octotouch
@@ -106,6 +126,12 @@ echo 'YOUR_DEVICENAME' >> ~/Documents/RTOC/autorun_devices
 **Target system**: Each OS (In same network as Octotouch-server)
 
 **Info**:
+
+You can set a parameters in file OctoTouch.py:
+
+- devicename = "Octotouch"
+- apikey = ""
+- SAMPLERATE = 1
 
 
 

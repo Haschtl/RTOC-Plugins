@@ -14,6 +14,10 @@ from PyQt5 import uic
 from PyQt5 import QtWidgets
 
 devicename = "HoldPeak"
+default_device = 'COM7'
+SERIAL_BAUDRATE = 2400
+SERIAL_BYTESIZE = 8
+SERIAL_TIMEOUT = 1
 
 
 class Plugin(LoggerPlugin):
@@ -28,7 +32,7 @@ class Plugin(LoggerPlugin):
         self.__updater = Thread(target=self.updateT)    # Actualize data
         # self.updater.start()
 
-    def __openPort(self, portname="COM7"):
+    def __openPort(self, portname=default_device):
         self.datanames = ['Data']     # Names for every data-stream
 
         # Communication setup
@@ -47,7 +51,7 @@ class Plugin(LoggerPlugin):
         #################################################################################
         try:
             self.serial_port = serial.Serial(
-                self.portname, baudrate=2400, parity='N', bytesize=8, timeout=1, rtscts=1, dsrdtr=1)
+                self.portname, baudrate=SERIAL_BAUDRATE, parity='N', bytesize=SERIAL_BYTESIZE, timeout=SERIAL_TIMEOUT, rtscts=1, dsrdtr=1)
             # dtr and rts settings required for adapter
             self.serial_port.dtr = True
             self.serial_port.rts = False

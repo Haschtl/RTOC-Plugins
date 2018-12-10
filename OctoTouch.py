@@ -8,9 +8,9 @@ import os
 
 from .Octotouch.OctoprintApi import OctoprintAPI
 
-devicename = "Kellerdrucker"
-apikey = "04B64F291D4B4F7BA276344ED7A973A2"
-
+devicename = "Octotouch"
+apikey = ""
+SAMPLERATE = 1
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
@@ -24,7 +24,7 @@ class Plugin(LoggerPlugin):
         self.datanames = ["Hotend0", "Hotend0Des", "Hotend1", "Hotend1Des", "Heatbed", "HeatbedDes"]
         self.dataunits = ["°C", "°C", "°C", "°C", "°C", "°C"]
 
-        self.samplerate = 1
+        self.samplerate = SAMPLERATE
 
         # Data-logger thread
         self.run = False  # False -> stops thread

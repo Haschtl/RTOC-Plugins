@@ -17,7 +17,11 @@ except ImportError:
     sys.exit("\nERROR\nminimalmodbus for Python3 not found!\nPlease install with 'pip3 install minimalmodbus'")
 
 devicename = "DPS5020"
+default_device = '/dev/ttyUSB0'
 
+SERIAL_BAUDRATE = 9600
+SERIAL_BYTESIZE = 8
+SERIAL_TIMEOUT = 2
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
@@ -31,9 +35,9 @@ class Plugin(LoggerPlugin):
         self.smallGUI = True
         self.locked = False
         self.power = False
-        self.__serialBaudrate = 9600
-        self.__serialByteSize = 8
-        self.__serialTimeOut = 2
+        self.__serialBaudrate = SERIAL_BAUDRATE
+        self.__serialByteSize = SERIAL_BYTESIZE
+        self.__serialTimeOut = SERIAL_TIMEOUT
         self.CV = True  # False = CC
 
         # Data-logger thread
@@ -41,7 +45,7 @@ class Plugin(LoggerPlugin):
         self.__updater = Thread(target=self.updateT)    # Actualize data
         # self.updater.start()
 
-    def __openPort(self, portname="/dev/ttyUSB0"):
+    def __openPort(self, portname=default_device):
         self.__datanames = ['VOut', 'IOut', "POut", "VIn",
                             "VSet", "ISet"]     # Names for every data-stream
         self.__dataY = [0, 0, 0, 0, 0, 0]
