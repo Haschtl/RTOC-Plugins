@@ -25,6 +25,8 @@ echo 'YOUR_DEVICENAME' >> ~/Documents/RTOC/autorun_devices
 
 ## List of plugins
 
+- Template: An example, showing how to create a simple plugin to send data to RTOC
+
 - DPS5020: Plugin for DPS powersupplies. It can monitor all data and you can set Voltage, Current and switch it on/off. Uses USB to read data.
 - Funktionsgenerator: Default-plugin of RTOC. Generates common signals.
 - holdPeak_VC820: Plugin for VC820 multimeters. It can monitor the measured values with correct units. Uses USB/Minimalmodbus to read data.
@@ -38,6 +40,17 @@ echo 'YOUR_DEVICENAME' >> ~/Documents/RTOC/autorun_devices
 
 
 ## Plugin descriptions
+
+### Template
+
+**GUI**: Yes, if you want to
+
+**Files**: Template.py, (Template/*)
+
+**Dependencies**: -
+
+**Info**: Use this plugin as a starting point
+
 
 ### DPS5020
 
