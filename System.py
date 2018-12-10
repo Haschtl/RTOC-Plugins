@@ -2,7 +2,7 @@ from __future__ import print_function
 try:
     from LoggerPlugin import LoggerPlugin
 except ImportError:
-    from ..LoggerPlugin import LoggerPlugin
+    from RTOC.LoggerPlugin import LoggerPlugin
 
 from threading import Thread
 from PyQt5 import uic

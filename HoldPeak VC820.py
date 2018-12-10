@@ -1,9 +1,9 @@
 try:
     from LoggerPlugin import LoggerPlugin
 except ImportError:
-    from ..LoggerPlugin import LoggerPlugin
+    from RTOC.LoggerPlugin import LoggerPlugin
 
-from plugins.holdPeak_VC820.vc820py.vc820 import MultimeterMessage
+from .holdPeak_VC820.vc820py.vc820 import MultimeterMessage
 import serial
 import sys
 from threading import Thread

@@ -1,7 +1,7 @@
 try:
     from LoggerPlugin import LoggerPlugin
 except ImportError:
-    from ..LoggerPlugin import LoggerPlugin
+    from RTOC.LoggerPlugin import LoggerPlugin
 import time
 from threading import Thread
 import traceback
@@ -16,7 +16,7 @@ devicename = "Heliotherm"
 
 HOST = "192.168.178.72"
 
-from pymodbus3.client.sync import ModbusTcpClient
+#from pymodbus3.client.sync import ModbusTcpClient
 from pyModbusTCP.client import ModbusClient
 
 

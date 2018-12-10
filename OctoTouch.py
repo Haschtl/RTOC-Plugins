@@ -1,7 +1,4 @@
-try:
-    from LoggerPlugin import LoggerPlugin
-except ImportError:
-    from ..LoggerPlugin import LoggerPlugin
+from RTOC.LoggerPlugin import LoggerPlugin
 
 import time
 from threading import Thread
@@ -9,7 +6,7 @@ from PyQt5 import uic
 from PyQt5 import QtWidgets
 import os
 
-from plugins.Octotouch.OctoprintApi import OctoprintAPI
+from .Octotouch.OctoprintApi import OctoprintAPI
 
 devicename = "Kellerdrucker"
 apikey = "04B64F291D4B4F7BA276344ED7A973A2"
