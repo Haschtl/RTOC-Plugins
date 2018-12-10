@@ -1,4 +1,7 @@
-from RTOC.LoggerPlugin import LoggerPlugin
+try:
+    from LoggerPlugin import LoggerPlugin
+except ImportError:
+    from RTOC.LoggerPlugin import LoggerPlugin
 
 import time
 from threading import Thread
