@@ -1,4 +1,3 @@
-import urllib
 import urllib.request
 from lxml import html
 
