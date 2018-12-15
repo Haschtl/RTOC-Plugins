@@ -32,6 +32,7 @@ echo 'YOUR_DEVICENAME' >> ~/Documents/RTOC/autorun_devices
 - holdPeak_VC820: Plugin for VC820 multimeters. It can monitor the measured values with correct units. Uses USB/Minimalmodbus to read data.
 - INA219_Modul: Plugin for INA219 solar module. Monitors voltage, current, power and shunt_voltage
 - Octotouch: Plugin for 3D-printer-software Octotouch. It can just monitor the temperatures. Uses HTTP/JSON to read data.
+- PIKO_Solarmodules: Plugin for PIKO solar modules. Monitors voltage, current and power
 - System: Plugin to monitor system-information like CPU, Memory, ...
 - ReflowOfen/ReflowPlatte: Plugin, which reads data from local network-devices HTTP-address.
 - Heliotherm: Plugin, which reads data from Heliotherm heat pump using TCP/Modbus.
@@ -145,6 +146,23 @@ You can set a parameters in file OctoTouch.py:
 - devicename = "Octotouch"
 - apikey = ""
 - SAMPLERATE = 1
+
+
+### PIKO_Solarmodules
+
+**GUI**: No
+
+**Files**: PIKO_Solarmodules.py, PIKO/*
+
+**Dependencies**: `pip3 install lxml`
+
+**Target system**: Each OS (In same network as PIKO modules)
+
+**Info**:
+
+- You can set a parameters in file INA219_Modul.py:
+  - SAMPLERATE = 1/60# frequency in Hz (1/sec)
+  - ADRESSES = ["IP1", "IP2", ...] #You can specify multiple adresses
 
 
 
