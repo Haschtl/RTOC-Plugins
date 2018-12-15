@@ -200,7 +200,7 @@ You can set a parameters in file OctoTouch.py:
 
 **Files**: Heliotherm.py, Heliotherm/*
 
-**Dependencies**: `pip3 install ModbusClient`
+**Dependencies**: `pip3 install pyModbusTCP`
 
 **Target system**: Each OS (In same network as Heliotherm heat pump)
 
