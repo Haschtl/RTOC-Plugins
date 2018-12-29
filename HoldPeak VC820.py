@@ -64,6 +64,8 @@ class Plugin(LoggerPlugin):
 
     # THIS IS YOUR THREAD
     def updateT(self):
+        last_value = 0
+        jump_allowed = True
         while self.run:
             valid, value, unit = self.get_data()
             if unit == "V":
@@ -81,7 +83,13 @@ class Plugin(LoggerPlugin):
             else:
                 datanames = [unit]
             if valid:
-                self.stream(value,  datanames,  self.devicename, unit)
+                if abs(last_value-value)>=2 and not jump_allowed:
+                    #self.stream([last_value],  datanames,  self.devicename, unit)
+                    jump_allowed = True
+                else:
+                    self.stream([value],  datanames,  self.devicename, unit)
+                    jump_allowed = False
+                last_value = value
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
