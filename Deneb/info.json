@@ -1,0 +1,8 @@
+{
+  "version":"1.0",
+  "name":"Deneb",
+  "dependencies":[],
+  "files":["Deneb.py", "Deneb/*"],
+  "Info":"",
+  "GUI": true
+}

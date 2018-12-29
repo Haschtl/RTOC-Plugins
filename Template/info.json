@@ -1,0 +1,9 @@
+{
+  "version":"1.0",
+  "name":"Template",
+  "dependencies":[],
+  "files":["Template.py", "Template/template.ui"],
+  "Info":"Use this plugin to get started with your own plugin.",
+  "OS":"all",
+  "GUI": true
+}

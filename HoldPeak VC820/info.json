@@ -1,0 +1,14 @@
+{
+  "version":"1.0",
+  "name":"HoldPeak VC820",
+  "dependencies":["serial"],
+  "files":["HoldPeak VC820.py", "holdPeak_VC820/*"],
+  "Info":"- You can set a parameters in file HoldPeak\ VC820.py:
+    - default_device = 'COM7'
+    - SERIAL_BAUDRATE = 2400
+    - SERIAL_BYTESIZE = 8
+    - SERIAL_TIMEOUT = 1
+  - You will need to run RTOC as root unless you set devices rules. See [this tutorial](http://ask.xmodulo.com/change-usb-device-permission-linux.html) for how to set device rules.",
+  "OS":"all",
+  "GUI": true
+}

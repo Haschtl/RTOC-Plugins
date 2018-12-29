@@ -1,0 +1,11 @@
+{
+  "version":"1.0",
+  "name":"OctoTouch",
+  "dependencies":[],
+  "files":[ "OctoTouch.py", "Octotouch/*"],
+  "Info":"You can set parameters in file OctoTouch.py:
+  - apikey = ""
+  - SAMPLERATE = 1",
+  "OS":"all",
+  "GUI": true
+}

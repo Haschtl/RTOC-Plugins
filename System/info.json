@@ -1,0 +1,9 @@
+{
+  "version":"1.0",
+  "name":"System",
+  "dependencies":[],
+  "files":["System.py", "System/*"],
+  "Info":"",
+  "OS":"all",
+  "GUI": true
+}

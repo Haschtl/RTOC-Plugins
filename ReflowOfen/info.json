@@ -1,0 +1,9 @@
+{
+  "version":"1.0",
+  "name":"ReflowOfen",
+  "dependencies":[],
+  "files":["ReflowOfen.py", "Reflow/*"],
+  "Info":"",
+  "OS":"all",
+  "GUI": true
+}

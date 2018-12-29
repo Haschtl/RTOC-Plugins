@@ -1,0 +1,9 @@
+{
+  "version":"1.0",
+  "name":"Generator",
+  "dependencies":[],
+  "files":["Generator.py", "Funktionsgenerator/gen_function.ui"],
+  "Info":"",
+  "OS":"all",
+  "GUI": true
+}

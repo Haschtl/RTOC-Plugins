@@ -1,0 +1,9 @@
+{
+  "version":"1.0",
+  "name":"Futtertrocknung",
+  "dependencies":["adafruit_CCS811", "adafruit_DHT","board","busio"],
+  "files":[],
+  "Info":"",
+  "OS":"RaspberryPi",
+  "GUI": false
+}

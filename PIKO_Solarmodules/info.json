@@ -1,0 +1,11 @@
+{
+  "version":"1.0",
+  "name":"PIKO_Solarmodules",
+  "dependencies":["lxml"],
+  "files":[ "PIKO_Solarmodules.py", "PIKO/*"],
+  "Info":"You can set a parameters in file INA219_Modul.py:
+    - SAMPLERATE = 1/60# frequency in Hz (1/sec)
+    - ADRESSES = ['IP1', 'IP2', ...] #You can specify multiple adresses",
+  "OS":"all",
+  "GUI": false
+}
