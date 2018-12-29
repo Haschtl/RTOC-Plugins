@@ -3,7 +3,7 @@
   "name":"OctoTouch",
   "dependencies":[],
   "files":[ "OctoTouch.py", "Octotouch/*"],
-  "Info":"You can set parameters in file OctoTouch.py:\n  - apikey = ""\n  - SAMPLERATE = 1",
+  "Info":"You can set parameters in file OctoTouch.py:\n  - apikey = ''\n  - SAMPLERATE = 1",
   "OS":"all",
   "GUI": true
 }
