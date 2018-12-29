@@ -175,7 +175,7 @@ class Plugin(LoggerPlugin):
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
         packagedir = self.getDir(__file__)
-        uic.loadUi(packagedir+"/Deneb/deneb.ui", self.widget)
+        uic.loadUi(packagedir+"/Heliotherm/heliotherm.ui", self.widget)
         # self.setCallbacks()
         self.widget.pushButton.clicked.connect(self.__openConnectionCallback)
         self.widget.samplerateSpinBox.valueChanged.connect(self.__changeSamplerate)
