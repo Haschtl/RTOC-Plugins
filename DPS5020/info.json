@@ -3,13 +3,7 @@
   "name":"DPS5020",
   "dependencies":["minimalmodbus"],
   "files":["DPS5020.py","DPS5020/dps5020.ui"],
-  "Info":"DPS powersupply needs to be connected with your computer.
-  You can set a parameters in file DPS5020.py:
-    - default_device = '/dev/ttyUSB0'
-    - SERIAL_BAUDRATE = 9600
-    - SERIAL_BYTESIZE = 8
-    - SERIAL_TIMEOUT = 2
-  You will need to run RTOC as root to connect to USB-Devices unless you set devices rules. See [this tutorial](http://ask.xmodulo.com/change-usb-device-permission-linux.html) for how to set device rules.",
+  "Info":"DPS powersupply needs to be connected with your computer.\nYou can set a parameters in file DPS5020.py:\n  - default_device = '/dev/ttyUSB0'\n  - SERIAL_BAUDRATE = 9600\n    - SERIAL_BYTESIZE = 8\n    - SERIAL_TIMEOUT = 2\nYou will need to run RTOC as root to connect to USB-Devices unless you set devices rules. See [this tutorial](http://ask.xmodulo.com/change-usb-device-permission-linux.html) for how to set device rules.",
   "OS":"all",
   "GUI": true
 }
