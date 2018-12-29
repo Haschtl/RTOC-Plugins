@@ -4,5 +4,6 @@
   "dependencies":[],
   "files":["Deneb.py", "Deneb/*"],
   "Info":"",
+  "OS": "all",
   "GUI": true
 }
