@@ -10,7 +10,7 @@ To add a plugin to RTOC you need to do the following steps:
 
 1. Install RTOC (`pip3 install RTOC`)
    - You will need to run RTOC once
-2. Copy the files of the plugin to your RTOC-Userpath: `~/Documents/RTOC/devices/`
+2. Copy the folder of the desired plugin to your RTOC-Userpath: `~/Documents/RTOC/devices/`
 3. Now restart RTOC (`python3 -m RTOC`)
 
 
