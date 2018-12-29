@@ -3,13 +3,7 @@
   "name":"INA219_Modul",
   "dependencies":["pi-ina219"],
   "files":["INA219_Modul.py"],
-  "Info":"You can set a parameters in file INA219_Modul.py:
-
-    - SHUNT_OHMS = 0.1
-    - MAX_EXPECTED_AMPS = 0.2
-
-    - SAMPLERATE = 1/60# frequency in Hz (1/sec)
-    - I2C_ADDRESS = 0x41",
+  "Info":"You can set a parameters in file INA219_Modul.py:\n\n    - SHUNT_OHMS = 0.1\n    - MAX_EXPECTED_AMPS = 0.2\n\n    - SAMPLERATE = 1/60# frequency in Hz (1/sec)\n    - I2C_ADDRESS = 0x41",
   "OS":"RaspberryPi",
   "GUI": false
 }
