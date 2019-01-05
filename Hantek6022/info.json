@@ -1,0 +1,9 @@
+{
+  "version":"1.0",
+  "name":"Heliotherm",
+  "dependencies":["pyModbusTCP"],
+  "files":["Heliotherm.py", "Heliotherm/*"],
+  "Info":"",
+  "OS":"all",
+  "GUI": true
+}
