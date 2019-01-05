@@ -26,6 +26,6 @@ cd ..
 
 python3 setup.py install
   """,
-  "OS":"all",
+  "OS":"Linux",
   "GUI": true
 }

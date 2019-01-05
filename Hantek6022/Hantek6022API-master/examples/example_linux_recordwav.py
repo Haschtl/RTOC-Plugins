@@ -45,6 +45,10 @@ for x in range(3):
     time.sleep(1)
 print("now")
 
+
+
+
+
 data = []
 data_extend = data.append
 def extend_callback(ch1_data, _):

@@ -11,246 +11,168 @@ from PyQt5 import QtWidgets
 import socket
 import threading
 import os
+import numpy as np
 
-devicename = "Heliotherm"
+from struct import pack
+from collections import deque
 
-HOST = "192.168.178.72"
+from PyHT6022.LibUsbScope import Oscilloscope
 
-#from pymodbus3.client.sync import ModbusTcpClient
-from pyModbusTCP.client import ModbusClient
+devicename = 'Hantek6022'
 
-
-############################# DO NOT EDIT FROM HERE ################################################
-
-mappingWrite = [
-[100, 'Betriebsart', 1, ''],
-[101, 'HKR Soll_Raum', 10, '°C'],
-[102, 'HKR Soll', 10, '°C'],
-[103, 'HKR Soll aktiv', 1, ''],
-[104, 'RLT min Kuehlen', 10, '°C'],
-[105, 'WW Normaltemperatur', 10, '°C'],
-[106, 'WW Minimaltemperatur', 10, '°C'],
-[107, 'MKR1 Betriebsart', 1, ''],
-[108, 'MKR1 Soll_Raum', 10, '°C'],
-[109, 'MKR1 Soll', 10, '°C'],
-[110, 'MKR1 Soll aktiv', 1, ''],
-[111, 'MKR1 Kuehlen RLT min.', 10, '°C'],
-[112, 'MKR2 Betriebsart', 1, ''],
-[113, 'MKR2 Soll_Raum', 10, '°C'],
-[114, 'MKR2 Soll', 10, '°C'],
-[115, 'MKR2 Soll aktiv', 1, ''],
-[116, 'MKR2 Kuehlen RLT min.', 10, '°C'],
-[117, 'PV Anf', 1, ''],
-[118, 'Unbekannt', 1, ''],
-[119, 'Unbekannt', 1, ''],
-[120, 'Unbekannt', 1, ''],
-[121, 'Unbekannt', 1, ''],
-[122, 'Unbekannt', 1, ''],
-[123, 'Unbekannt', 1, ''],
-[124, 'Unbekannt', 1, ''],
-[125, 'Leistungsaufnahmevorgabe', 1, 'W'],
-[126, 'Verdichterdrehzahlvorgabe', 1, '%°'],
-[127, 'Ext. Anf', 1, ''],
-[128, 'Entstoeren', 1, ''],
-[129, 'Aussentemperatur Wert', 10, '°C'],
-[130, 'Aussentemperatur aktiv', 1, ''],
-[131, 'Puffertemperatur Wert', 10, '°C'],
-[132, 'Puffertemperatur aktiv', 1, ''],
-[133, 'Brauchwassertemperatur Wert', 10, '°C'],
-[134, 'Brauchwassertemperatur aktiv', 1, ''],
-[135, 'Unbekannt', 10, '°C'],
-[136, 'Unbekannt', 10, '°C'],
-[137, 'Unbekannt', 10, '°C'],
-[138, 'Unbekannt', 10, '°C'],
-[139, 'Unbekannt', 10, '°C'],
-[140, 'Unbekannt', 10, '°C'],
-[141, 'Unbekannt', 10, '°C'],
-[142, 'Unbekannt', 10, '°C'],
-[143, 'Unbekannt', 10, '°C'],
-[144, 'Unbekannt', 10, '°C'],
-[145, 'Unbekannt', 10, '°C'],
-[146, 'Unbekannt', 10, '°C'],
-]
-
-mappingRead = [
-[10, 'Temperatur Aussen', 10, '°C'],
-[11, 'Temperatur Brauchwasser', 10, '°C'],
-[12, 'Temperatur Vorlauf', 10, '°C'],
-[13, 'Temperatur Ruecklauf', 10, '°C'],
-[14, 'Temperatur Pufferspeicher', 10, '°C'],
-[15, 'Temperatur EQ_Eintritt', 10, '°C'],
-[16, 'Temperatur EQ_Austritt', 10, '°C'],
-[17, 'Temperatur Sauggas', 10, '°C'],
-[18, 'Temperatur Verdampfung', 10, '°C'],
-[19, 'Temperatur Kondensation', 10, '°C'],
-[20, 'Temperatur Heissgas', 10, '°C'],
-[21, 'Niederdruck', 10, 'Bar'],
-[22, 'Hochdruck', 10, 'Bar'],
-[23, 'Heizkreispumpe', 1, ''],
-[24, 'Pufferladepumpe', 1, ''],
-[25, 'Verdichter', 1, ''],
-[26, 'Stoerung', 1, ''],
-[27, 'Vierwegeventil Luft', 1, ''],
-[28, 'WMZ_Durchfluss', 10, 'l/min'],
-[29, 'n-Soll Verdichter', 1, '%°'],
-[30, 'COP', 10, ''],
-[31, 'Temperatur Frischwasser', 10, '°C'],
-[32, 'EVU Sperre', 1, ''],
-[33, 'Aussentemperatur verzoegert', 10, '°C'],
-[34, 'HKR verzoegert', 10, '°C'],
-[35, 'MKR1_Solltemperatur', 10, '°C'],
-[36, 'MKR2_Solltemperatur', 10, '°C'],
-[37, 'EQ-Ventilator', 1, ''],
-[38, 'WW-Vorrat', 1, ''],
-[39, 'Kühlen UMV passiv', 1, ''],
-[40, 'Expansionsventil', 1, '%°'],
-[41, 'Verdichteranforderung', 1, ''],
-[42, 'Betriebsstunden im WW-Betrieb', 1, 'h'],
-[43, 'Unbekannt', 1, ''],
-[44, 'Betriebsstunden im HZG-Betrieb', 1, 'h'],
-[45, 'Unbekannt', 1, ''],
-[46, 'Unbekannt', 1, ''],
-[47, 'Unbekannt', 1, ''],
-[48, 'Unbekannt', 1, ''],
-[49, 'Unbekannt', 1, ''],
-[50, 'Unbekannt', 1, ''],
-[51, 'Unbekannt', 1, ''],
-[52, 'Unbekannt', 1, ''],
-[53, 'Unbekannt', 1, ''],
-[54, 'Unbekannt', 1, ''],
-[55, 'Unbekannt', 1, ''],
-[56, 'Unbekannt', 1, ''],
-[57, 'Unbekannt', 1, ''],
-[58, 'Unbekannt', 1, ''],
-[59, 'Unbekannt', 1, ''],
-[60, 'WMZ_Heizung', 1, 'kW/h'],
-[61, 'Unbekannt', 1, ''],
-[62, 'Stromz_Heizung', 1, 'kW/h'],
-[63, 'Unbekannt', 1, ''],
-[64, 'WMZ_Brauchwasser', 1, 'kW/h'],
-[65, 'Unbekannt', 1, ''],
-[66, 'Stromz_Brauchwasser', 1, 'kW/h'],
-[67, 'Unbekannt', 1, ''],
-[68, 'Stromz_Gesamt', 1, 'kW/h'],
-[69, 'Unbekannt', 1, ''],
-[70, 'Stromz_Leistung', 1, 'W'],
-[71, 'Unbekannt', 1, ''],
-[72, 'WMZ_Gesamt', 1, 'kW/h'],
-[73, 'Unbekannt', 1, ''],
-[74, 'WMZ_Leistung', 1, 'kW'],
-[75, 'Unbekannt', 1, ''],
-
-]
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
         # Plugin setup
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
-        self.smallGUI = True
+        self.smallGUI = False
 
         # Data-logger thread
+        self.scope = None
         self.run = False  # False -> stops thread
         self.__updater = Thread(target=self.updateT)    # Actualize data
         # self.updater.start()
+        self.blocksize = 6*1024      # should be divisible by 6*1024
+        self.alternative = 1         # choose ISO 3072 bytes per 125 us
 
-        self.__base_address = ""
-        self.samplerate = 0.2
-        self.temp_des = 0
-        self.__s = requests.Session()
+    def close(self):
+        if self.scope:
+            self.scope.close_handle()
 
     # THIS IS YOUR THREAD
     def updateT(self):
         diff = 0
         while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            y, name, units = self.helio_get()
-            if y is not None:
-                self.stream(y, name, 'Heliotherm', units)
-
-            diff = (time.time() - start_time)
+            if not self.widget.pauseButton.isChecked():
+                if diff < 1/self.samplerate:
+                    time.sleep(1/self.samplerate-diff)
+                start_time = time.time()
+                #y, name, units = self.helio_get()
+                #if y is not None:
+                #    self.stream(y, name, 'Heliotherm', units)
+                x,y =self.__getData()
+                self.plot(x,y)
+                print('I cannot plot anything :(')
+                diff = (time.time() - start_time)
+            else:
+                time.sleep(0.1)
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
         packagedir = self.getDir(__file__)
-        uic.loadUi(packagedir+"/Heliotherm/heliotherm.ui", self.widget)
+        uic.loadUi(packagedir+"/Hantek6022/hantek.ui", self.widget)
         # self.setCallbacks()
-        self.widget.pushButton.clicked.connect(self.__openConnectionCallback)
-        self.widget.samplerateSpinBox.valueChanged.connect(self.__changeSamplerate)
-        self.widget.comboBox.setCurrentText(HOST)
+        self.widget.reconnectButton.clicked.connect(self.__openConnectionCallback)
+        self.widget.samplerateComboBox.textChanged.connect(self.__changeSamplerate)
+        #self.widget.recordLengthSpinBox.valueChanged.connect(self.)
+        #self.widget.channel1CheckBox.valueChanged.connect(self.enableChannel1)
+        #self.widget.channel1ACDCComboBox.valueChanged.connect(self.)
+        self.widget.channel1VoltPDivComboBox.textChanged.connect(self.__changeChannel1VoltPDiv)
+        self.widget.channel2VoltPDivComboBox.textChanged.connect(self.__changeChannel2VoltPDiv)
+        #self.widget.channel2CheckBox.valueChanged.connect(self.enableChannel2)
+        #self.widget.channel2ACDCComboBox.valueChanged.connect(self.)
+        #self.widget.pauseButton.clicked.connect(self.)
+
+        #self.widget.triggerChannelComboBox.textChanged.connect(self.)
+        #self.widget.triggerLevelSpinBox.valueChanged.connect(self.)
+        #self.widget.enableTriggerButton.clicked.connect(self.)
         self.__openConnectionCallback()
         return self.widget
 
     def __openConnectionCallback(self):
+        self.widget.reconnectButton.setEnabled(False)
         if self.run:
             self.run = False
-            self.widget.pushButton.setText("Verbinden")
+            self.widget.reconnectButton.setText("Reconnect")
             self.__base_address = ""
         else:
-            address = self.widget.comboBox.currentText()
-            self.__base_address = address
-            self.c = ModbusClient(host=self.__base_address, port=502, auto_open=True, auto_close=True)
-            self.c.timeout(10)
-            #self.helio_get()
+            self.scope = Oscilloscope()
+            self.scope.setup()
+            self.scope.open_handle()
+            if (not self.scope.is_device_firmware_present):
+                self.scope.flash_firmware()
+            else:
+                self.scope.supports_single_channel = True;
+
+            print("Setting up scope!")
+            self.scope.set_interface(self.alternative);
+            print("ISO" if self.scope.is_iso else "BULK", "packet size:", self.scope.packetsize)
+            self.scope.set_num_channels(1)
+            # set voltage range
+            self.__changeChannel1VoltPDiv('1 V')
+            self.__changeChannel2VoltPDiv('1 V')
+
             self.run = True
             self.__updater = Thread(target=self.updateT)
             self.__updater.start()
-            self.widget.pushButton.setText("Beenden")
+            self.widget.reconnectButton.setText("Stop")
 
-    def start(self, address):
-        if self.run:
-            self.run = False
-            self.__base_address = ""
+
+    def set_sampling_rate(self, samplerate): # sample rate in MHz or in 10khz
+        if self.scope:
+            self.scope.set_sample_rate(samplerate)
+
+    def calibrate(self):
+        if self.scope:
+            self.scope.setup_dso_cal_level()
+            cal_level = self.scope.get_calibration_data()
+            self.scope.set_dso_calibration(cal_level)
+
+    def __changeSamplerate(self, strung):
+        if 'MHz' in strung:
+            strung = strung.replace(' MHz','')
+            self.set_sampling_rate(int(strung))
         else:
-            self.__base_address = address
-            self.c = ModbusClient(host=self.__base_address, port=502, auto_open=True, auto_close=True)
-            self.c.timeout(10)
-            #self.helio_get()
-            self.run = True
-            self.__updater = Thread(target=self.updateT)
-            self.__updater.start()
+            strung = strung.replace(' MHz','')
+            self.set_sampling_rate(int(strung)/10)
 
-    def helio_get(self):
-        #client = ModbusTcpClient(self.__base_address)
-        #client.write_coil(1, True)
-        #result = client.read_coils(0,1)
-        resultWrite = self.c.read_holding_registers(100, 47)
-        resultRead = self.c.read_input_registers(10,65)
-        for idx, d in enumerate(resultRead):
-            if d>=2 **16/2:
-                resultRead[idx] = 2 **16 - d
-        for idx, d in enumerate(resultWrite):
-            if d>=2 **16/2:
-                resultWrite[idx] = 2 **16 - d
-        if resultWrite is not None and resultRead is not None:
-            y = []
-            units = []
-            snames = []
-            for idx, value in enumerate(resultWrite):
-                if mappingWrite[idx][1]=='Unbekannt':
-                    #mappingWrite[idx][1] = str(mappingWrite[idx][0])
-                    pass
-                else:
-                    snames.append(mappingWrite[idx][1])
-                    y.append(resultWrite[idx]/mappingWrite[idx][2])
-                    units.append(mappingWrite[idx][3])
-            for idx, value in enumerate(resultRead):
-                if mappingRead[idx][1]=='Unbekannt':
-                    #mappingRead[idx][1] = str(mappingRead[idx][0])
-                    pass
-                else:
-                    snames.append(mappingRead[idx][1])
-                    y.append(resultRead[idx]/mappingRead[idx][2])
-                    units.append(mappingRead[idx][3])
-            return y, snames, units
+    def __changeChannel1VoltPDiv(self, strung):
+        if self.scope:
+            voltagerange = 1
+            if strung == '2.6 V':
+                voltagerange = 2
+            elif strung == '5 V':
+                voltagerange = 5
+            elif strung == '10 V':
+                voltagerange = 10
+            self.scope.set_ch1_voltage_range(voltagerange)
+
+    def __changeChannel2VoltPDiv(self, strung):
+        if self.scope:
+            voltagerange = 1
+            if strung == '2.6 V':
+                voltagerange = 2
+            elif strung == '5 V':
+                voltagerange = 5
+            elif strung == '10 V':
+                voltagerange = 10
+            self.scope.set_ch2_voltage_range(voltagerange)
+
+    def __getData(self):
+        if self.scope:
+            data = []
+            data_extend = data.append
+            def extend_callback(ch1_data, _):
+                global data_extend
+                data_extend(ch1_data)
+
+            start_time = time.time()
+            print("Clearing FIFO and starting data transfer...")
+            shutdown_event = self.scope.read_async(extend_callback, self.blocksize, outstanding_transfers=10,raw=True)
+            self.scope.start_capture()
+            while time.time() - start_time < 0.1:
+                self.scope.poll()
+            print("Stopping new transfers.")
+            #scope.stop_capture()
+            shutdown_event.set()
+            #time.sleep(1)
+            self.scope.stop_capture()
+            #scope.close_handle()
+            x = np.linspace(start_time, time.time(),len(data))
+            return x, data
         else:
-            self.widget.pushButton.setText("Fehler")
-            return None, None, None
-
-    def __changeSamplerate(self):
-        self.samplerate = self.widget.samplerateSpinBox.value()
+            return [0],[0]
 
 
 if __name__ == "__main__":
