@@ -1,3 +1,5 @@
+## Hantek API from https://github.com/rpcope1/Hantek6022API/blob/master/PyHT6022/LibUsbScope.py
+
 try:
     from LoggerPlugin import LoggerPlugin
 except ImportError:
@@ -67,10 +69,11 @@ class Plugin(LoggerPlugin):
         self.widget.samplerateComboBox.textChanged.connect(self.__changeSamplerate)
         #self.widget.recordLengthSpinBox.valueChanged.connect(self.)
         #self.widget.channel1CheckBox.valueChanged.connect(self.enableChannel1)
+        self.widget.channel1CheckBox.setEnabled(False)
         #self.widget.channel1ACDCComboBox.valueChanged.connect(self.)
         self.widget.channel1VoltPDivComboBox.textChanged.connect(self.__changeChannel1VoltPDiv)
         self.widget.channel2VoltPDivComboBox.textChanged.connect(self.__changeChannel2VoltPDiv)
-        #self.widget.channel2CheckBox.valueChanged.connect(self.enableChannel2)
+        self.widget.channel2CheckBox.valueChanged.connect(self.enableChannel2)
         #self.widget.channel2ACDCComboBox.valueChanged.connect(self.)
         #self.widget.pauseButton.clicked.connect(self.)
 
@@ -148,6 +151,9 @@ class Plugin(LoggerPlugin):
             elif strung == '10 V':
                 voltagerange = 10
             self.scope.set_ch2_voltage_range(voltagerange)
+    def enableChannel2(self, value):
+        if value:
+            self.scope.
 
     def __getData(self):
         if self.scope:
