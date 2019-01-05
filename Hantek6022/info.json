@@ -1,9 +1,31 @@
 {
-  "version":"1.0",
-  "name":"Heliotherm",
-  "dependencies":["pyModbusTCP"],
-  "files":["Heliotherm.py", "Heliotherm/*"],
-  "Info":"",
+  "version":"0",
+  "name":"Hantek6022",
+  "dependencies":["libusb1"],
+  "files":["Hantek6022API-master/*", "Hantek6022/*", "Hantek6022.py"],
+  "Info":"""
+cd Hantek6022API/PyHT6022/HantekFirmware/fx2lib
+make
+make docs
+cd fw
+make
+
+cd ..
+cd ..
+cd ..
+
+sudo cp 60-hantek-6022-usb.rules /lib/udev/rules.d/
+
+sudo apt install sdcc
+cd PyHT6022/HantekFirmware/custom
+make
+
+cd ..
+cd ..
+cd ..
+
+python3 setup.py install
+  """,
   "OS":"all",
   "GUI": true
 }
