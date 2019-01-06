@@ -176,18 +176,22 @@ class Plugin(LoggerPlugin):
                     for idx in range(len(triggerSignal)):
                         if triggerSignal[idx]>=triggerLevel-mean:
                             triggerPrepared = True
-                        elif triggerSignal[idx]<triggerLevel-mean:
+                            print('Trigger prepared')
+                        elif triggerSignal[idx]<triggerLevel-mean and triggerPrepared:
                             triggerPrepared = False
+                            print(' ... unprepared')
                         elif triggerSignal[idx]>triggerLevel and triggerPrepared == True:
                             cutoff = idx
                             break
             else:
-                if min(triggerSignal)>triggerLevel:
+                if min(triggerSignal)<triggerLevel:
                     for idx in range(len(triggerSignal)):
                         if triggerSignal[idx]<=triggerLevel+mean:
                             triggerPrepared = True
-                        elif triggerSignal[idx]>triggerLevel+mean:
+                            print('Trigger prepared')
+                        elif triggerSignal[idx]>triggerLevel+mean  and triggerPrepared:
                             triggerPrepared = False
+                            print(' ... unprepared')
                         elif triggerSignal[idx]<triggerLevel and triggerPrepared == True:
                             cutoff = idx
                             break
