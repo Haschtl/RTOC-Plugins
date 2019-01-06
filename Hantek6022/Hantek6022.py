@@ -176,26 +176,20 @@ class Plugin(LoggerPlugin):
                     for idx in range(len(triggerSignal)):
                         if triggerSignal[idx]>=triggerLevel-mean and triggerSignal[idx]<=triggerLevel:
                             triggerPrepared = True
-                            print('Trigger prepared')
                         elif triggerSignal[idx]<triggerLevel-mean and triggerPrepared:
                             triggerPrepared = False
-                            print(' ... unprepared')
                         elif triggerSignal[idx]>triggerLevel and triggerPrepared == True:
                             cutoff = idx
-                            print('Triggered')
                             break
             else:
                 if min(triggerSignal)<triggerLevel:
                     for idx in range(len(triggerSignal)):
                         if triggerSignal[idx]<=triggerLevel+mean and triggerSignal[idx]>=triggerLevel:
                             triggerPrepared = True
-                            print('Trigger prepared')
                         elif triggerSignal[idx]>triggerLevel+mean  and triggerPrepared:
                             triggerPrepared = False
-                            print(' ... unprepared')
                         elif triggerSignal[idx]<triggerLevel and triggerPrepared == True:
                             cutoff = idx
-                            print('Triggered')
                             break
             stop = False
 
@@ -214,12 +208,8 @@ class Plugin(LoggerPlugin):
                 self.yData2Triggered = deque(list(data2),maxlen=self.recordLength)
         else:
             if len(self.yData1Triggered)<self.recordLength:
-                # self.yData1Triggered.extend(data1)
-                # self.yData2Triggered.extend(data2)
                 stop = False
             else:
-                #self.yData1Triggered.extend(data1[0:self.recordLength-len(self.yData1Triggered)])
-                #self.yData2Triggered.extend(data2[0:self.recordLength-len(self.yData1Triggered)])
                 self.singleTriggerFound = False
                 stop = True
                 data1 = self.yData1Triggered
