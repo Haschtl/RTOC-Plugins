@@ -7,6 +7,7 @@ from .PIKO.Piko import Piko
 import time
 from threading import Thread
 import time
+import traceback
 
 devicename = "PIKO"
 
@@ -25,8 +26,10 @@ class Plugin(LoggerPlugin):
         self.pikoservers = []
         for a in ADRESSES:
             try:
-                self.pikoservers.append(Piko(a))
+                a = Piko(a)
+                self.pikoservers.append(a)
             except:
+                print(traceback.format_exc())
                 print('Problem with initial connection to PIKO-Adress: '+a)
         self.__updater = Thread(target=self.__updateT)    # Actualize data
         self.__updater.start()
@@ -47,4 +50,5 @@ class Plugin(LoggerPlugin):
                 data, datanames, dataunits = s.get_data()
                 self.stream(data, datanames, devicename+'_'+ADRESSES[idx], dataunits)
             except:
+                print(traceback.format_exc())
                 print('Problem with getting data from '+ADRESSES[idx])
