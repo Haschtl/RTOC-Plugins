@@ -155,10 +155,14 @@ class Plugin(LoggerPlugin):
                 if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])>triggerLevel and np.mean(triggerSignal[idx:idx+mean])<=triggerLevel:
                     cutoff = idx+mean
                     break
+                if idx>=len(triggerSignal)/10:
+                    break
         else:
             for idx in range(len(triggerSignal)-2*mean):
                 if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])<triggerLevel and np.mean(triggerSignal[idx:idx+mean])>=triggerLevel:
                     cutoff = idx+mean
+                    break
+                if idx>=len(triggerSignal)/10:
                     break
 
         if cutoff!=0 and self.widget.checkBox.isChecked():
