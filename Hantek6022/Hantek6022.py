@@ -151,9 +151,9 @@ class Plugin(LoggerPlugin):
             flanke = self.widget.comboBox.currentText()
             triggerLevel = self.widget.triggerLevelSpinBox.value()
             cutoff = 0
-            mean = int(self.widget.smoothSpinBox.value())
-            if mean >= len(triggerSignal):
-                mean = 10
+            mean = self.widget.smoothSpinBox.value()
+            # if mean >= len(triggerSignal):
+            #     mean = 10
 
             # if flanke == 'Rising':
             #     for idx in range(len(triggerSignal)-2*mean):
