@@ -242,33 +242,10 @@
       <string>Trigger</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="checkBox">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>Single trigger</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Triggerlevel:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="triggerLevelSpinBox">
-        <property name="suffix">
-         <string> V</string>
-        </property>
-        <property name="decimals">
-         <number>3</number>
-        </property>
-        <property name="maximum">
-         <double>99990000.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.001000000000000</double>
+         <string>Channel:</string>
         </property>
        </widget>
       </item>
@@ -286,20 +263,36 @@
         </item>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Channel:</string>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="triggerLevelSpinBox">
+        <property name="suffix">
+         <string> V</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="minimum">
+         <double>-99990000.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>99990000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.001000000000000</double>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QPushButton" name="enableTriggerButton">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Enable Trigger</string>
+         <string>Triggerlevel:</string>
         </property>
-        <property name="checkable">
-         <bool>true</bool>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
+         <string>Single trigger</string>
         </property>
        </widget>
       </item>
@@ -329,6 +322,42 @@
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Triggerflanke:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QPushButton" name="enableTriggerButton">
+        <property name="text">
+         <string>Enable Trigger</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="smoothSpinBox">
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="decimals">
+         <number>0</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.001000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Smooth-Trigger:</string>
         </property>
        </widget>
       </item>
