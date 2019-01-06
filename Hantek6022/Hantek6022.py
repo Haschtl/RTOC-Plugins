@@ -48,6 +48,10 @@ class Plugin(LoggerPlugin):
         self.yData1 = deque(maxlen=self.recordLength)
         self.yData2 = deque(maxlen=self.recordLength)
 
+        self.yData1Triggered = deque(maxlen=self.recordLength)
+        self.yData2Triggered = deque(maxlen=self.recordLength)
+        self.singleTriggerFound = False
+
     # def close(self):
     #     self.run=False
 
@@ -138,41 +142,81 @@ class Plugin(LoggerPlugin):
             self.widget.reconnectButton.setEnabled(True)
 
     def __trigger(self, data1, data2):
-        if self.widget.channel2CheckBox.isChecked() and self.widget.triggerChannelComboBox.currentText()=='CH2':
-            triggerSignal = list(data2)
-        else:
-            triggerSignal = list(data1)
+        if not self.singleTriggerFound:
+            if self.widget.channel2CheckBox.isChecked() and self.widget.triggerChannelComboBox.currentText()=='CH2':
+                triggerSignal = list(data2)
+            else:
+                triggerSignal = list(data1)
 
-        flanke = self.widget.comboBox.currentText()
-        triggerLevel = self.widget.triggerLevelSpinBox.value()
-        cutoff = 0
-        mean = int(self.widget.smoothSpinBox.value())
-        if mean >= len(triggerSignal):
-            mean = 10
+            flanke = self.widget.comboBox.currentText()
+            triggerLevel = self.widget.triggerLevelSpinBox.value()
+            cutoff = 0
+            mean = int(self.widget.smoothSpinBox.value())
+            if mean >= len(triggerSignal):
+                mean = 10
 
-        if flanke == 'Rising':
-            for idx in range(len(triggerSignal)-2*mean):
-                if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])>triggerLevel and np.mean(triggerSignal[idx:idx+mean])<=triggerLevel:
-                    cutoff = idx+mean
-                    break
-                if idx>=len(triggerSignal)/10:
-                    break
-        else:
-            for idx in range(len(triggerSignal)-2*mean):
-                if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])<triggerLevel and np.mean(triggerSignal[idx:idx+mean])>=triggerLevel:
-                    cutoff = idx+mean
-                    break
-                if idx>=len(triggerSignal)/10:
-                    break
+            # if flanke == 'Rising':
+            #     for idx in range(len(triggerSignal)-2*mean):
+            #         if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])>triggerLevel and np.mean(triggerSignal[idx:idx+mean])<=triggerLevel:
+            #             cutoff = idx+mean
+            #             break
+            #         if idx>=len(triggerSignal)/10:
+            #             break
+            # else:
+            #     for idx in range(len(triggerSignal)-2*mean):
+            #         if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])<triggerLevel and np.mean(triggerSignal[idx:idx+mean])>=triggerLevel:
+            #             cutoff = idx+mean
+            #             break
+            #         if idx>=len(triggerSignal)/10:
+            #             break
+            triggerPrepared = False
 
-        if cutoff!=0 and self.widget.checkBox.isChecked():
-            stop = True
-        else:
+            if flanke == 'Rising':
+                if max(triggerSignal)>triggerLevel:
+                    for idx in range(len(triggerSignal)):
+                        if triggerSignal[idx]>=triggerLevel-mean:
+                            triggerPrepared = True
+                        elif triggerSignal[idx]<triggerLevel-mean:
+                            triggerPrepared = False
+                        elif triggerSignal[idx]>triggerLevel and triggerPrepared == True:
+                            cutoff = idx
+                            break
+            else:
+                if min(triggerSignal)>triggerLevel:
+                    for idx in range(len(triggerSignal)):
+                        if triggerSignal[idx]<=triggerLevel+mean:
+                            triggerPrepared = True
+                        elif triggerSignal[idx]>triggerLevel+mean:
+                            triggerPrepared = False
+                        elif triggerSignal[idx]<triggerLevel and triggerPrepared == True:
+                            cutoff = idx
+                            break
             stop = False
-        if len(data2)>cutoff:
-            data2 = list(data2)[cutoff:]
-        if len(data1)>cutoff:
-            data1 = list(data1)[cutoff:]
+
+
+            if len(data2)>cutoff:
+                data2 = list(data2)[cutoff:]
+            if len(data1)>cutoff:
+                data1 = list(data1)[cutoff:]
+
+            if cutoff!=0 and self.widget.checkBox.isChecked() and not self.singleTriggerFound:
+                self.singleTriggerFound = True
+            else:
+                self.singleTriggerFound = False
+            if self.widget.checkBox.isChecked():
+                self.yData1Triggered = deque(list(data1),maxlen=self.recordLength)
+                self.yData2Triggered = deque(list(data2),maxlen=self.recordLength)
+        else:
+            if len(self.yData1Triggered)+len(data1)<self.recordLength:
+                self.yData1Triggered.extend(data1)
+                self.yData2Triggered.extend(data2)
+            else:
+                self.yData1Triggered.extend(data1[0:self.recordLength-len(self.yData1Triggered)])
+                self.yData2Triggered.extend(data2[0:self.recordLength-len(self.yData1Triggered)])
+                stop = True
+                data1 = self.yData1Triggered
+                data2 = self.yData2Triggered
+
         return data1, data2, stop
 
     def updateScopeSettings(self):
@@ -283,10 +327,12 @@ class Plugin(LoggerPlugin):
             voltage_data = self.scope.scale_read_data(ch2_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
             self.yData2.extend(voltage_data)
 
-    def changeLength(self, newlen=5000):
+    def changeLength(self, newlen=10000):
         self.recordLength = newlen
         self.yData1 = deque(maxlen=self.recordLength)
         self.yData2 = deque(maxlen=self.recordLength)
+        self.yData1Triggered = deque(maxlen=self.recordLength)
+        self.yData2Triggered = deque(maxlen=self.recordLength)
         self.updateScopeSettings()
 
 
