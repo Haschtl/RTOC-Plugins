@@ -213,14 +213,14 @@ class Plugin(LoggerPlugin):
                 self.yData1Triggered = deque(list(data1),maxlen=self.recordLength)
                 self.yData2Triggered = deque(list(data2),maxlen=self.recordLength)
         else:
-            if len(self.yData1Triggered)+len(data1)<self.recordLength:
-                self.yData1Triggered.extend(data1)
-                self.yData2Triggered.extend(data2)
+            if len(self.yData1Triggered)<self.recordLength:
+                # self.yData1Triggered.extend(data1)
+                # self.yData2Triggered.extend(data2)
+                pass
             else:
-                self.yData1Triggered.extend(data1[0:self.recordLength-len(self.yData1Triggered)])
-                self.yData2Triggered.extend(data2[0:self.recordLength-len(self.yData2Triggered)])
+                #self.yData1Triggered.extend(data1[0:self.recordLength-len(self.yData1Triggered)])
+                #self.yData2Triggered.extend(data2[0:self.recordLength-len(self.yData1Triggered)])
                 stop = True
-                self.singleTriggerFound = False
                 data1 = self.yData1Triggered
                 data2 = self.yData2Triggered
 
@@ -329,10 +329,20 @@ class Plugin(LoggerPlugin):
         voltage_data = self.scope.scale_read_data(ch1_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
         if len(voltage_data)>1:
             self.yData1.extend(voltage_data)
+            if len(self.yData1Triggered)<self.recordLength:
+                if len(self.yData1Triggered)+len(voltage_data)<self.recordLength:
+                     self.yData1Triggered.extend(voltage_data)
+                else:
+                    self.yData1Triggered.extend(voltage_data[0:self.recordLength-len(self.yData1Triggered)])
 
         if ch2_data != '':
             voltage_data = self.scope.scale_read_data(ch2_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
             self.yData2.extend(voltage_data)
+            if len(self.yData2Triggered)<self.recordLength:
+                if len(self.yData2Triggered)+len(voltage_data)<self.recordLength:
+                     self.yData2Triggered.extend(voltage_data)
+                else:
+                    self.yData2Triggered.extend(voltage_data[0:self.recordLength-len(self.yData2Triggered)])
 
     def changeLength(self, newlen=10000):
         self.recordLength = newlen
