@@ -32,5 +32,5 @@ class Piko():
         return data, names, units
 
 if __name__ == "__main__":
-    p = Piko('192.168.178.27')
+    p = Piko('stadel4')
     print(p.get_data())
