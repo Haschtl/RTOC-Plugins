@@ -15,8 +15,10 @@ class Piko():
             urllib.request.urlopen(self.host)
         except ValueError:
             return False, False, False        # URL not well formatted
+            print('URL not well formatted: '+self.host)
         except urllib.request.URLError:
             return False, False, False        # URL don't seem to be alive
+            print("URL don't seem to be alive: "+self.host)
 
         password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self.host, self.username, self.password)

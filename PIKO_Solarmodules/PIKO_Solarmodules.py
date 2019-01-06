@@ -25,12 +25,7 @@ class Plugin(LoggerPlugin):
 
         self.pikoservers = []
         for a in ADRESSES:
-            try:
-                a = Piko(a)
-                self.pikoservers.append(a)
-            except:
-                print(traceback.format_exc())
-                print('Problem with initial connection to PIKO-Adress: '+a)
+            self.pikoservers.append(Piko(a))
         self.__updater = Thread(target=self.__updateT)    # Actualize data
         self.__updater.start()
 
