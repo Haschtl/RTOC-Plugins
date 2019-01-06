@@ -220,6 +220,7 @@ class Plugin(LoggerPlugin):
             else:
                 #self.yData1Triggered.extend(data1[0:self.recordLength-len(self.yData1Triggered)])
                 #self.yData2Triggered.extend(data2[0:self.recordLength-len(self.yData1Triggered)])
+                self.singleTriggerFound = False
                 stop = True
                 data1 = self.yData1Triggered
                 data2 = self.yData2Triggered
