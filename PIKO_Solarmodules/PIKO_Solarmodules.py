@@ -13,7 +13,8 @@ devicename = "PIKO"
 
 samplerate = 1
 
-ADRESSES = ['wh5','wh10','stadel10','stadel4']
+ADRESSES = ['192.168.178.26','192.168.178.27','192.168.178.24','192.168.178.25']
+NAMES = ['wh5','wh10','stadel10','stadel4']
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
@@ -44,7 +45,7 @@ class Plugin(LoggerPlugin):
             try:
                 data, datanames, dataunits = s.get_data()
                 if data != False:
-                    self.stream(data, datanames, devicename+'_'+ADRESSES[idx], dataunits)
+                    self.stream(data, datanames, devicename+'_'+NAMES[idx], dataunits)
             except:
                 print(traceback.format_exc())
                 print('Problem with getting data from '+ADRESSES[idx])
