@@ -182,6 +182,7 @@ class Plugin(LoggerPlugin):
                             print(' ... unprepared')
                         elif triggerSignal[idx]>triggerLevel and triggerPrepared == True:
                             cutoff = idx
+                            print('Triggered')
                             break
             else:
                 if min(triggerSignal)<triggerLevel:
@@ -194,6 +195,7 @@ class Plugin(LoggerPlugin):
                             print(' ... unprepared')
                         elif triggerSignal[idx]<triggerLevel and triggerPrepared == True:
                             cutoff = idx
+                            print('Triggered')
                             break
             stop = False
 
