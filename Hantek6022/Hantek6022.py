@@ -174,7 +174,7 @@ class Plugin(LoggerPlugin):
             if flanke == 'Rising':
                 if max(triggerSignal)>triggerLevel:
                     for idx in range(len(triggerSignal)):
-                        if triggerSignal[idx]>=triggerLevel-mean:
+                        if triggerSignal[idx]>=triggerLevel-mean and triggerSignal[idx]<=triggerLevel:
                             triggerPrepared = True
                             print('Trigger prepared')
                         elif triggerSignal[idx]<triggerLevel-mean and triggerPrepared:
@@ -187,7 +187,7 @@ class Plugin(LoggerPlugin):
             else:
                 if min(triggerSignal)<triggerLevel:
                     for idx in range(len(triggerSignal)):
-                        if triggerSignal[idx]<=triggerLevel+mean:
+                        if triggerSignal[idx]<=triggerLevel+mean and triggerSignal[idx]>=triggerLeve:
                             triggerPrepared = True
                             print('Trigger prepared')
                         elif triggerSignal[idx]>triggerLevel+mean  and triggerPrepared:
