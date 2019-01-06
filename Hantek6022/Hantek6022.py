@@ -63,10 +63,11 @@ class Plugin(LoggerPlugin):
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
-            if len(self.xData)>1 and len(self.xData) == len(self.yData1):
-                self.plot(self.xData, self.yData1, dname='Hantek', sname='CH1', unit='V')
-            if self.widget.channel2CheckBox.isChecked() and len(self.xData) == len(self.yData2):
-                self.plot(self.xData, self.yData2, dname='Hantek', sname='CH2', unit='V')
+            if not self.widget.pauseButton.isChecked():
+                if len(self.xData)>1 and len(self.xData) == len(self.yData1):
+                    self.plot(self.xData, self.yData1, dname='Hantek', sname='CH1', unit='V')
+                if self.widget.channel2CheckBox.isChecked() and len(self.xData) == len(self.yData2):
+                    self.plot(self.xData, self.yData2, dname='Hantek', sname='CH2', unit='V')
             diff = (time.time() - start_time)
 
         self.__capturer.join()
@@ -94,11 +95,11 @@ class Plugin(LoggerPlugin):
         self.widget.recordLengthSpinBox.valueChanged.connect(self.changeLength)
         #self.widget.channel1CheckBox.valueChanged.connect(self.enableChannel1)
         self.widget.channel1CheckBox.setEnabled(False)
-        #self.widget.channel1ACDCComboBox.valueChanged.connect(self.)
+        self.widget.channel1ACDCComboBox.hide()#valueChanged.connect(self.)
         self.widget.channel1VoltPDivComboBox.currentTextChanged.connect(self.updateScopeSettings)
         self.widget.channel2VoltPDivComboBox.currentTextChanged.connect(self.updateScopeSettings)
         self.widget.channel2CheckBox.stateChanged.connect(self.updateScopeSettings)
-        #self.widget.channel2ACDCComboBox.valueChanged.connect(self.)
+        self.widget.channel2ACDCComboBox.hide()#valueChanged.connect(self.)
         #self.widget.pauseButton.clicked.connect(self.)
 
         #self.widget.triggerChannelComboBox.textChanged.connect(self.)
