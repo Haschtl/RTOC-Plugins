@@ -3,29 +3,7 @@
   "name":"Hantek6022",
   "dependencies":["libusb1"],
   "files":["Hantek6022API-master/*", "Hantek6022/*", "Hantek6022.py"],
-  "Info":"""
-cd Hantek6022API/PyHT6022/HantekFirmware/fx2lib
-make
-make docs
-cd fw
-make
-
-cd ..
-cd ..
-cd ..
-
-sudo cp 60-hantek-6022-usb.rules /lib/udev/rules.d/
-
-sudo apt install sdcc
-cd PyHT6022/HantekFirmware/custom
-make
-
-cd ..
-cd ..
-cd ..
-
-python3 setup.py install
-  """,
+  "Info":"cd Hantek6022API/PyHT6022/HantekFirmware/fx2lib\nmake\nmake docs\ncd fw\nmake\n\ncd ..\ncd ..\ncd ..\n\nsudo cp 60-hantek-6022-usb.rules /lib/udev/rules.d/\n\nsudo apt install sdcc\ncd PyHT6022/HantekFirmware/custom\nmake\n\ncd ..\ncd ..\ncd ..\npython3 setup.py install",
   "OS":"Linux",
   "GUI": true
 }
