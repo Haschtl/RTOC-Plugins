@@ -27,7 +27,7 @@ class Plugin(LoggerPlugin):
             try:
                 self.pikoservers.append(Piko(a))
             except:
-                print('Problem with PIKO-Adress: '+a)
+                print('Problem with initial connection to PIKO-Adress: '+a)
         self.__updater = Thread(target=self.__updateT)    # Actualize data
         self.__updater.start()
 
@@ -43,5 +43,8 @@ class Plugin(LoggerPlugin):
 
     def streamData(self):
         for idx, s in enumerate(self.pikoservers):
-            data, datanames, dataunits = s.get_data()
-            self.stream(data, datanames, devicename+'_'+ADRESSES[idx], dataunits)
+            try:
+                data, datanames, dataunits = s.get_data()
+                self.stream(data, datanames, devicename+'_'+ADRESSES[idx], dataunits)
+            except:
+                print('Problem with getting data from '+ADRESSES[idx])
