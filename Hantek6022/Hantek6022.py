@@ -28,6 +28,8 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
         self.smallGUI = False
 
+        #self.data = []
+        #self.data_extend = self.data.append
         # Data-logger thread
         self.scope = None
         self.run = False  # False -> stops thread
@@ -35,6 +37,8 @@ class Plugin(LoggerPlugin):
         # self.updater.start()
         self.blocksize = 6*1024      # should be divisible by 6*1024
         self.alternative = 1         # choose ISO 3072 bytes per 125 us
+        self.last_time = time.time()
+        self.samplerate = 1
 
     def close(self):
         if self.scope:
@@ -42,21 +46,20 @@ class Plugin(LoggerPlugin):
 
     # THIS IS YOUR THREAD
     def updateT(self):
-        diff = 0
+        #self.data = []
+        #start_time = time.time()
+        #print("Clearing FIFO and starting data transfer...")
+        self.last_time = time.time()
+        shutdown_event = self.scope.read_async(self.extend_callback, self.blocksize, outstanding_transfers=10,raw=True)
+        self.scope.start_capture()
         while self.run:
-            if not self.widget.pauseButton.isChecked():
-                if diff < 1/self.samplerate:
-                    time.sleep(1/self.samplerate-diff)
-                start_time = time.time()
-                #y, name, units = self.helio_get()
-                #if y is not None:
-                #    self.stream(y, name, 'Heliotherm', units)
-                x,y =self.__getData()
-                self.plot(x,y)
-                print('I cannot plot anything :(')
-                diff = (time.time() - start_time)
-            else:
-                time.sleep(0.1)
+            self.scope.poll()
+        # print("Stopping new transfers.")
+        #scope.stop_capture()
+        shutdown_event.set()
+        #time.sleep(1)
+        self.scope.stop_capture()
+        self.scope.close_handle()
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
@@ -64,12 +67,12 @@ class Plugin(LoggerPlugin):
         uic.loadUi(packagedir+"/Hantek6022/hantek.ui", self.widget)
         # self.setCallbacks()
         self.widget.reconnectButton.clicked.connect(self.__openConnectionCallback)
-        self.widget.samplerateComboBox.textChanged.connect(self.__changeSamplerate)
+        self.widget.samplerateComboBox.currentTextChanged.connect(self.__changeSamplerate)
         #self.widget.recordLengthSpinBox.valueChanged.connect(self.)
         #self.widget.channel1CheckBox.valueChanged.connect(self.enableChannel1)
         #self.widget.channel1ACDCComboBox.valueChanged.connect(self.)
-        self.widget.channel1VoltPDivComboBox.textChanged.connect(self.__changeChannel1VoltPDiv)
-        self.widget.channel2VoltPDivComboBox.textChanged.connect(self.__changeChannel2VoltPDiv)
+        self.widget.channel1VoltPDivComboBox.currentTextChanged.connect(self.__changeChannel1VoltPDiv)
+        self.widget.channel2VoltPDivComboBox.currentTextChanged.connect(self.__changeChannel2VoltPDiv)
         #self.widget.channel2CheckBox.valueChanged.connect(self.enableChannel2)
         #self.widget.channel2ACDCComboBox.valueChanged.connect(self.)
         #self.widget.pauseButton.clicked.connect(self.)
@@ -86,6 +89,7 @@ class Plugin(LoggerPlugin):
             self.run = False
             self.widget.reconnectButton.setText("Reconnect")
             self.__base_address = ""
+            self.widget.reconnectButton.setEnabled(True)
         else:
             self.scope = Oscilloscope()
             self.scope.setup()
@@ -107,6 +111,7 @@ class Plugin(LoggerPlugin):
             self.__updater = Thread(target=self.updateT)
             self.__updater.start()
             self.widget.reconnectButton.setText("Stop")
+            self.widget.reconnectButton.setEnabled(True)
 
 
     def set_sampling_rate(self, samplerate): # sample rate in MHz or in 10khz
@@ -120,59 +125,69 @@ class Plugin(LoggerPlugin):
             self.scope.set_dso_calibration(cal_level)
 
     def __changeSamplerate(self, strung):
+        self.set_sampling_rate(self.str2SamplerateID(strung))
+
+    def str2SamplerateID(self,strung):
         if 'MHz' in strung:
             strung = strung.replace(' MHz','')
-            self.set_sampling_rate(int(strung))
+            return int(strung)
         else:
-            strung = strung.replace(' MHz','')
-            self.set_sampling_rate(int(strung)/10)
+            strung = strung.replace(' kHz','')
+            return int(strung)/10
 
     def __changeChannel1VoltPDiv(self, strung):
         if self.scope:
-            voltagerange = 1
-            if strung == '2.6 V':
-                voltagerange = 2
-            elif strung == '5 V':
-                voltagerange = 5
-            elif strung == '10 V':
-                voltagerange = 10
+            voltagerange = self.strVoltageToID(strung)
             self.scope.set_ch1_voltage_range(voltagerange)
 
     def __changeChannel2VoltPDiv(self, strung):
         if self.scope:
-            voltagerange = 1
-            if strung == '2.6 V':
-                voltagerange = 2
-            elif strung == '5 V':
-                voltagerange = 5
-            elif strung == '10 V':
-                voltagerange = 10
+            voltagerange = self.strVoltageToID(strung)
             self.scope.set_ch2_voltage_range(voltagerange)
 
-    def __getData(self):
-        if self.scope:
-            data = []
-            data_extend = data.append
-            def extend_callback(ch1_data, _):
-                global data_extend
-                data_extend(ch1_data)
+    def strVoltageToID(self, strung):
+        voltagerange = 1
+        if strung == '2.6 V':
+            voltagerange = 2
+        elif strung == '5 V':
+            voltagerange = 5
+        elif strung == '10 V':
+            voltagerange = 10
+        return voltagerange
 
-            start_time = time.time()
-            print("Clearing FIFO and starting data transfer...")
-            shutdown_event = self.scope.read_async(extend_callback, self.blocksize, outstanding_transfers=10,raw=True)
-            self.scope.start_capture()
-            while time.time() - start_time < 0.1:
-                self.scope.poll()
-            print("Stopping new transfers.")
-            #scope.stop_capture()
-            shutdown_event.set()
-            #time.sleep(1)
-            self.scope.stop_capture()
-            #scope.close_handle()
-            x = np.linspace(start_time, time.time(),len(data))
-            return x, data
-        else:
-            return [0],[0]
+    def extend_callback(self, ch1_data, _):
+        voltage_data = self.scope.scale_read_data(ch1_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
+        #print(voltage_data)
+        if len(voltage_data)>1:
+            #timing_data = np.linspace(self.last_time, time.time(),len(voltage_data))
+            self.last_time = time.time()
+            timing_data, _ = self.scope.convert_sampling_rate_to_measurement_times(len(voltage_data), self.str2SamplerateID(self.widget.samplerateComboBox.currentText()))
+            #self.data_extend(ch1_data)
+            self.plot(timing_data,voltage_data, hold='on', unit='V')
+
+    # def __getData(self):
+    #     if self.scope:
+    #         self.data = []
+    #
+    #
+    #         start_time = time.time()
+    #         #print("Clearing FIFO and starting data transfer...")
+    #         shutdown_event = self.scope.read_async(self.extend_callback, self.blocksize, outstanding_transfers=10,raw=True)
+    #         self.scope.start_capture()
+    #         while time.time() - start_time < 0.1:
+    #             self.scope.poll()
+    #         # print("Stopping new transfers.")
+    #         #scope.stop_capture()
+    #         shutdown_event.set()
+    #         #time.sleep(1)
+    #         self.scope.stop_capture()
+    #         #scope.close_handle()
+    #         #x = np.linspace(start_time, time.time(),len(self.data))
+    #         voltage_data = self.scope.scale_read_data(self.data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
+    #         timing_data, _ = self.scope.convert_sampling_rate_to_measurement_times(len(voltage_data), self.str2SamplerateID(self.widget.samplerateComboBox.currentText()))
+    #         return timing_data, voltage_data
+    #     else:
+    #         return [0],[0]
 
 
 if __name__ == "__main__":
