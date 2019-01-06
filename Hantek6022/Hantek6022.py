@@ -43,7 +43,7 @@ class Plugin(LoggerPlugin):
         self.samplerate = 10
 
         self.recordLength = 5000
-        #self.blocksize = self.recordLength
+        self.blocksize = self.recordLength
         #self.xData = deque(maxlen=self.recordLength)
         self.yData1 = deque(maxlen=self.recordLength)
         self.yData2 = deque(maxlen=self.recordLength)
@@ -160,8 +160,6 @@ class Plugin(LoggerPlugin):
                 if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])<triggerLevel and np.mean(triggerSignal[idx:idx+mean])>=triggerLevel:
                     cutoff = idx+mean
                     break
-        if cutoff == 0:
-            print('could not trigger')
 
         if cutoff!=0 and self.widget.checkBox.isChecked():
             stop = True
@@ -273,33 +271,9 @@ class Plugin(LoggerPlugin):
         return voltagerange
 
     def extend_callback(self, ch1_data, ch2_data):
-        #print(ch2_data)
         voltage_data = self.scope.scale_read_data(ch1_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
-        #print(voltage_data)
-
-        # if len(self.yData1)==0:
-        #     last = time.time()
-        # else:
-        #     last = self.xData[-1]+1/samplerate
-        # last = time.time()
         if len(voltage_data)>1:
-            #timing_data = np.linspace(self.last_time, time.time(),len(voltage_data))
-            #self.last_time = time.time()
-            #timing_data, _ = self.scope.convert_sampling_rate_to_measurement_times(len(voltage_data), self.str2SamplerateID(self.widget.samplerateComboBox.currentText()))
-            #self.data_extend(ch1_data)
-            #self.plot(timing_data,voltage_data, hold='on', unit='V')
-            #now = time.time()
-
-
-            #timing_data = [last + i/samplerate for i in range(len(voltage_data))]
-            #timing_data = [last - i/samplerate for i in reversed(range(len(voltage_data)))]
-            #timing_data = []
-            # for i in reversed(range(len(voltage_data))):
-            #     d = last + i/samplerate
-            #     timing_data.append(d)
-            #self.xData.extend(timing_data)
             self.yData1.extend(voltage_data)
-            #self.xData = [i/samplerate for i in range(len(self.yData1))]
 
         if ch2_data != '':
             voltage_data = self.scope.scale_read_data(ch2_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
@@ -307,33 +281,9 @@ class Plugin(LoggerPlugin):
 
     def changeLength(self, newlen=5000):
         self.recordLength = newlen
-        #self.xData = deque(maxlen=self.recordLength)
         self.yData1 = deque(maxlen=self.recordLength)
         self.yData2 = deque(maxlen=self.recordLength)
-        #self.updateScopeSettings()
-    # def __getData(self):
-    #     if self.scope:
-    #         self.data = []
-    #
-    #
-    #         start_time = time.time()
-    #         #print("Clearing FIFO and starting data transfer...")
-    #         shutdown_event = self.scope.read_async(self.extend_callback, self.blocksize, outstanding_transfers=10,raw=True)
-    #         self.scope.start_capture()
-    #         while time.time() - start_time < 0.1:
-    #             self.scope.poll()
-    #         # print("Stopping new transfers.")
-    #         #scope.stop_capture()
-    #         shutdown_event.set()
-    #         #time.sleep(1)
-    #         self.scope.stop_capture()
-    #         #scope.close_handle()
-    #         #x = np.linspace(start_time, time.time(),len(self.data))
-    #         voltage_data = self.scope.scale_read_data(self.data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
-    #         timing_data, _ = self.scope.convert_sampling_rate_to_measurement_times(len(voltage_data), self.str2SamplerateID(self.widget.samplerateComboBox.currentText()))
-    #         return timing_data, voltage_data
-    #     else:
-    #         return [0],[0]
+        self.updateScopeSettings()
 
 
 if __name__ == "__main__":
