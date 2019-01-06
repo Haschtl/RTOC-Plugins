@@ -43,13 +43,16 @@ class Plugin(LoggerPlugin):
         self.samplerate = 10
 
         self.recordLength = 5000
-        self.xData = deque(maxlen=self.recordLength)
+        #self.blocksize = self.recordLength
+        #self.xData = deque(maxlen=self.recordLength)
         self.yData1 = deque(maxlen=self.recordLength)
         self.yData2 = deque(maxlen=self.recordLength)
 
-    def close(self):
-        if self.scope:
-            self.scope.close_handle()
+    # def close(self):
+    #     self.run=False
+
+        # if self.scope:
+        #     self.scope.close_handle()
 
     # THIS IS YOUR THREAD
     def updateT(self):
@@ -64,10 +67,20 @@ class Plugin(LoggerPlugin):
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
             if not self.widget.pauseButton.isChecked():
-                if len(self.xData)>1 and len(self.xData) == len(self.yData1):
-                    self.plot(self.xData, self.yData1, dname='Hantek', sname='CH1', unit='V')
-                if self.widget.channel2CheckBox.isChecked() and len(self.xData) == len(self.yData2):
-                    self.plot(self.xData, self.yData2, dname='Hantek', sname='CH2', unit='V')
+                if self.widget.enableTriggerButton.isChecked():
+                    yData1, yData2, stop = self.__trigger(list(self.yData1),list(self.yData2))
+                else:
+                    yData1 = self.yData1
+                    yData2 = self.yData2
+                    stop = False
+                samplerate = self.str2Samplerate(self.widget.samplerateComboBox.currentText())
+                xData = [i/samplerate for i in range(len(yData1))]
+                if len(self.yData1)>1:
+                    self.plot(xData, yData1, dname='Hantek', sname='CH1', unit='V')
+                if self.widget.channel2CheckBox.isChecked():
+                    self.plot(xData, yData2, dname='Hantek', sname='CH2', unit='V')
+                if stop:
+                    self.widget.pauseButton.setChecked(True)
             diff = (time.time() - start_time)
 
         self.__capturer.join()
@@ -82,7 +95,7 @@ class Plugin(LoggerPlugin):
         #scope.stop_capture()
         self.scope.stop_capture()
         shutdown_event.set()
-        #time.sleep(1)
+        time.sleep(0.1)
         self.scope.close_handle()
 
     def loadGUI(self):
@@ -124,6 +137,42 @@ class Plugin(LoggerPlugin):
             self.widget.reconnectButton.setText("Stop")
             self.widget.reconnectButton.setEnabled(True)
 
+    def __trigger(self, data1, data2):
+        if self.widget.channel2CheckBox.isChecked() and self.widget.triggerChannelComboBox.currentText()=='CH2':
+            triggerSignal = list(data2)
+        else:
+            triggerSignal = list(data1)
+
+        flanke = self.widget.comboBox.currentText()
+        triggerLevel = self.widget.triggerLevelSpinBox.value()
+        cutoff = 0
+        mean = int(self.widget.smoothSpinBox.value())
+        if mean >= len(triggerSignal):
+            mean = 10
+
+        if flanke == 'Rising':
+            for idx in range(len(triggerSignal)-2*mean):
+                if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])>triggerLevel and np.mean(triggerSignal[idx:idx+mean])<=triggerLevel:
+                    cutoff = idx+mean
+                    break
+        else:
+            for idx in range(len(triggerSignal)-2*mean):
+                if np.mean(triggerSignal[idx+mean+1:idx+2*mean-1])<triggerLevel and np.mean(triggerSignal[idx:idx+mean])>=triggerLevel:
+                    cutoff = idx+mean
+                    break
+        if cutoff == 0:
+            print('could not trigger')
+
+        if cutoff!=0 and self.widget.checkBox.isChecked():
+            stop = True
+        else:
+            stop = False
+        if len(data2)>cutoff:
+            data2 = list(data2)[cutoff:]
+        if len(data1)>cutoff:
+            data1 = list(data1)[cutoff:]
+        return data1, data2, stop
+
     def updateScopeSettings(self):
         if self.scope:
             self.run = False
@@ -151,6 +200,8 @@ class Plugin(LoggerPlugin):
         self.scope.set_ch2_voltage_range(voltagerange2)
 
         self.scope.set_sample_rate(self.str2SamplerateID(self.widget.samplerateComboBox.currentText()))
+
+        self.blocksize = self.recordLength
 
         self.run = True
         self.__updater = Thread(target=self.updateT)
@@ -225,11 +276,12 @@ class Plugin(LoggerPlugin):
         #print(ch2_data)
         voltage_data = self.scope.scale_read_data(ch1_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
         #print(voltage_data)
-        samplerate = self.str2Samplerate(self.widget.samplerateComboBox.currentText())
-        if len(self.yData1)==0:
-            last = 0#time.time()
-        else:
-            last = self.xData[-1]+1/samplerate
+
+        # if len(self.yData1)==0:
+        #     last = time.time()
+        # else:
+        #     last = self.xData[-1]+1/samplerate
+        # last = time.time()
         if len(voltage_data)>1:
             #timing_data = np.linspace(self.last_time, time.time(),len(voltage_data))
             #self.last_time = time.time()
@@ -239,13 +291,15 @@ class Plugin(LoggerPlugin):
             #now = time.time()
 
 
-            timing_data = [last + i/samplerate for i in range(len(voltage_data))]
+            #timing_data = [last + i/samplerate for i in range(len(voltage_data))]
+            #timing_data = [last - i/samplerate for i in reversed(range(len(voltage_data)))]
             #timing_data = []
             # for i in reversed(range(len(voltage_data))):
             #     d = last + i/samplerate
             #     timing_data.append(d)
-            self.xData.extend(timing_data)
+            #self.xData.extend(timing_data)
             self.yData1.extend(voltage_data)
+            #self.xData = [i/samplerate for i in range(len(self.yData1))]
 
         if ch2_data != '':
             voltage_data = self.scope.scale_read_data(ch2_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
@@ -253,10 +307,10 @@ class Plugin(LoggerPlugin):
 
     def changeLength(self, newlen=5000):
         self.recordLength = newlen
-        self.xData = deque(maxlen=self.recordLength)
+        #self.xData = deque(maxlen=self.recordLength)
         self.yData1 = deque(maxlen=self.recordLength)
         self.yData2 = deque(maxlen=self.recordLength)
-
+        #self.updateScopeSettings()
     # def __getData(self):
     #     if self.scope:
     #         self.data = []
