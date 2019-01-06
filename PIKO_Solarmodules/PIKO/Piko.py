@@ -11,6 +11,12 @@ class Piko():
 
     def get_data(self):
         """returns all values as a list"""
+        try:
+            urllib.request.urlopen(self.host)
+        except ValueError:
+            return False, False, False        # URL not well formatted
+        except urllib.request.URLError:
+            return False, False, False        # URL don't seem to be alive
 
         password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, self.host, self.username, self.password)

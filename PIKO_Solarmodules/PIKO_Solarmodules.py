@@ -48,7 +48,8 @@ class Plugin(LoggerPlugin):
         for idx, s in enumerate(self.pikoservers):
             try:
                 data, datanames, dataunits = s.get_data()
-                self.stream(data, datanames, devicename+'_'+ADRESSES[idx], dataunits)
+                if data != False:
+                    self.stream(data, datanames, devicename+'_'+ADRESSES[idx], dataunits)
             except:
                 print(traceback.format_exc())
                 print('Problem with getting data from '+ADRESSES[idx])
