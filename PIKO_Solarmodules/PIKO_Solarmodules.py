@@ -47,5 +47,5 @@ class Plugin(LoggerPlugin):
                 if data != False:
                     self.stream(data, datanames, devicename+'_'+NAMES[idx], dataunits)
             except:
-                print(traceback.format_exc())
+                #print(traceback.format_exc())
                 print('Problem with getting data from '+ADRESSES[idx])

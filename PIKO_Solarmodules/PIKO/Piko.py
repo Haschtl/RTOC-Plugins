@@ -34,7 +34,7 @@ class Piko():
             try:
                 data[idx] = int(d)
             except:
-                data[idx] = None
+                data[idx] = 0
         names = ['Current power','Total energy','Daily energy','Voltage','L1 Voltage', 'String1 Current', 'L1 Power', 'String2 Voltage','L2 Voltage', 'String2 Current','L2 Power', 'String3 Voltage', 'L3 Voltage','String3 Current', 'L3 Power']
         units = ['W','kWh','kWh','V','V', 'A', 'W','V','V','A','W','V','V','A','W']
         return data, names, units
