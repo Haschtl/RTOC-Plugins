@@ -216,7 +216,7 @@ class Plugin(LoggerPlugin):
             if len(self.yData1Triggered)<self.recordLength:
                 # self.yData1Triggered.extend(data1)
                 # self.yData2Triggered.extend(data2)
-                pass
+                stop = False
             else:
                 #self.yData1Triggered.extend(data1[0:self.recordLength-len(self.yData1Triggered)])
                 #self.yData2Triggered.extend(data2[0:self.recordLength-len(self.yData1Triggered)])
