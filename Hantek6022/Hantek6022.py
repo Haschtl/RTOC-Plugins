@@ -187,7 +187,7 @@ class Plugin(LoggerPlugin):
             else:
                 if min(triggerSignal)<triggerLevel:
                     for idx in range(len(triggerSignal)):
-                        if triggerSignal[idx]<=triggerLevel+mean and triggerSignal[idx]>=triggerLeve:
+                        if triggerSignal[idx]<=triggerLevel+mean and triggerSignal[idx]>=triggerLevel:
                             triggerPrepared = True
                             print('Trigger prepared')
                         elif triggerSignal[idx]>triggerLevel+mean  and triggerPrepared:
@@ -220,6 +220,7 @@ class Plugin(LoggerPlugin):
                 self.yData1Triggered.extend(data1[0:self.recordLength-len(self.yData1Triggered)])
                 self.yData2Triggered.extend(data2[0:self.recordLength-len(self.yData1Triggered)])
                 stop = True
+                self.singleTriggerFound = False
                 data1 = self.yData1Triggered
                 data2 = self.yData2Triggered
 
