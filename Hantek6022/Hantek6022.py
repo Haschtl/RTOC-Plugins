@@ -1,3 +1,5 @@
+## Hantek API from https://github.com/rpcope1/Hantek6022API/blob/master/PyHT6022/LibUsbScope.py
+
 try:
     from LoggerPlugin import LoggerPlugin
 except ImportError:
@@ -70,10 +72,17 @@ class Plugin(LoggerPlugin):
         self.widget.samplerateComboBox.currentTextChanged.connect(self.__changeSamplerate)
         #self.widget.recordLengthSpinBox.valueChanged.connect(self.)
         #self.widget.channel1CheckBox.valueChanged.connect(self.enableChannel1)
+        self.widget.channel1CheckBox.setEnabled(False)
         #self.widget.channel1ACDCComboBox.valueChanged.connect(self.)
+<<<<<<< HEAD
         self.widget.channel1VoltPDivComboBox.currentTextChanged.connect(self.__changeChannel1VoltPDiv)
         self.widget.channel2VoltPDivComboBox.currentTextChanged.connect(self.__changeChannel2VoltPDiv)
         #self.widget.channel2CheckBox.valueChanged.connect(self.enableChannel2)
+=======
+        self.widget.channel1VoltPDivComboBox.textChanged.connect(self.__changeChannel1VoltPDiv)
+        self.widget.channel2VoltPDivComboBox.textChanged.connect(self.__changeChannel2VoltPDiv)
+        self.widget.channel2CheckBox.valueChanged.connect(self.enableChannel2)
+>>>>>>> 6639ef4368de6e2c0c04ab81df3edb79d43a3ecf
         #self.widget.channel2ACDCComboBox.valueChanged.connect(self.)
         #self.widget.pauseButton.clicked.connect(self.)
 
@@ -144,6 +153,9 @@ class Plugin(LoggerPlugin):
         if self.scope:
             voltagerange = self.strVoltageToID(strung)
             self.scope.set_ch2_voltage_range(voltagerange)
+    def enableChannel2(self, value):
+        if value:
+            self.scope.
 
     def strVoltageToID(self, strung):
         voltagerange = 1

@@ -81,8 +81,14 @@
      </item>
      <item row="3" column="0">
       <widget class="QCheckBox" name="channel1CheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>CH1</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -233,6 +239,13 @@
       <string>Trigger</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
+         <string>Single trigger</string>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
@@ -277,13 +290,42 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QPushButton" name="enableTriggerButton">
         <property name="text">
          <string>Enable Trigger</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBox">
+        <item>
+         <property name="text">
+          <string>Rising</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>rising.png</normaloff>rising.png</iconset>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Falling</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>falling.png</normaloff>falling.png</iconset>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Triggerflanke:</string>
         </property>
        </widget>
       </item>
