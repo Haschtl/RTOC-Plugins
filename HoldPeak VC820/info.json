@@ -3,7 +3,7 @@
   "name":"HoldPeak VC820",
   "dependencies":["serial"],
   "files":["HoldPeak VC820.py", "holdPeak_VC820/*"],
-  "Info":"- You can set a parameters in file HoldPeak VC820.py:\n    - default_device = 'COM7'\n    - SERIAL_BAUDRATE = 2400\n    - SERIAL_BYTESIZE = 8\n    - SERIAL_TIMEOUT = 1\n  - You will need to run RTOC as root unless you set devices rules. See [this tutorial](http://ask.xmodulo.com/change-usb-device-permission-linux.html) for how to set device rules.",
+  "Info":"HoldPeakAPI from - [VC820Py from adnidor https://github.com/adnidor/vc820py\n- You can set a parameters in file HoldPeak VC820.py:\n    - default_device = 'COM7'\n    - SERIAL_BAUDRATE = 2400\n    - SERIAL_BYTESIZE = 8\n    - SERIAL_TIMEOUT = 1\n  - You will need to run RTOC as root unless you set devices rules. See [this tutorial](http://ask.xmodulo.com/change-usb-device-permission-linux.html) for how to set device rules.",
   "OS":"all",
   "GUI": true
 }
