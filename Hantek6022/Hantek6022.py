@@ -78,7 +78,7 @@ class Plugin(LoggerPlugin):
                     yData2 = self.yData2
                     stop = False
                 samplerate = self.str2Samplerate(self.widget.samplerateComboBox.currentText())
-                xData = [i/samplerate for i in range(len(yData1))]
+                xData = [(i-len(yData1))/samplerate for i in range(len(yData1))]
                 if len(self.yData1)>1:
                     self.plot(xData, yData1, dname='Hantek', sname='CH1', unit='V')
                 if self.widget.channel2CheckBox.isChecked():
