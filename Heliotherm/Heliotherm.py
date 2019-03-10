@@ -218,36 +218,39 @@ class Plugin(LoggerPlugin):
         #result = client.read_coils(0,1)
         resultWrite = self.c.read_holding_registers(100, 47)
         resultRead = self.c.read_input_registers(10,65)
-        for idx, d in enumerate(resultRead):
-            if d>=2 **16/2:
-                resultRead[idx] = 2 **16 - d
-        for idx, d in enumerate(resultWrite):
-            if d>=2 **16/2:
-                resultWrite[idx] = 2 **16 - d
-        if resultWrite is not None and resultRead is not None:
-            y = []
-            units = []
-            snames = []
-            for idx, value in enumerate(resultWrite):
-                if mappingWrite[idx][1]=='Unbekannt':
-                    #mappingWrite[idx][1] = str(mappingWrite[idx][0])
-                    pass
-                else:
-                    snames.append(mappingWrite[idx][1])
-                    y.append(resultWrite[idx]/mappingWrite[idx][2])
-                    units.append(mappingWrite[idx][3])
-            for idx, value in enumerate(resultRead):
-                if mappingRead[idx][1]=='Unbekannt':
-                    #mappingRead[idx][1] = str(mappingRead[idx][0])
-                    pass
-                else:
-                    snames.append(mappingRead[idx][1])
-                    y.append(resultRead[idx]/mappingRead[idx][2])
-                    units.append(mappingRead[idx][3])
-            return y, snames, units
+        if resultRead != None:
+            for idx, d in enumerate(resultRead):
+                if d>=2 **16/2:
+                    resultRead[idx] = 2 **16 - d
+            for idx, d in enumerate(resultWrite):
+                if d>=2 **16/2:
+                    resultWrite[idx] = 2 **16 - d
+            if resultWrite is not None and resultRead is not None:
+                y = []
+                units = []
+                snames = []
+                for idx, value in enumerate(resultWrite):
+                    if mappingWrite[idx][1]=='Unbekannt':
+                        #mappingWrite[idx][1] = str(mappingWrite[idx][0])
+                        pass
+                    else:
+                        snames.append(mappingWrite[idx][1])
+                        y.append(resultWrite[idx]/mappingWrite[idx][2])
+                        units.append(mappingWrite[idx][3])
+                for idx, value in enumerate(resultRead):
+                    if mappingRead[idx][1]=='Unbekannt':
+                        #mappingRead[idx][1] = str(mappingRead[idx][0])
+                        pass
+                    else:
+                        snames.append(mappingRead[idx][1])
+                        y.append(resultRead[idx]/mappingRead[idx][2])
+                        units.append(mappingRead[idx][3])
+                return y, snames, units
+            else:
+                self.widget.pushButton.setText("Fehler")
+                return None, None, None
         else:
-            self.widget.pushButton.setText("Fehler")
-            return None, None, None
+            print('Could not read registers.')
 
     def __changeSamplerate(self):
         self.samplerate = self.widget.samplerateSpinBox.value()

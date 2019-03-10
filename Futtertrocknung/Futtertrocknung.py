@@ -18,7 +18,7 @@ dht22 = Adafruit_DHT.DHT22
 i2c = busio.I2C(board.SCL, board.SDA)
 ccs1 = adafruit_ccs811.CCS811(i2c)
 ccs2 = adafruit_ccs811.CCS811(i2c, 0x5B)
-
+DHT_pins = {"A":24,"B":23,"C":27,"D":17}
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
@@ -27,20 +27,23 @@ class Plugin(LoggerPlugin):
 
         self.run = True
         self.samplerate = 1            # Function frequency in Hz (1/sec)
-        self.datanames = ['in2coolCO2', 'in2coolTVOC', 'out2coolCO2', 'out2coolTVOC', 'in2coolTemp', 'in2coolHumid', 'out2coolTemp', 'out2coolHumid']
-        self.dataunits = ['ppm', 'ppm','ppm','ppm','°C','%','°C','%']
-        self.data = [0,0,0,0,0,0,0,0]
+        self.datanames = ['aCO2', 'aTVOC', 'bCO2', 'bTVOC', 'aTemp', 'aHumid', 'bTemp', 'bHumid', 'cTemp', 'cHumid', 'dTemp', 'dHumid']
+        self.dataunits = ['ppm', 'ppm','ppm','ppm','°C','%','°C','%','°C','%','°C','%']
+        self.data = [0,0,0,0,0,0,0,0,0,0,0,0]
 
-        ccs1t = Thread(target=self.getCCS1Data)
-        ccs1t.start()
-        ccs2t = Thread(target=self.getCCS2Data)
-        ccs2t.start()
+        ccsat = Thread(target=self.getCCSAData)
+        ccsat.start()
+        ccsbt = Thread(target=self.getCCSBData)
+        ccsbt.start()
 
-        dht22_1 = Thread(target=self.getDHT22_1)
-        dht22_1.start()
-        dht22_2 = Thread(target=self.getDHT22_2)
-        dht22_2.start()
-
+        dht22_a = Thread(target=self.getDHT22,args=(DHT_pins["A"],4,5))
+        dht22_a.start()
+        dht22_b = Thread(target=self.getDHT22,args=(DHT_pins["B"],6,7))
+        dht22_b.start()
+        dht22_c = Thread(target=self.getDHT22,args=(DHT_pins["C"],8,9))
+        dht22_c.start()
+        dht22_d = Thread(target=self.getDHT22,args=(DHT_pins["D"],10,11))
+        dht22_d.start()
         self.__updater = Thread(target=self.__updateT)    # Actualize data
         self.__updater.start()
 
@@ -56,7 +59,7 @@ class Plugin(LoggerPlugin):
             self.stream(self.data, self.datanames, devname, self.dataunits)
             diff = (time.time() - start_time)
 
-    def getCCS1Data(self):
+    def getCCSAData(self):
         # Wait for the sensor to be ready and calibrate the thermistor
         while not ccs1.data_ready:
             pass
@@ -76,7 +79,7 @@ class Plugin(LoggerPlugin):
             except:
                 print("Error reading CCS811 [1]")
 
-    def getCCS2Data(self):
+    def getCCSBData(self):
         # Wait for the sensor to be ready and calibrate the thermistor
         while not ccs2.data_ready:
             pass
@@ -92,21 +95,12 @@ class Plugin(LoggerPlugin):
             except:
                 print("Error reading CCS811 [2]")
 
-    def getDHT22_1(self):
-        pin = 27
+    def getDHT22(self, pin, tIdx, hIdx):
         while self.run:
             time.sleep(1/self.samplerate)
             humidity, temperature = Adafruit_DHT.read_retry(dht22, pin)
-            self.data[4] = temperature
-            self.data[5] = humidity
-
-    def getDHT22_2(self):
-        pin = 17
-        while self.run:
-            time.sleep(1/self.samplerate)
-            humidity, temperature = Adafruit_DHT.read_retry(dht22, pin)
-            self.data[6] = temperature
-            self.data[7] = humidity
+            self.data[tIdx] = temperature
+            self.data[hIdx] = humidity
 
     def getControllerData(self):
         self.data['fanVelocity'] = '?'
