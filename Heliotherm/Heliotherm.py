@@ -251,6 +251,7 @@ class Plugin(LoggerPlugin):
                 return None, None, None
         else:
             print('Could not read registers.')
+            return None, None, None
 
     def __changeSamplerate(self):
         self.samplerate = self.widget.samplerateSpinBox.value()
