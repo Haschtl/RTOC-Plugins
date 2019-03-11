@@ -46,7 +46,7 @@ class Plugin(LoggerPlugin):
         self.flow_D = 0
         self.pressureRange = [0,10]
         self.flowRange = [0,10]
-        
+
         ccsat = Thread(target=self._getCCSAData)
         ccsat.start()
         ccsbt = Thread(target=self._getCCSBData)
@@ -151,9 +151,9 @@ class Plugin(LoggerPlugin):
 
 
 
-        eFrequency = '?'
-        ePressure = '?'
-        eFlow = '?'
+        eFrequency = 0
+        ePressure = 0
+        eFlow = 0
         pressureDesired = 0
         flowDesired = 0
         frequencyDesired = 0
