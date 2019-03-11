@@ -6,11 +6,9 @@ except ImportError:
 import time
 from threading import Thread
 import Adafruit_DHT
-import time
 import board
 import busio
 import adafruit_ccs811
-from subprocess import PIPE, Popen
 
 devicename = "Futtertrocknung"
 
@@ -19,10 +17,11 @@ dht22 = Adafruit_DHT.DHT22
 i2c = busio.I2C(board.SCL, board.SDA)
 ccs2 = adafruit_ccs811.CCS811(i2c)
 ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
-DHT_pins = {"A":24,"B":23,"C":27,"D":17}
+DHT_pins = {"A": 24, "B": 23, "C": 27, "D": 17}
+
 
 class Plugin(LoggerPlugin):
-    def __init__(self, stream=None, plot= None, event=None):
+    def __init__(self, stream=None, plot=None, event=None):
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
 
@@ -180,10 +179,10 @@ class Plugin(LoggerPlugin):
         self.stream([eFrequency,ePressure,eFlow, pressureDesired, flowDesired, frequencyDesired, rpiTemp],  ['eFrequency','ePressure','eFlow', 'pressureDesired', 'flowDesired', 'frequencyDesired', 'CPU'], dname=devicename, unit = ['U/min','bar','m³/min','bar','m³/min','U/min','°C'])
 
     def _get_cpu_temperature(self):
-        """get cpu temperature using vcgencmd"""
-        process = Popen(['vcgencmd', 'measure_temp'], stdout=PIPE)
-        output, _error = process.communicate()
-        return float(output[output.index('=') + 1:output.rindex("'")])
+        tFile = open('/sys/class/thermal/thermal_zone0/temp')
+        temp = float(tFile.read())
+        tempC = temp/1000
+        return tempC
 
     def setActive(self, active = True):
         pass
