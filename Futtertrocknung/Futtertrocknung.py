@@ -10,7 +10,7 @@ import time
 import board
 import busio
 import adafruit_ccs811
-import psutil
+from subprocess import PIPE, Popen
 
 devicename = "Futtertrocknung"
 
@@ -175,25 +175,15 @@ class Plugin(LoggerPlugin):
         flowDesired = 0
         frequencyDesired = 0
 
-        rpiTemp = self._getRpiTemperature()
+        rpiTemp = self._get_cpu_temperature()
         # Stream all measurements
-        self.stream([eFrequency,ePressure,eFlow, pressureDesired, flowDesired, frequencyDesired, rpiTemp['Current']],  ['eFrequency','ePressure','eFlow', 'pressureDesired', 'flowDesired', 'frequencyDesired', 'RpiTemp'], dname=devicename, unit = ['U/min','bar','m³/min','bar','m³/min','U/min','°C'])
+        self.stream([eFrequency,ePressure,eFlow, pressureDesired, flowDesired, frequencyDesired, rpiTemp],  ['eFrequency','ePressure','eFlow', 'pressureDesired', 'flowDesired', 'frequencyDesired', 'CPU'], dname=devicename, unit = ['U/min','bar','m³/min','bar','m³/min','U/min','°C'])
 
-    def _getRpiTemperature(self):
-        d = {}
-        try:
-            io = psutil.sensors_temperatures() # In Celsius
-            for e in io.keys():
-                d[e]={}
-                d[e]['Label'] = io[e][0].label
-                d[e]['Current'] = io[e][0].current
-                d[e]['High'] = io[e][0].high
-                d[e]['Critical'] = io[e][0].critical
-        except:
-            d['only']={}
-            d['only']['Fail']='Linux'
-
-        return d
+    def _get_cpu_temperature(self):
+        """get cpu temperature using vcgencmd"""
+        process = Popen(['vcgencmd', 'measure_temp'], stdout=PIPE)
+        output, _error = process.communicate()
+        return float(output[output.index('=') + 1:output.rindex("'")])
 
     def setActive(self, active = True):
         pass
