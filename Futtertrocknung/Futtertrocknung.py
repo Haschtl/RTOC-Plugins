@@ -60,7 +60,7 @@ class Plugin(LoggerPlugin):
             time.sleep(1/self.samplerate)
             try:
                 self.stream([ccs1.eco2,ccs1.tvoc],  ['aCO2', 'aTVOC'], dname=devicename, unit = ['ppm','ppm'])
-                if self.data[0]>2000:
+                if ccs1.eco2>2000:
                     print('event')
                     self.event('CO2 Gehalt hoch', sname="aCO2", dname="Futtertrocknung", priority=1)
                 if self.aCCS_Error:
