@@ -29,7 +29,7 @@ class Plugin(LoggerPlugin):
         self.samplerate = 1            # Function frequency in Hz (1/sec)
         self.datanames = ['aCO2', 'aTVOC', 'bCO2', 'bTVOC', 'aTemp', 'aHumid', 'bTemp', 'bHumid', 'cTemp', 'cHumid', 'dTemp', 'dHumid']
         self.dataunits = ['ppm', 'ppm','ppm','ppm','°C','%','°C','%','°C','%','°C','%']
-        self.data = [0,0,0,0,0,0,0,0,0,0,0,0]
+        self.data = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
 
         ccsat = Thread(target=self.getCCSAData)
         ccsat.start()
@@ -72,7 +72,7 @@ class Plugin(LoggerPlugin):
                 self.data[0] = ccs1.eco2
                 self.data[1] = ccs1.tvoc
                 #temp2 = ccs1.temperature
-                print('reading')
+                #print('reading')
                 if self.data[0]>2000:
                     print('event')
                     self.event('CO2 Gehalt hoch', sname="CO2", dname="Futtertrocknung", priority=2)
