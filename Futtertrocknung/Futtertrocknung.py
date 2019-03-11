@@ -28,28 +28,43 @@ class Plugin(LoggerPlugin):
         self.run = True
         self.samplerate = 1
 
-        self.aCCS_Error = False
-        self.bCCS_Error = False
-        self.aDHT_Error = False
-        self.bDHT_Error = False
-        self.cDHT_Error = False
-        self.dDHT_Error = False
+        self._aCCS_Error = False
+        self._bCCS_Error = False
+        self._aDHT_Error = False
+        self._bDHT_Error = False
+        self._cDHT_Error = False
+        self._dDHT_Error = False
 
-        ccsat = Thread(target=self.getCCSAData)
+        self.reglerModus = "Druck"
+        self.reglerActiv = False
+        self.fehler = []
+        self.pressure_P = 0
+        self.pressure_I = 0
+        self.pressure_D = 0
+        self.flow_P = 0
+        self.flow_I = 0
+        self.flow_D = 0
+        self.pressureRange = [0,10]
+        self.flowRange = [0,10]
+        
+        ccsat = Thread(target=self._getCCSAData)
         ccsat.start()
-        ccsbt = Thread(target=self.getCCSBData)
+        ccsbt = Thread(target=self._getCCSBData)
         ccsbt.start()
 
-        dht22_a = Thread(target=self.getDHT22,args=(DHT_pins["A"],'aTemp', 'aHumid', self.aDHT_Error))
+        dht22_a = Thread(target=self._getDHT22,args=(DHT_pins["A"],'aTemp', 'aHumid', self._aDHT_Error))
         dht22_a.start()
-        dht22_b = Thread(target=self.getDHT22,args=(DHT_pins["B"],'bTemp', 'bHumid', self.bDHT_Error))
+        dht22_b = Thread(target=self._getDHT22,args=(DHT_pins["B"],'bTemp', 'bHumid', self._bDHT_Error))
         dht22_b.start()
-        dht22_c = Thread(target=self.getDHT22,args=(DHT_pins["C"],'cTemp', 'cHumid', self.cDHT_Error))
+        dht22_c = Thread(target=self._getDHT22,args=(DHT_pins["C"],'cTemp', 'cHumid', self._cDHT_Error))
         dht22_c.start()
-        dht22_d = Thread(target=self.getDHT22,args=(DHT_pins["D"],'dTemp', 'dHumid', self.dDHT_Error))
+        dht22_d = Thread(target=self._getDHT22,args=(DHT_pins["D"],'dTemp', 'dHumid', self._dDHT_Error))
         dht22_d.start()
 
-    def getCCSAData(self):
+        controllerT = Thread(target = self._getControllerData)
+        controllerT.start()
+
+    def _getCCSAData(self):
         diff = 0
         # Wait for the sensor to be ready and calibrate the thermistor
         while not ccs1.data_ready:
@@ -66,18 +81,18 @@ class Plugin(LoggerPlugin):
                 if ccs1.eco2>2000:
                     print('event')
                     self.event('CO2 Gehalt hoch', sname="aCO2", dname="Futtertrocknung", priority=1)
-                if self.aCCS_Error:
-                    self.aCCS_Error = False
+                if self._aCCS_Error:
+                    self._aCCS_Error = False
                     self.event('CCS811 A: Sensorfehler wurde behoben', sname="aCO2", dname="Futtertrocknung", priority=0)
                     print("CCS811 A Error fixed")
             except:
-                if not self.aCCS_Error:
-                    self.aCCS_Error = True
+                if not self._aCCS_Error:
+                    self._aCCS_Error = True
                     self.event('CCS811 A: Sensorfehler!', sname="aCO2", dname="Futtertrocknung", priority=1)
                 print("Error reading CCS811 A")
             diff = (time.time() - start_time)
 
-    def getCCSBData(self):
+    def _getCCSBData(self):
         diff = 0
         # Wait for the sensor to be ready and calibrate the thermistor
         while not ccs2.data_ready:
@@ -91,18 +106,18 @@ class Plugin(LoggerPlugin):
             start_time = time.time()
             try:
                 self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], dname=devicename, unit = ['ppm','ppm'])
-                if self.bCCS_Error:
-                    self.bCCS_Error = False
+                if self._bCCS_Error:
+                    self._bCCS_Error = False
                     self.event('CCS811 B: Sensorfehler wurde behoben', sname="bCO2", dname="Futtertrocknung", priority=0)
                     print("CCS811 B Error fixed")
             except:
-                if not self.bCCS_Error:
-                    self.bCCS_Error = True
+                if not self._bCCS_Error:
+                    self._bCCS_Error = True
                     self.event('CCS811 B: Sensorfehler!', sname="bCO2", dname="Futtertrocknung", priority=1)
                 print("Error reading CCS811 B")
             diff = (time.time() - start_time)
 
-    def getDHT22(self, pin, tName, hName, error):
+    def _getDHT22(self, pin, tName, hName, error):
         diff = 0
         while self.run:
             if diff < 1/self.samplerate:
@@ -121,16 +136,19 @@ class Plugin(LoggerPlugin):
                 print('Cannot read DHT22, Pin '+str(pin))
             diff = (time.time() - start_time)
 
-    def getControllerData(self):
-        reglerModus = "Druck"
-        reglerActiv = False
-        fehler = []
-        pressure_P = 0
-        pressure_I = 0
-        pressure_D = 0
-        flow_P = 0
-        flow_I = 0
-        flow_D = 0
+    def _getControllerData(self):
+        self.reglerModus = "Druck"
+        self.reglerActiv = False
+        self.fehler = []
+        self.pressure_P = 0
+        self.pressure_I = 0
+        self.pressure_D = 0
+        self.flow_P = 0
+        self.flow_I = 0
+        self.flow_D = 0
+        self.pressureRange = [0,10]
+        self.flowRange = [0,10]
+
 
 
         eFrequency = '?'
