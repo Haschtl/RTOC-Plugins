@@ -65,7 +65,7 @@ class Plugin(LoggerPlugin):
                     self.event('CO2 Gehalt hoch', sname="aCO2", dname="Futtertrocknung", priority=1)
                 if self.aCCS_Error:
                     self.aCCS_Error = False
-                    self.event('CCS811 A: Sensorfehler wurde behoben', sname="aCO2", dname="Futtertrocknung", priority=2)
+                    self.event('CCS811 A: Sensorfehler wurde behoben', sname="aCO2", dname="Futtertrocknung", priority=0)
                     print("CCS811 A Error fixed")
             except:
                 if not self.aCCS_Error:
@@ -86,7 +86,7 @@ class Plugin(LoggerPlugin):
                 self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], dname=devicename, unit = ['ppm','ppm'])
                 if self.bCCS_Error:
                     self.bCCS_Error = False
-                    self.event('CCS811 B: Sensorfehler wurde behoben', sname="bCO2", dname="Futtertrocknung", priority=2)
+                    self.event('CCS811 B: Sensorfehler wurde behoben', sname="bCO2", dname="Futtertrocknung", priority=0)
                     print("CCS811 B Error fixed")
             except:
                 if not self.bCCS_Error:
@@ -102,7 +102,7 @@ class Plugin(LoggerPlugin):
                 self.stream([temperature,humidity],  [tName, hName], dname=devicename, unit = ['°C','%'])
                 if error:
                     error = False
-                    self.event('DHT22 '+tName+': Sensorfehler wurde behoben', sname=tName, dname="Futtertrocknung", priority=2)
+                    self.event('DHT22 '+tName+': Sensorfehler wurde behoben', sname=tName, dname="Futtertrocknung", priority=0)
             else:
                 if not error:
                     error = True
