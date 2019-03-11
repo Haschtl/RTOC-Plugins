@@ -48,10 +48,10 @@ class Plugin(LoggerPlugin):
         self.pressureRange = [0,10]
         self.flowRange = [0,10]
 
-        ccsat = Thread(target=self._getCCSAData)
-        ccsat.start()
-        ccsbt = Thread(target=self._getCCSBData)
-        ccsbt.start()
+        ccsT = Thread(target=self._getCCSData)
+        ccsT.start()
+        #ccsbt = Thread(target=self._getCCSBData)
+        #ccsbt.start()
 
         dht22_a = Thread(target=self._getDHT22,args=(DHT_pins["A"],'aTemp', 'aHumid', self._aDHT_Error))
         dht22_a.start()
@@ -65,13 +65,16 @@ class Plugin(LoggerPlugin):
         controllerT = Thread(target = self._getControllerData)
         controllerT.start()
 
-    def _getCCSAData(self):
+    def _getCCSData(self):
         diff = 0
         # Wait for the sensor to be ready and calibrate the thermistor
         while not ccs1.data_ready:
             pass
         temp = ccs1.temperature
         ccs1.temp_offset = temp - 25.0
+
+        temp2 = ccs2.temperature
+        ccs2.temp_offset = temp2 - 25.0
 
         while self.run:
             if diff < 1/self.samplerate:
@@ -91,6 +94,17 @@ class Plugin(LoggerPlugin):
                     self._aCCS_Error = True
                     self.event('CCS811 A: Sensorfehler!', sname="aCO2", dname="Futtertrocknung", priority=1)
                 print("Error reading CCS811 A")
+            try:
+                self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], dname=devicename, unit = ['ppm','ppm'])
+                if self._bCCS_Error:
+                    self._bCCS_Error = False
+                    self.event('CCS811 B: Sensorfehler wurde behoben', sname="bCO2", dname="Futtertrocknung", priority=0)
+                    print("CCS811 B Error fixed")
+            except:
+                if not self._bCCS_Error:
+                    self._bCCS_Error = True
+                    self.event('CCS811 B: Sensorfehler!', sname="bCO2", dname="Futtertrocknung", priority=1)
+                print("Error reading CCS811 B")
             diff = (time.time() - start_time)
 
     def _getCCSBData(self):
