@@ -26,38 +26,21 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
 
         self.run = True
-        self.samplerate = 1            # Function frequency in Hz (1/sec)
-        self.datanames = ['aCO2', 'aTVOC', 'bCO2', 'bTVOC', 'aTemp', 'aHumid', 'bTemp', 'bHumid', 'cTemp', 'cHumid', 'dTemp', 'dHumid']
-        self.dataunits = ['ppm', 'ppm','ppm','ppm','°C','%','°C','%','°C','%','°C','%']
-        self.data = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
+        self.samplerate = 1
 
         ccsat = Thread(target=self.getCCSAData)
         ccsat.start()
         ccsbt = Thread(target=self.getCCSBData)
         ccsbt.start()
 
-        dht22_a = Thread(target=self.getDHT22,args=(DHT_pins["A"],4,5))
+        dht22_a = Thread(target=self.getDHT22,args=(DHT_pins["A"],'aTemp', 'aHumid'))
         dht22_a.start()
-        dht22_b = Thread(target=self.getDHT22,args=(DHT_pins["B"],6,7))
+        dht22_b = Thread(target=self.getDHT22,args=(DHT_pins["B"],'bTemp', 'bHumid'))
         dht22_b.start()
-        dht22_c = Thread(target=self.getDHT22,args=(DHT_pins["C"],8,9))
+        dht22_c = Thread(target=self.getDHT22,args=(DHT_pins["C"],'cTemp', 'cHumid'))
         dht22_c.start()
-        dht22_d = Thread(target=self.getDHT22,args=(DHT_pins["D"],10,11))
+        dht22_d = Thread(target=self.getDHT22,args=(DHT_pins["D"],'dTemp', 'dHumid'))
         dht22_d.start()
-        self.__updater = Thread(target=self.__updateT)    # Actualize data
-        self.__updater.start()
-
-    def __updateT(self):
-        diff = 0
-        self.gen_start = time.time()
-        while self.run:  # All should be inside of this while-loop, because self.run == False should stops this plugin
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            devname='Futtertrocknung'
-            #self.getControllerData()
-            self.stream(self.data, self.datanames, devname, self.dataunits)
-            diff = (time.time() - start_time)
 
     def getCCSAData(self):
         # Wait for the sensor to be ready and calibrate the thermistor
@@ -69,15 +52,12 @@ class Plugin(LoggerPlugin):
         while self.run:
             time.sleep(1/self.samplerate)
             try:
-                self.data[0] = ccs1.eco2
-                self.data[1] = ccs1.tvoc
-                #temp2 = ccs1.temperature
-                #print('reading')
+                self.stream([ccs1.eco2,ccs1.tvoc],  ['aCO2', 'aTVOC'], ['ppm','ppm'])
                 if self.data[0]>2000:
                     print('event')
                     self.event('CO2 Gehalt hoch', sname="CO2", dname="Futtertrocknung", priority=2)
             except:
-                print("Error reading CCS811 [1]")
+                print("Error reading CCS811 A")
 
     def getCCSBData(self):
         # Wait for the sensor to be ready and calibrate the thermistor
@@ -89,18 +69,15 @@ class Plugin(LoggerPlugin):
         while self.run:
             time.sleep(1/self.samplerate)
             try:
-                self.data[2] = ccs2.eco2
-                self.data[3] = ccs2.tvoc
-                #temp2 = ccs2.temperature
+                self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], ['ppm','ppm'])
             except:
-                print("Error reading CCS811 [2]")
+                print("Error reading CCS811 B")
 
-    def getDHT22(self, pin, tIdx, hIdx):
+    def getDHT22(self, pin, tName, hName):
         while self.run:
             time.sleep(1/self.samplerate)
             humidity, temperature = Adafruit_DHT.read_retry(dht22, pin)
-            self.data[tIdx] = temperature
-            self.data[hIdx] = humidity
+            self.stream([temperature,humidity],  [tName, hName], ['°C','%'])
 
     def getControllerData(self):
         self.data['fanVelocity'] = '?'
