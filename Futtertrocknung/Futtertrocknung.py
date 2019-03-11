@@ -37,6 +37,7 @@ class Plugin(LoggerPlugin):
 
         self.reglerModus = "Druck"
         self.reglerActiv = False
+        self.potiEnabled = False
         self.fehler = []
         self.pressure_P = 0
         self.pressure_I = 0
@@ -139,6 +140,7 @@ class Plugin(LoggerPlugin):
     def _getControllerData(self):
         self.reglerModus = "Druck"
         self.reglerActiv = False
+        self.potiEnabled = False
         self.fehler = []
         self.pressure_P = 0
         self.pressure_I = 0
