@@ -16,8 +16,8 @@ devicename = "Futtertrocknung"
 dht22 = Adafruit_DHT.DHT22
 # css811: sudo nano /boot/config.txt for i2c baudrate
 i2c = busio.I2C(board.SCL, board.SDA)
-ccs1 = adafruit_ccs811.CCS811(i2c)
-ccs2 = adafruit_ccs811.CCS811(i2c, 0x5B)
+ccs2 = adafruit_ccs811.CCS811(i2c)
+ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
 DHT_pins = {"A":24,"B":23,"C":27,"D":17}
 
 class Plugin(LoggerPlugin):

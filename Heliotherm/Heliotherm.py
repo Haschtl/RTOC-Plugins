@@ -159,6 +159,8 @@ class Plugin(LoggerPlugin):
         self.temp_des = 0
         self.__s = requests.Session()
 
+        self.start(HOST)
+
     # THIS IS YOUR THREAD
     def updateT(self):
         diff = 0
