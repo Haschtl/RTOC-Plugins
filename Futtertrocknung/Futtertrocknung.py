@@ -52,7 +52,7 @@ class Plugin(LoggerPlugin):
         while self.run:
             time.sleep(1/self.samplerate)
             try:
-                self.stream([ccs1.eco2,ccs1.tvoc],  ['aCO2', 'aTVOC'], ['ppm','ppm'])
+                self.stream([ccs1.eco2,ccs1.tvoc],  ['aCO2', 'aTVOC'], unit = ['ppm','ppm'])
                 if self.data[0]>2000:
                     print('event')
                     self.event('CO2 Gehalt hoch', sname="CO2", dname="Futtertrocknung", priority=2)
@@ -69,7 +69,7 @@ class Plugin(LoggerPlugin):
         while self.run:
             time.sleep(1/self.samplerate)
             try:
-                self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], ['ppm','ppm'])
+                self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], unit = ['ppm','ppm'])
             except:
                 print("Error reading CCS811 B")
 
@@ -77,7 +77,7 @@ class Plugin(LoggerPlugin):
         while self.run:
             time.sleep(1/self.samplerate)
             humidity, temperature = Adafruit_DHT.read_retry(dht22, pin)
-            self.stream([temperature,humidity],  [tName, hName], ['°C','%'])
+            self.stream([temperature,humidity],  [tName, hName], unit = ['°C','%'])
 
     def getControllerData(self):
         self.data['fanVelocity'] = '?'
