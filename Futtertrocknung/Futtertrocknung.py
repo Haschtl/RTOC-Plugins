@@ -110,19 +110,34 @@ class Plugin(LoggerPlugin):
                 print('Cannot read DHT22, Pin '+str(pin))
 
     def getControllerData(self):
-        self.data['fanVelocity'] = '?'
-        self.data['fanMode'] = "Druck"
-        self.data['active'] = False
-        self.data['fan2heuPressure'] = '?'
-        self.data['fan2heuVelocity'] = '?'
-        self.data['fan2heuPressureDes'] = 0
-        self.data['fan2heuVelocityDes'] = 0
-        self.data['fanManualDes'] = 0
+        reglerModus = "Druck"
+        reglerActiv = False
+        fehler = []
+        pressure_P = 0
+        pressure_I = 0
+        pressure_D = 0
+        flow_P = 0
+        flow_I = 0
+        flow_D = 0
+
+
+        eFrequency = '?'
+        ePressure = '?'
+        eFlow = '?'
+        pressureDesired = 0
+        flowDesired = 0
+        frequencyDesired = 0
+
+        # Stream all measurements
+        self.stream([eFrequency,ePressure,eFlow, pressureDesired, flowDesired, frequencyDesired],  ['eFrequency','ePressure','eFlow', 'pressureDesired', 'flowDesired', 'frequencyDesired'], dname=devicename, unit = ['U/min','bar','m³/min','bar','m³/min','U/min'])
 
     def setActive(self, active = True):
         pass
 
     def setMode(self, mode = 0): # manuell, druck, durchfluss
+        pass
+
+    def setPID(self, mode, p,i,d):
         pass
 
     def setDesired(self, mode, value):
