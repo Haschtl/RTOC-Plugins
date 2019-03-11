@@ -50,6 +50,7 @@ class Plugin(LoggerPlugin):
         dht22_d.start()
 
     def getCCSAData(self):
+        diff = 0
         # Wait for the sensor to be ready and calibrate the thermistor
         while not ccs1.data_ready:
             pass
@@ -57,7 +58,9 @@ class Plugin(LoggerPlugin):
         ccs1.temp_offset = temp - 25.0
 
         while self.run:
-            time.sleep(1/self.samplerate)
+            if diff < 1/self.samplerate:
+                time.sleep(1/self.samplerate-diff)
+            start_time = time.time()
             try:
                 self.stream([ccs1.eco2,ccs1.tvoc],  ['aCO2', 'aTVOC'], dname=devicename, unit = ['ppm','ppm'])
                 if ccs1.eco2>2000:
@@ -72,8 +75,10 @@ class Plugin(LoggerPlugin):
                     self.aCCS_Error = True
                     self.event('CCS811 A: Sensorfehler!', sname="aCO2", dname="Futtertrocknung", priority=1)
                 print("Error reading CCS811 A")
+            diff = (time.time() - start_time)
 
     def getCCSBData(self):
+        diff = 0
         # Wait for the sensor to be ready and calibrate the thermistor
         while not ccs2.data_ready:
             pass
@@ -81,7 +86,9 @@ class Plugin(LoggerPlugin):
         ccs2.temp_offset = temp - 25.0
 
         while self.run:
-            time.sleep(1/self.samplerate)
+            if diff < 1/self.samplerate:
+                time.sleep(1/self.samplerate-diff)
+            start_time = time.time()
             try:
                 self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], dname=devicename, unit = ['ppm','ppm'])
                 if self.bCCS_Error:
@@ -93,10 +100,14 @@ class Plugin(LoggerPlugin):
                     self.bCCS_Error = True
                     self.event('CCS811 B: Sensorfehler!', sname="bCO2", dname="Futtertrocknung", priority=1)
                 print("Error reading CCS811 B")
+            diff = (time.time() - start_time)
 
     def getDHT22(self, pin, tName, hName, error):
+        diff = 0
         while self.run:
-            time.sleep(1/self.samplerate)
+            if diff < 1/self.samplerate:
+                time.sleep(1/self.samplerate-diff)
+            start_time = time.time()
             humidity, temperature = Adafruit_DHT.read_retry(dht22, pin)
             if humidity != None and temperature != None:
                 self.stream([temperature,humidity],  [tName, hName], dname=devicename, unit = ['°C','%'])
@@ -108,6 +119,7 @@ class Plugin(LoggerPlugin):
                     error = True
                     self.event('DHT22 '+tName+': Sensorfehler!', sname=tName, dname="Futtertrocknung", priority=1)
                 print('Cannot read DHT22, Pin '+str(pin))
+            diff = (time.time() - start_time)
 
     def getControllerData(self):
         reglerModus = "Druck"
