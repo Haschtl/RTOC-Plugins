@@ -48,22 +48,98 @@ class Plugin(LoggerPlugin):
         self.pressureRange = [0,10]
         self.flowRange = [0,10]
 
-        ccsT = Thread(target=self._getCCSData)
-        ccsT.start()
-        #ccsbt = Thread(target=self._getCCSBData)
-        #ccsbt.start()
+        # ccsT = Thread(target=self._getCCSData)
+        # ccsT.start()
+        #
+        # dht22_a = Thread(target=self._getDHT22,args=(DHT_pins["A"],'aTemp', 'aHumid', self._aDHT_Error))
+        # dht22_a.start()
+        # dht22_b = Thread(target=self._getDHT22,args=(DHT_pins["B"],'bTemp', 'bHumid', self._bDHT_Error))
+        # dht22_b.start()
+        # dht22_c = Thread(target=self._getDHT22,args=(DHT_pins["C"],'cTemp', 'cHumid', self._cDHT_Error))
+        # dht22_c.start()
+        # dht22_d = Thread(target=self._getDHT22,args=(DHT_pins["D"],'dTemp', 'dHumid', self._dDHT_Error))
+        # dht22_d.start()
+        # 
+        # controllerT = Thread(target = self._getControllerData)
+        # controllerT.start()
+        self.thread = Thread(target = self._getAll)
 
-        dht22_a = Thread(target=self._getDHT22,args=(DHT_pins["A"],'aTemp', 'aHumid', self._aDHT_Error))
-        dht22_a.start()
-        dht22_b = Thread(target=self._getDHT22,args=(DHT_pins["B"],'bTemp', 'bHumid', self._bDHT_Error))
-        dht22_b.start()
-        dht22_c = Thread(target=self._getDHT22,args=(DHT_pins["C"],'cTemp', 'cHumid', self._cDHT_Error))
-        dht22_c.start()
-        dht22_d = Thread(target=self._getDHT22,args=(DHT_pins["D"],'dTemp', 'dHumid', self._dDHT_Error))
-        dht22_d.start()
+    def _getAll(self):
+        diff = 0
+        # Wait for the sensor to be ready and calibrate the thermistor
+        while not ccs1.data_ready:
+            pass
+        temp = ccs1.temperature
+        ccs1.temp_offset = temp - 25.0
 
-        controllerT = Thread(target = self._getControllerData)
-        controllerT.start()
+        temp2 = ccs2.temperature
+        ccs2.temp_offset = temp2 - 25.0
+
+        while self.run:
+            if diff < 1/self.samplerate:
+                time.sleep(1/self.samplerate-diff)
+            start_time = time.time()
+            try:
+                co2_a = ccs1.eco2
+                tvoc_a = ccs1.tvoc
+            except:
+                if not self._aCCS_Error:
+                    self._aCCS_Error = True
+                    self.event('CCS811 A: Sensorfehler!', sname="aCO2", dname="Futtertrocknung", priority=1)
+                print("Error reading CCS811 A")
+            try:
+                co2_b = ccs1.eco2
+                tvoc_b = ccs1.tvoc
+            except:
+                if not self._bCCS_Error:
+                    self._bCCS_Error = True
+                    self.event('CCS811 B: Sensorfehler!', sname="bCO2", dname="Futtertrocknung", priority=1)
+                print("Error reading CCS811 B")
+            aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 10, 0)
+            bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 10, 0)
+            cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 10, 0)
+            dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 10, 0)
+
+            self.reglerModus = "Druck"
+            self.reglerActiv = False
+            self.potiEnabled = False
+            self.fehler = []
+            self.pressure_P = 0
+            self.pressure_I = 0
+            self.pressure_D = 0
+            self.flow_P = 0
+            self.flow_I = 0
+            self.flow_D = 0
+            self.pressureRange = [0,10]
+            self.flowRange = [0,10]
+
+
+
+            eFrequency = 0
+            ePressure = 0
+            eFlow = 0
+            pressureDesired = 0
+            flowDesired = 0
+            frequencyDesired = 0
+
+            rpiTemp = self._get_cpu_temperature()
+
+            if co2_a>2000:
+                print('event')
+                self.event('CO2 Gehalt hoch', sname="aCO2", dname="Futtertrocknung", priority=1)
+            if self._aCCS_Error:
+                self._aCCS_Error = False
+                self.event('CCS811 A: Sensorfehler wurde behoben', sname="aCO2", dname="Futtertrocknung", priority=0)
+                print("CCS811 A Error fixed")
+
+            if self._bCCS_Error:
+                self._bCCS_Error = False
+                self.event('CCS811 B: Sensorfehler wurde behoben', sname="bCO2", dname="Futtertrocknung", priority=0)
+                print("CCS811 B Error fixed")
+
+
+            self.stream([co2_a,tvoc_a, aHumid, aTemp, bHumid, bTemp, cHumid, cTemp, dHumid, dTemp, eFrequency,ePressure,eFlow, pressureDesired, flowDesired, frequencyDesired, rpiTemp],  ['aCO2', 'aTVOC', 'bCO2', 'bTVOC', 'aHumid', 'aTemp', 'bHumid', 'bTemp', 'cHumid', 'cTemp', 'dHumid', 'dTemp', 'eFrequency','ePressure','eFlow', 'pressureDesired', 'flowDesired', 'frequencyDesired', 'CPU'], dname=devicename, unit = ['ppm','ppm','ppm','ppm','%','°C','%','°C','%','°C','%','°C', 'U/min','bar','m³/min','bar','m³/min','U/min','°C'])
+            diff = (time.time() - start_time)
 
     def _getCCSData(self):
         diff = 0
@@ -107,30 +183,6 @@ class Plugin(LoggerPlugin):
                 print("Error reading CCS811 B")
             diff = (time.time() - start_time)
 
-    def _getCCSBData(self):
-        diff = 0
-        # Wait for the sensor to be ready and calibrate the thermistor
-        while not ccs2.data_ready:
-            pass
-        temp = ccs2.temperature
-        ccs2.temp_offset = temp - 25.0
-
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            try:
-                self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], dname=devicename, unit = ['ppm','ppm'])
-                if self._bCCS_Error:
-                    self._bCCS_Error = False
-                    self.event('CCS811 B: Sensorfehler wurde behoben', sname="bCO2", dname="Futtertrocknung", priority=0)
-                    print("CCS811 B Error fixed")
-            except:
-                if not self._bCCS_Error:
-                    self._bCCS_Error = True
-                    self.event('CCS811 B: Sensorfehler!', sname="bCO2", dname="Futtertrocknung", priority=1)
-                print("Error reading CCS811 B")
-            diff = (time.time() - start_time)
 
     def _getDHT22(self, pin, tName, hName, error):
         diff = 0
@@ -138,7 +190,7 @@ class Plugin(LoggerPlugin):
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
-            humidity, temperature = Adafruit_DHT.read_retry(dht22, pin)
+            humidity, temperature = Adafruit_DHT.read_retry(dht22, pin, 10, 0)
             if humidity != None and temperature != None:
                 self.stream([temperature,humidity],  [tName, hName], dname=devicename, unit = ['°C','%'])
                 if error:
