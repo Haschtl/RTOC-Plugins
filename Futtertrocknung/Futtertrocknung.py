@@ -152,31 +152,38 @@ class Plugin(LoggerPlugin):
             diff = (time.time() - start_time)
 
     def _getControllerData(self):
-        self.reglerModus = "Druck"
-        self.reglerActiv = False
-        self.potiEnabled = False
-        self.fehler = []
-        self.pressure_P = 0
-        self.pressure_I = 0
-        self.pressure_D = 0
-        self.flow_P = 0
-        self.flow_I = 0
-        self.flow_D = 0
-        self.pressureRange = [0,10]
-        self.flowRange = [0,10]
+        diff = 0
+        while self.run:
+            if diff < 1/self.samplerate:
+                time.sleep(1/self.samplerate-diff)
+            start_time = time.time()
+
+            self.reglerModus = "Druck"
+            self.reglerActiv = False
+            self.potiEnabled = False
+            self.fehler = []
+            self.pressure_P = 0
+            self.pressure_I = 0
+            self.pressure_D = 0
+            self.flow_P = 0
+            self.flow_I = 0
+            self.flow_D = 0
+            self.pressureRange = [0,10]
+            self.flowRange = [0,10]
 
 
 
-        eFrequency = 0
-        ePressure = 0
-        eFlow = 0
-        pressureDesired = 0
-        flowDesired = 0
-        frequencyDesired = 0
+            eFrequency = 0
+            ePressure = 0
+            eFlow = 0
+            pressureDesired = 0
+            flowDesired = 0
+            frequencyDesired = 0
 
-        rpiTemp = self._get_cpu_temperature()
-        # Stream all measurements
-        self.stream([eFrequency,ePressure,eFlow, pressureDesired, flowDesired, frequencyDesired, rpiTemp],  ['eFrequency','ePressure','eFlow', 'pressureDesired', 'flowDesired', 'frequencyDesired', 'CPU'], dname=devicename, unit = ['U/min','bar','m³/min','bar','m³/min','U/min','°C'])
+            rpiTemp = self._get_cpu_temperature()
+            # Stream all measurements
+            self.stream([eFrequency,ePressure,eFlow, pressureDesired, flowDesired, frequencyDesired, rpiTemp],  ['eFrequency','ePressure','eFlow', 'pressureDesired', 'flowDesired', 'frequencyDesired', 'CPU'], dname=devicename, unit = ['U/min','bar','m³/min','bar','m³/min','U/min','°C'])
+            diff = (time.time() - start_time)
 
     def _get_cpu_temperature(self):
         tFile = open('/sys/class/thermal/thermal_zone0/temp')
