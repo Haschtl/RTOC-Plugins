@@ -81,7 +81,8 @@ class Plugin(LoggerPlugin):
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
             try:
-                self.stream([ccs1.eco2,ccs1.tvoc],  ['aCO2', 'aTVOC'], dname=devicename, unit = ['ppm','ppm'])
+                #self.stream([ccs1.eco2,ccs1.tvoc],  ['aCO2', 'aTVOC'], dname=devicename, unit = ['ppm','ppm'])
+                print(ccs1.eco2)
                 if ccs1.eco2>2000:
                     print('event')
                     self.event('CO2 Gehalt hoch', sname="aCO2", dname="Futtertrocknung", priority=1)
@@ -95,7 +96,7 @@ class Plugin(LoggerPlugin):
                     self.event('CCS811 A: Sensorfehler!', sname="aCO2", dname="Futtertrocknung", priority=1)
                 print("Error reading CCS811 A")
             try:
-                self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], dname=devicename, unit = ['ppm','ppm'])
+                #self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], dname=devicename, unit = ['ppm','ppm'])
                 if self._bCCS_Error:
                     self._bCCS_Error = False
                     self.event('CCS811 B: Sensorfehler wurde behoben', sname="bCO2", dname="Futtertrocknung", priority=0)
