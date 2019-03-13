@@ -63,6 +63,7 @@ class Plugin(LoggerPlugin):
         # controllerT = Thread(target = self._getControllerData)
         # controllerT.start()
         self.thread = Thread(target = self._getAll)
+        self.thread.start()
 
     def _getAll(self):
         diff = 0
