@@ -59,7 +59,7 @@ class Plugin(LoggerPlugin):
         # dht22_c.start()
         # dht22_d = Thread(target=self._getDHT22,args=(DHT_pins["D"],'dTemp', 'dHumid', self._dDHT_Error))
         # dht22_d.start()
-        # 
+        #
         # controllerT = Thread(target = self._getControllerData)
         # controllerT.start()
         self.thread = Thread(target = self._getAll)
@@ -82,6 +82,15 @@ class Plugin(LoggerPlugin):
             try:
                 co2_a = ccs1.eco2
                 tvoc_a = ccs1.tvoc
+                #self.stream([ccs1.eco2,ccs1.tvoc],  ['aCO2', 'aTVOC'], dname=devicename, unit = ['ppm','ppm'])
+                print(ccs1.eco2)
+                if ccs1.eco2>2000:
+                    print('event')
+                    self.event('CO2 Gehalt hoch', sname="aCO2", dname="Futtertrocknung", priority=1)
+                if self._aCCS_Error:
+                    self._aCCS_Error = False
+                    self.event('CCS811 A: Sensorfehler wurde behoben', sname="aCO2", dname="Futtertrocknung", priority=0)
+                    print("CCS811 A Error fixed")
             except:
                 if not self._aCCS_Error:
                     self._aCCS_Error = True
@@ -90,6 +99,11 @@ class Plugin(LoggerPlugin):
             try:
                 co2_b = ccs1.eco2
                 tvoc_b = ccs1.tvoc
+                #self.stream([ccs2.eco2,ccs2.tvoc],  ['bCO2', 'bTVOC'], dname=devicename, unit = ['ppm','ppm'])
+                if self._bCCS_Error:
+                    self._bCCS_Error = False
+                    self.event('CCS811 B: Sensorfehler wurde behoben', sname="bCO2", dname="Futtertrocknung", priority=0)
+                    print("CCS811 B Error fixed")
             except:
                 if not self._bCCS_Error:
                     self._bCCS_Error = True
