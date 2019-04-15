@@ -1,5 +1,5 @@
 {
-  "version":"1.1",
+  "version":"1.2",
   "name":"Futtertrocknung",
   "dependencies":["adafruit_CCS811", "adafruit_DHT","board","busio"],
   "files":[],
