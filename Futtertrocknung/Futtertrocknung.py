@@ -30,39 +30,39 @@ class Plugin(LoggerPlugin):
 
         # Sensor error flags
         self._sensorErrors = {
-            'a': {'CCS': False, 'DHT': False},
-            'b': {'CCS': False, 'DHT': False},
-            'c': {'DHT': False},
-            'd': {'DHT': False},
+            'A': {'CCS': False, 'DHT': False},
+            'B': {'CCS': False, 'DHT': False},
+            'C': {'DHT': False},
+            'D': {'DHT': False},
         }
 
         # Sensor warning ranges
         self.sensorRange = {
-            'a': {'CCS': {'Temperatur': [0, 1000], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 1000]},
+            'A': {'CCS': {'Temperatur': [0, 1000], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 1000]},
                   'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
-            'b': {'CCS': {'Temperatur': [0, 1000], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 1000]},
+            'B': {'CCS': {'Temperatur': [0, 1000], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 1000]},
                   'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
-            'c': {'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
-            'd': {'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
+            'C': {'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
+            'D': {'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
         }
 
         self._sensorRangeHit = {
-            'a': {'CCS': {'Temperatur': False, 'CO2-Gehalt': False, 'TVOC-Gehalt': False},
+            'A': {'CCS': {'Temperatur': False, 'CO2-Gehalt': False, 'TVOC-Gehalt': False},
                   'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
-            'b': {'CCS': {'Temperatur': False, 'CO2-Gehalt': False, 'TVOC-Gehalt': False},
+            'B': {'CCS': {'Temperatur': False, 'CO2-Gehalt': False, 'TVOC-Gehalt': False},
                   'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
-            'c': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
-            'd': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
+            'C': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
+            'D': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
         }
 
         # Sensor calibration offsets
         self.sensorCalib = {
-            'a': {'CCS': {'Temperatur': 0, 'CO2-Gehalt': 0, 'TVOC-Gehalt': 0},
+            'A': {'CCS': {'Temperatur': 0, 'CO2-Gehalt': 0, 'TVOC-Gehalt': 0},
                   'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
-            'b': {'CCS': {'Temperatur': 0, 'CO2-Gehalt': 0, 'TVOC-Gehalt': 0},
+            'B': {'CCS': {'Temperatur': 0, 'CO2-Gehalt': 0, 'TVOC-Gehalt': 0},
                   'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
-            'c': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
-            'd': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
+            'C': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
+            'D': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
         }
 
         # Controller sachen
@@ -174,33 +174,33 @@ class Plugin(LoggerPlugin):
         try:
             co2_a = ccs1.eco2
             tvoc_a = ccs1.tvoc
-            co2_a = self._processSensor('a', 'CCS', 'CO2-Gehalt', co2_a)
-            tvoc_a = self._processSensor('a', 'CCS', 'TVOC-Gehalt', tvoc_a)
-            self._sendErrorEvent('a', 'CCS', False)
+            co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
+            tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
+            self._sendErrorEvent('A', 'CCS', False)
         except:
-            self._sendErrorEvent('a', 'CCS', True)
+            self._sendErrorEvent('A', 'CCS', True)
         try:
             co2_b = ccs2.eco2
             tvoc_b = ccs2.tvoc
-            co2_b = self._processSensor('b', 'CCS', 'CO2-Gehalt', co2_b)
-            tvoc_b = self._processSensor('b', 'CCS', 'TVOC-Gehalt', tvoc_b)
-            self._sendErrorEvent('b', 'CCS', False)
+            co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
+            tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
+            self._sendErrorEvent('B', 'CCS', False)
         except:
-            self._sendErrorEvent('b', 'CCS', True)
+            self._sendErrorEvent('B', 'CCS', True)
 
         aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 10, 0)
         bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 10, 0)
         cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 10, 0)
         dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 10, 0)
 
-        aHumid = self._processSensor('a', 'DHT', 'Feuchtigkeit', aHumid)
-        aTemp = self._processSensor('a', 'DHT', 'Temperatur', aTemp)
-        bHumid = self._processSensor('b', 'DHT', 'Feuchtigkeit', bHumid)
-        bTemp = self._processSensor('b', 'DHT', 'Temperatur', bTemp)
-        cHumid = self._processSensor('c', 'DHT', 'Feuchtigkeit', cHumid)
-        cTemp = self._processSensor('c', 'DHT', 'Temperatur', cTemp)
-        dHumid = self._processSensor('d', 'DHT', 'Feuchtigkeit', dHumid)
-        dTemp = self._processSensor('d', 'DHT', 'Temperatur', dTemp)
+        aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
+        aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
+        bHumid = self._processSensor('B', 'DHT', 'Feuchtigkeit', bHumid)
+        bTemp = self._processSensor('B', 'DHT', 'Temperatur', bTemp)
+        cHumid = self._processSensor('C', 'DHT', 'Feuchtigkeit', cHumid)
+        cTemp = self._processSensor('C', 'DHT', 'Temperatur', cTemp)
+        dHumid = self._processSensor('D', 'DHT', 'Feuchtigkeit', dHumid)
+        dTemp = self._processSensor('D', 'DHT', 'Temperatur', dTemp)
 
         rpiTemp = self._get_cpu_temperature()
 
@@ -219,10 +219,11 @@ class Plugin(LoggerPlugin):
         #     ]
 
         sensor_data = {
-            'a': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
-            'b': {'Temperatur': [bTemp, '°C'], 'CO2-Gehalt': [co2_b, 'ppm'], 'TVOC-Gehalt': [tvoc_b, 'ppm'], 'Temperatur': [bTemp, '°C'], 'Feuchtigkeit': [bHumid, '%']},
-            'c': {'Temperatur': [cTemp, '°C'], 'Feuchtigkeit': [cHumid, '%']},
-            'd': {'Temperatur': [dTemp, '°C'], 'Feuchtigkeit': [dHumid, '%']},
+            'A': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
+            'B': {'Temperatur': [bTemp, '°C'], 'CO2-Gehalt': [co2_b, 'ppm'], 'TVOC-Gehalt': [tvoc_b, 'ppm'], 'Temperatur': [bTemp, '°C'], 'Feuchtigkeit': [bHumid, '%']},
+            'C': {'Temperatur': [cTemp, '°C'], 'Feuchtigkeit': [cHumid, '%']},
+            'D': {'Temperatur': [dTemp, '°C'], 'Feuchtigkeit': [dHumid, '%']},
+            'Bedienelement': {'CPU-Temperatur': [rpiTemp,'°C']},
         }
         return sensor_data
 
