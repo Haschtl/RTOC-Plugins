@@ -223,7 +223,7 @@ class Plugin(LoggerPlugin):
 
         rpiTemp = self._get_cpu_temperature()
 
-        dTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
+        rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
 
         sensor_data = {
             'A': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
