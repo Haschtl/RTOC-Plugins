@@ -111,6 +111,8 @@ class Plugin(LoggerPlugin):
                 self.sensorRange = sensorRange
         else:
             print('No config-file found.')
+            self.sensorCalib = sensorCalib
+            self.sensorRange = sensorRange
 
     def calibrateTemperature(self):
         self._calibrate('Temperatur')
