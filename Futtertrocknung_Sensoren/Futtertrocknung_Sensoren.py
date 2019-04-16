@@ -126,7 +126,7 @@ class Plugin(LoggerPlugin):
         for dev in self.sensorCalib.keys():
             for sensor in self.sensorCalib[dev].keys():
                 if signal in self.sensorCalib[dev][sensor].keys():
-                    self.sensorCalib[dev][sensor][signal] = mean-sensor_data[dev][signal]
+                    self.sensorCalib[dev][sensor][signal] = mean-sensor_data[dev][signal][0]
 
         self.saveConfig()
 
