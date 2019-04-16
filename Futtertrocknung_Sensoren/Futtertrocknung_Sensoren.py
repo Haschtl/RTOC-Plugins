@@ -9,8 +9,10 @@ import Adafruit_DHT
 import board
 import busio
 import adafruit_ccs811
+import os
+import json
 
-devicename = "Futtertrocknung"
+devicename = "Sensoren"
 
 dht22 = Adafruit_DHT.DHT22
 # css811: sudo nano /boot/config.txt for i2c baudrate
@@ -65,18 +67,7 @@ class Plugin(LoggerPlugin):
             'D': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
         }
 
-        # Controller sachen
-        self.reglerModus = "Druck"
-        self.reglerActiv = False
-        self.potiEnabled = False
-        self.pressure_P = 0
-        self.pressure_I = 0
-        self.pressure_D = 0
-        self.flow_P = 0
-        self.flow_I = 0
-        self.flow_D = 0
-        self.pressureRange = [0, 10]
-        self.flowRange = [0, 10]
+        self.loadConfig()
 
         self.thread = Thread(target=self._sensorThread)
         self.thread.start()
@@ -93,10 +84,24 @@ class Plugin(LoggerPlugin):
         ccs2.temp_offset = temp2 - 25.0
 
     def saveConfig(self):
-        pass
+        config = {}
+        config['sensorCalib']=self.sensorCalib
+        config['sensorRange']=self.sensorRange
+        with open("config.json", 'w', encoding="utf-8") as fp:
+            json.dump(config, fp,  sort_keys=False, indent=4, separators=(',', ': '))
 
     def loadConfig(self):
-        pass
+        if os.path.exists("config.json"):
+            try:
+                with open("config.json", encoding="UTF-8") as jsonfile:
+                    config = json.load(jsonfile, encoding="UTF-8")
+
+                self.sensorCalib=config['sensorCalib']
+                self.sensorRange=config['sensorRange']
+            except:
+                print('Error loading config')
+        else:
+            print('No config-file found.')
 
     def calibrateTemperature(self):
         self._calibrate('Temperatur')
@@ -108,7 +113,7 @@ class Plugin(LoggerPlugin):
         self._calibrate('CO2-Gehalt')
 
     def _calibrate(self, signal):
-        sensor_data = self._getAllSensors()
+        sensor_data = self._getAllSensors(False)
         count = 0
         sum = 0
         for dev in sensor_data.keys():
@@ -170,21 +175,23 @@ class Plugin(LoggerPlugin):
                            ' behoben!',
                            sname=sensor, dname=messstelle.upper(), priority=0)
 
-    def _getAllSensors(self):
+    def _getAllSensors(self, processed=True):
         try:
             co2_a = ccs1.eco2
             tvoc_a = ccs1.tvoc
-            co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
-            tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
-            self._sensorErrorEvent('A', 'CCS', False)
+            if processed:
+                co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
+                tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
+                self._sensorErrorEvent('A', 'CCS', False)
         except:
             self._sensorErrorEvent('A', 'CCS', True)
         try:
             co2_b = ccs2.eco2
             tvoc_b = ccs2.tvoc
-            co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
-            tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
-            self._sensorErrorEvent('B', 'CCS', False)
+            if processed:
+                co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
+                tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
+                self._sensorErrorEvent('B', 'CCS', False)
         except:
             self._sensorErrorEvent('B', 'CCS', True)
 
@@ -193,30 +200,17 @@ class Plugin(LoggerPlugin):
         cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 10, 0)
         dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 10, 0)
 
-        aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
-        aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
-        bHumid = self._processSensor('B', 'DHT', 'Feuchtigkeit', bHumid)
-        bTemp = self._processSensor('B', 'DHT', 'Temperatur', bTemp)
-        cHumid = self._processSensor('C', 'DHT', 'Feuchtigkeit', cHumid)
-        cTemp = self._processSensor('C', 'DHT', 'Temperatur', cTemp)
-        dHumid = self._processSensor('D', 'DHT', 'Feuchtigkeit', dHumid)
-        dTemp = self._processSensor('D', 'DHT', 'Temperatur', dTemp)
+        if processed:
+            aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
+            aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
+            bHumid = self._processSensor('B', 'DHT', 'Feuchtigkeit', bHumid)
+            bTemp = self._processSensor('B', 'DHT', 'Temperatur', bTemp)
+            cHumid = self._processSensor('C', 'DHT', 'Feuchtigkeit', cHumid)
+            cTemp = self._processSensor('C', 'DHT', 'Temperatur', cTemp)
+            dHumid = self._processSensor('D', 'DHT', 'Feuchtigkeit', dHumid)
+            dTemp = self._processSensor('D', 'DHT', 'Temperatur', dTemp)
 
         rpiTemp = self._get_cpu_temperature()
-
-        # sensor_data = [
-        #     [co2_b, 'bCO2', 'ppm'],
-        #     [tvoc_b, 'bTVOC', 'ppm'],
-        #     [aHumid, 'aHumid', '%'],
-        #     [aTemp, 'aTemp', '°C'],
-        #     [bHumid, 'bHumid', '%'],
-        #     [bTemp, 'bTemp', '°C'],
-        #     [cHumid, 'cHumid', '%'],
-        #     [cTemp, 'cTemp', '°C'],
-        #     [dHumid, 'dHumid', '%'],
-        #     [dTemp, 'dTemp', '°C'],
-        #     [rpiTemp, 'CPU', '°C']
-        #     ]
 
         sensor_data = {
             'A': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
@@ -238,59 +232,10 @@ class Plugin(LoggerPlugin):
             self.stream(list=sensor_data)
             diff = (time.time() - start_time)
 
-    def _getControllerData(self):
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
 
-            self.reglerModus = "Druck"
-            self.reglerActiv = False
-            self.potiEnabled = False
-            self.pressure_P = 0
-            self.pressure_I = 0
-            self.pressure_D = 0
-            self.flow_P = 0
-            self.flow_I = 0
-            self.flow_D = 0
-            self.pressureRange = [0, 10]
-            self.flowRange = [0, 10]
-
-            eFrequency = 0
-            ePressure = 0
-            eFlow = 0
-            pressureDesired = 0
-            flowDesired = 0
-            frequencyDesired = 0
-
-            rpiTemp = self._get_cpu_temperature()
-            # Stream all measurements
-            self.stream(list=[
-                [eFrequency, 'eFrequency', 'U/min'],
-                [ePressure, 'ePressure', 'bar'],
-                [eFlow, 'eFlow', 'm³/min'],
-                [pressureDesired, 'pressureDesired', 'bar'],
-                [flowDesired, 'flowDesired', 'm³/min'],
-                [frequencyDesired, 'frequencyDesired', 'U/min'],
-                [rpiTemp, 'CPU', '°C']
-            ])
-            diff = (time.time() - start_time)
 
     def _get_cpu_temperature(self):
         tFile = open('/sys/class/thermal/thermal_zone0/temp')
         temp = float(tFile.read())
         tempC = temp/1000
         return tempC
-
-    def setActive(self, active=True):
-        pass
-
-    def setMode(self, mode=0):  # manuell, druck, durchfluss
-        pass
-
-    def setPID(self, mode, p, i, d):
-        pass
-
-    def setDesired(self, mode, value):
-        pass
