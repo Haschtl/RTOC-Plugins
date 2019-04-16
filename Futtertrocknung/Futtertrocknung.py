@@ -176,17 +176,17 @@ class Plugin(LoggerPlugin):
             tvoc_a = ccs1.tvoc
             co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
             tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
-            self._sendErrorEvent('A', 'CCS', False)
+            self._sensorErrorEvent('A', 'CCS', False)
         except:
-            self._sendErrorEvent('A', 'CCS', True)
+            self._sensorErrorEvent('A', 'CCS', True)
         try:
             co2_b = ccs2.eco2
             tvoc_b = ccs2.tvoc
             co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
             tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
-            self._sendErrorEvent('B', 'CCS', False)
+            self._sensorErrorEvent('B', 'CCS', False)
         except:
-            self._sendErrorEvent('B', 'CCS', True)
+            self._sensorErrorEvent('B', 'CCS', True)
 
         aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 10, 0)
         bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 10, 0)
