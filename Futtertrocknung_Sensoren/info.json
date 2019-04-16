@@ -1,6 +1,6 @@
 {
   "version":"1.2",
-  "name":"Futtertrocknung",
+  "name":"Futtertrocknung_Sensoren",
   "dependencies":["adafruit_CCS811", "adafruit_DHT","board","busio"],
   "files":[],
   "Info":"",

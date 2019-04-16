@@ -1,0 +1,9 @@
+{
+  "version":"1.0",
+  "name":"Futtertrocknung_Controller",
+  "dependencies":[],
+  "files":[],
+  "Info":"",
+  "OS":"RaspberryPi",
+  "GUI": false
+}

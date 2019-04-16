@@ -84,14 +84,16 @@ class Plugin(LoggerPlugin):
         ccs2.temp_offset = temp2 - 25.0
 
     def saveConfig(self):
+        packagedir = self.getDir(__file__)
         config = {}
         config['sensorCalib']=self.sensorCalib
         config['sensorRange']=self.sensorRange
-        with open("config.json", 'w', encoding="utf-8") as fp:
+        with open(packagedir+"config.json", 'w', encoding="utf-8") as fp:
             json.dump(config, fp,  sort_keys=False, indent=4, separators=(',', ': '))
 
     def loadConfig(self):
-        if os.path.exists("config.json"):
+        packagedir = self.getDir(__file__)
+        if os.path.exists(packagedir+"/config.json"):
             try:
                 with open("config.json", encoding="UTF-8") as jsonfile:
                     config = json.load(jsonfile, encoding="UTF-8")
