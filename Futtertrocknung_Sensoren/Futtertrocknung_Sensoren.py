@@ -93,14 +93,14 @@ class Plugin(LoggerPlugin):
         config = {}
         config['sensorCalib'] = self.sensorCalib
         config['sensorRange'] = self.sensorRange
-        with open(packagedir+"config.json", 'w', encoding="utf-8") as fp:
+        with open(packagedir+"/config.json", 'w', encoding="utf-8") as fp:
             json.dump(config, fp,  sort_keys=False, indent=4, separators=(',', ': '))
 
     def loadConfig(self):
         packagedir = self.getDir(__file__)
         if os.path.exists(packagedir+"/config.json"):
             try:
-                with open("config.json", encoding="UTF-8") as jsonfile:
+                with open(packagedir+"/config.json", encoding="UTF-8") as jsonfile:
                     config = json.load(jsonfile, encoding="UTF-8")
 
                 self.sensorCalib = config['sensorCalib']
