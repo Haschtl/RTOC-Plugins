@@ -72,6 +72,7 @@ class Plugin(LoggerPlugin):
         # Sensor error flags
         self._sensorErrors = _sensorErrors
         self._sensorRangeHit = _sensorRangeHit
+        self._rangeNoiseLevel = 0.05 # %
         self.loadConfig()
 
         self.thread = Thread(target=self._sensorThread)
@@ -157,19 +158,20 @@ class Plugin(LoggerPlugin):
         else:
             name = '?'
             u = '?'
-
+        fallback = self._rangeNoiseLevel*value
         value += self.sensorCalib[messstelle][sensor][signal]
         old = self._sensorRangeHit[messstelle][sensor][signal]
         if value > self.sensorRange[messstelle][sensor][signal][1] and not old:
             self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu hoch!',
-                       sname=sensor, dname=messstelle.upper(), priority=1)
+                       sname=name, dname=messstelle.upper(), priority=1)
             self._sensorRangeHit[messstelle][sensor][signal] = True
         elif value < self.sensorRange[messstelle][sensor][signal][0] and not old:
             self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu niedrig!',
-                       sname=sensor, dname=messstelle.upper(), priority=1)
-        elif old and value >= self.sensorRange[messstelle][sensor][signal][0] and value <= self.sensorRange[messstelle][sensor][signal][1]:
+                       sname=name, dname=messstelle.upper(), priority=1)
+            self._sensorRangeHit[messstelle][sensor][signal] = True
+        elif old and value >= self.sensorRange[messstelle][sensor][signal][0]+fallback and value <= self.sensorRange[messstelle][sensor][signal][1]-fallback:
             self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value)) + u+' wieder in gutem Bereich!',
-                       sname=sensor, dname=messstelle.upper(), priority=0)
+                       sname=name, dname=messstelle.upper(), priority=0)
             self._sensorRangeHit[messstelle][sensor][signal] = False
         return value
 
