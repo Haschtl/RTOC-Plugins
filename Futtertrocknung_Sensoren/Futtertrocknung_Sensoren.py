@@ -21,6 +21,45 @@ ccs2 = adafruit_ccs811.CCS811(i2c)
 ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
 DHT_pins = {"A": 24, "B": 23, "C": 27, "D": 17}
 
+_sensorErrors = {
+    'A': {'CCS': False, 'DHT': False},
+    'B': {'CCS': False, 'DHT': False},
+    'C': {'DHT': False},
+    'D': {'DHT': False},
+}
+
+# Sensor warning ranges
+sensorRange = {
+    'A': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 100]},
+          'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
+    'B': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 100]},
+          'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
+    'C': {'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
+    'D': {'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
+    'Bedienelement': {'Intern': {'CPU-Temperatur': [0, 60]}},
+}
+
+_sensorRangeHit = {
+    'A': {'CCS': {'Temperatur': False, 'CO2-Gehalt': False, 'TVOC-Gehalt': False},
+          'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
+    'B': {'CCS': {'Temperatur': False, 'CO2-Gehalt': False, 'TVOC-Gehalt': False},
+          'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
+    'C': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
+    'D': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
+    'Bedienelement': {'Intern': {'CPU-Temperatur': False}},
+}
+
+# Sensor calibration offsets
+sensorCalib = {
+    'A': {'CCS': {'Temperatur': 0, 'CO2-Gehalt': 0, 'TVOC-Gehalt': 0},
+          'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
+    'B': {'CCS': {'Temperatur': 0, 'CO2-Gehalt': 0, 'TVOC-Gehalt': 0},
+          'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
+    'C': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
+    'D': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
+    'Bedienelement': {'Intern': {'CPU-Temperatur': 0}},
+}
+
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot=None, event=None):
@@ -31,45 +70,8 @@ class Plugin(LoggerPlugin):
         self.samplerate = 1
 
         # Sensor error flags
-        self._sensorErrors = {
-            'A': {'CCS': False, 'DHT': False},
-            'B': {'CCS': False, 'DHT': False},
-            'C': {'DHT': False},
-            'D': {'DHT': False},
-        }
-
-        # Sensor warning ranges
-        self.sensorRange = {
-            'A': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 100]},
-                  'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
-            'B': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 100]},
-                  'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
-            'C': {'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
-            'D': {'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
-            'Bedienelement': {'Intern': {'CPU-Temperatur': [0, 60]}},
-        }
-
-        self._sensorRangeHit = {
-            'A': {'CCS': {'Temperatur': False, 'CO2-Gehalt': False, 'TVOC-Gehalt': False},
-                  'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
-            'B': {'CCS': {'Temperatur': False, 'CO2-Gehalt': False, 'TVOC-Gehalt': False},
-                  'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
-            'C': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
-            'D': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
-            'Bedienelement': {'Intern': {'CPU-Temperatur': False}},
-        }
-
-        # Sensor calibration offsets
-        self.sensorCalib = {
-            'A': {'CCS': {'Temperatur': 0, 'CO2-Gehalt': 0, 'TVOC-Gehalt': 0},
-                  'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
-            'B': {'CCS': {'Temperatur': 0, 'CO2-Gehalt': 0, 'TVOC-Gehalt': 0},
-                  'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
-            'C': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
-            'D': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
-            'Bedienelement': {'Intern': {'CPU-Temperatur': 0}},
-        }
-
+        self._sensorErrors = _sensorErrors
+        self._sensorRangeHit = _sensorRangeHit
         self.loadConfig()
 
         self.thread = Thread(target=self._sensorThread)
@@ -89,8 +91,8 @@ class Plugin(LoggerPlugin):
     def saveConfig(self):
         packagedir = self.getDir(__file__)
         config = {}
-        config['sensorCalib']=self.sensorCalib
-        config['sensorRange']=self.sensorRange
+        config['sensorCalib'] = self.sensorCalib
+        config['sensorRange'] = self.sensorRange
         with open(packagedir+"config.json", 'w', encoding="utf-8") as fp:
             json.dump(config, fp,  sort_keys=False, indent=4, separators=(',', ': '))
 
@@ -101,10 +103,12 @@ class Plugin(LoggerPlugin):
                 with open("config.json", encoding="UTF-8") as jsonfile:
                     config = json.load(jsonfile, encoding="UTF-8")
 
-                self.sensorCalib=config['sensorCalib']
-                self.sensorRange=config['sensorRange']
+                self.sensorCalib = config['sensorCalib']
+                self.sensorRange = config['sensorRange']
             except:
                 print('Error loading config')
+                self.sensorCalib = sensorCalib
+                self.sensorRange = sensorRange
         else:
             print('No config-file found.')
 
@@ -224,7 +228,7 @@ class Plugin(LoggerPlugin):
             'B': {'Temperatur': [bTemp, '°C'], 'CO2-Gehalt': [co2_b, 'ppm'], 'TVOC-Gehalt': [tvoc_b, 'ppm'], 'Temperatur': [bTemp, '°C'], 'Feuchtigkeit': [bHumid, '%']},
             'C': {'Temperatur': [cTemp, '°C'], 'Feuchtigkeit': [cHumid, '%']},
             'D': {'Temperatur': [dTemp, '°C'], 'Feuchtigkeit': [dHumid, '%']},
-            'Bedienelement': {'CPU-Temperatur': [rpiTemp,'°C']},
+            'Bedienelement': {'CPU-Temperatur': [rpiTemp, '°C']},
         }
         return sensor_data
 
@@ -238,8 +242,6 @@ class Plugin(LoggerPlugin):
             sensor_data = self._getAllSensors()
             self.stream(list=sensor_data)
             diff = (time.time() - start_time)
-
-
 
     def _get_cpu_temperature(self):
         tFile = open('/sys/class/thermal/thermal_zone0/temp')
