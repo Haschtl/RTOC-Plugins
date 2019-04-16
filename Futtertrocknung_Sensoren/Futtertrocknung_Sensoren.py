@@ -40,12 +40,13 @@ class Plugin(LoggerPlugin):
 
         # Sensor warning ranges
         self.sensorRange = {
-            'A': {'CCS': {'Temperatur': [0, 1000], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 1000]},
-                  'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
-            'B': {'CCS': {'Temperatur': [0, 1000], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 1000]},
-                  'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
-            'C': {'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
-            'D': {'DHT': {'Temperatur': [0, 1000], 'Feuchtigkeit': [0, 1000]}},
+            'A': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 100]},
+                  'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
+            'B': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 100]},
+                  'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
+            'C': {'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
+            'D': {'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
+            'Bedienelement': {'Intern': {'CPU-Temperatur': [0, 60]}},
         }
 
         self._sensorRangeHit = {
@@ -55,6 +56,7 @@ class Plugin(LoggerPlugin):
                   'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
             'C': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
             'D': {'DHT': {'Temperatur': False, 'Feuchtigkeit': False}},
+            'Bedienelement': {'Intern': {'CPU-Temperatur': False}},
         }
 
         # Sensor calibration offsets
@@ -65,6 +67,7 @@ class Plugin(LoggerPlugin):
                   'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
             'C': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
             'D': {'DHT': {'Temperatur': 0, 'Feuchtigkeit': 0}},
+            'Bedienelement': {'Intern': {'CPU-Temperatur': 0}},
         }
 
         self.loadConfig()
@@ -213,6 +216,8 @@ class Plugin(LoggerPlugin):
             dTemp = self._processSensor('D', 'DHT', 'Temperatur', dTemp)
 
         rpiTemp = self._get_cpu_temperature()
+
+        dTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
 
         sensor_data = {
             'A': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
