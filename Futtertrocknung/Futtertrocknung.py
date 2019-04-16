@@ -113,7 +113,7 @@ class Plugin(LoggerPlugin):
         sum = 0
         for dev in sensor_data.keys():
             if signal in sensor_data[dev].keys():
-                sum += sensor_data[dev][signal]
+                sum += sensor_data[dev][signal][0]
                 count += 1
         if count != 0:
             mean = sum/count
