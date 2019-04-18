@@ -205,14 +205,15 @@ class Plugin(LoggerPlugin):
                            sname=sensor, dname=messstelle.upper(), priority=0)
 
     def _getAllSensors(self, processed=True):
-        # aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 10, 0)
-        # bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 10, 0)
-        # cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 10, 0)
-        # dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 10, 0)
-        aHumid, aTemp = 0,0
-        bHumid, bTemp = 0,0
-        cHumid, cTemp = 0,0
-        dHumid, dTemp = 0,0
+        aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 1, 0)
+        bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 1, 0)
+        cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 1, 0)
+        dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 1, 0)
+
+        # aHumid, aTemp = 0,0
+        # bHumid, bTemp = 0,0
+        # cHumid, cTemp = 0,0
+        # dHumid, dTemp = 0,0
 
         aHumid = self._WORKAROUND_READERROR(aHumid, 15,100)
         bHumid = self._WORKAROUND_READERROR(bHumid, 15, 100)
@@ -293,6 +294,8 @@ class Plugin(LoggerPlugin):
         return tempC
 
     def _WORKAROUND_READERROR(self, value,x=15,gain=1):
+        if value == None:
+            value = 0
         value = value*gain
         while value>pow(2,x):
             value = value - pow(2,x)
