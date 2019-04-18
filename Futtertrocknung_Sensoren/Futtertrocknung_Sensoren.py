@@ -205,10 +205,14 @@ class Plugin(LoggerPlugin):
                            sname=sensor, dname=messstelle.upper(), priority=0)
 
     def _getAllSensors(self, processed=True):
-        aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 10, 0)
-        bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 10, 0)
-        cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 10, 0)
-        dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 10, 0)
+        # aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 10, 0)
+        # bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 10, 0)
+        # cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 10, 0)
+        # dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 10, 0)
+        aHumid, aTemp = 0,0
+        bHumid, bTemp = 0,0
+        cHumid, cTemp = 0,0
+        dHumid, dTemp = 0,0
 
         aHumid = self._WORKAROUND_READERROR(aHumid, 15,100)
         bHumid = self._WORKAROUND_READERROR(bHumid, 15, 100)
@@ -231,8 +235,8 @@ class Plugin(LoggerPlugin):
 
         try:
             #ccs1.set_environmental_data(aHumid, aTemp)
-            co2_a = 0#ccs1.eco2
-            tvoc_a = 0#ccs1.tvoc
+            co2_a = ccs1.eco2
+            tvoc_a = ccs1.tvoc
             co2_a = self._WORKAROUND_READERROR(co2_a, 15)
             tvoc_a = self._WORKAROUND_READERROR(tvoc_a, 15)
             if processed:
@@ -246,8 +250,8 @@ class Plugin(LoggerPlugin):
             print(traceback.format_exc())
         try:
             #ccs2.set_environmental_data(bHumid, bTemp)
-            co2_b = 0#ccs2.eco2
-            tvoc_b = 0#ccs2.tvoc
+            co2_b = ccs2.eco2
+            tvoc_b = ccs2.tvoc
             co2_b = self._WORKAROUND_READERROR(co2_b, 15)
             tvoc_b = self._WORKAROUND_READERROR(tvoc_b, 15)
             if processed:
