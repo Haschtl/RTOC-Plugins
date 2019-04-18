@@ -34,20 +34,20 @@ class Plugin(LoggerPlugin, controller_api.controller):
         self._thread = Thread(target=self._getControllerData)
         self._thread.start()
 
-        def _getControllerData(self):
-            diff = 0
-            while self.run:
-                if diff < 1/self.samplerate:
-                    time.sleep(1/self.samplerate-diff)
-                start_time = time.time()
+    def _getControllerData(self):
+        diff = 0
+        while self.run:
+            if diff < 1/self.samplerate:
+                time.sleep(1/self.samplerate-diff)
+            start_time = time.time()
 
-                # Stream all measurements
-                sensor_data = {
-                    'E': {'Temperatur': [self.rpm, 'U/min'], 'Luftdruck': [self.air_pressure, 'bar'], 'Temperatur1': [self.temperature1, '°C'], 'Temperatur2': [self.temperature2, '°C'], 'Durchfluss': [self.flow_rate, 'm³/s']}
-                }
+            # Stream all measurements
+            sensor_data = {
+                'E': {'Temperatur': [self.rpm, 'U/min'], 'Luftdruck': [self.air_pressure, 'bar'], 'Temperatur1': [self.temperature1, '°C'], 'Temperatur2': [self.temperature2, '°C'], 'Durchfluss': [self.flow_rate, 'm³/s']}
+            }
 
-                self.stream(dict=sensor_data)
-                diff = (time.time() - start_time)
+            self.stream(dict=sensor_data)
+            diff = (time.time() - start_time)
 
         # def setActive(self, active=True):
         #     pass
