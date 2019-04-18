@@ -51,7 +51,7 @@ class Plugin(LoggerPlugin, controller):
             temp2 = self.temperature2
             flow = self.flow_rate
             sensor_data = {
-                'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'bar'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s']}
+                'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s']}
             }
             #print(sensor_data)
             self.stream(list=sensor_data)
