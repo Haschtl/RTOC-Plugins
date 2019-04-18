@@ -203,31 +203,6 @@ class Plugin(LoggerPlugin):
                            sname=sensor, dname=messstelle.upper(), priority=0)
 
     def _getAllSensors(self, processed=True):
-        try:
-            co2_a = ccs1.eco2
-            tvoc_a = ccs1.tvoc
-            co2_a = self._WORKAROUND_READERROR(co2_a, 15)
-            if processed:
-                co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
-                tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
-                self._sensorErrorEvent('A', 'CCS', False)
-        except:
-            co2_a = 0
-            tvoc_a = 0
-            self._sensorErrorEvent('A', 'CCS', True)
-        try:
-            co2_b = ccs2.eco2
-            tvoc_b = ccs2.tvoc
-            co2_b = self._WORKAROUND_READERROR(co2_b, 15)
-            if processed:
-                co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
-                tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
-                self._sensorErrorEvent('B', 'CCS', False)
-        except:
-            co2_b = 0
-            tvoc_b = 0
-            self._sensorErrorEvent('B', 'CCS', True)
-
         aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 10, 0)
         bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 10, 0)
         cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 10, 0)
@@ -237,7 +212,7 @@ class Plugin(LoggerPlugin):
         bHumid = self._WORKAROUND_READERROR(bHumid, 15, 100)
         cHumid = self._WORKAROUND_READERROR(cHumid, 15, 100)
         dHumid = self._WORKAROUND_READERROR(dHumid, 15, 100)
-        
+
         if processed:
             aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
             aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
@@ -259,6 +234,34 @@ class Plugin(LoggerPlugin):
             'D': {'Temperatur': [dTemp, '°C'], 'Feuchtigkeit': [dHumid, '%']},
             'Bedienelement': {'CPU-Temperatur': [rpiTemp, '°C']},
         }
+
+        try:
+            ccs1.set_environmental_data(aHumid, aTemp)
+            co2_a = ccs1.eco2
+            tvoc_a = ccs1.tvoc
+            co2_a = self._WORKAROUND_READERROR(co2_a, 15)
+            if processed:
+                co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
+                tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
+                self._sensorErrorEvent('A', 'CCS', False)
+        except:
+            co2_a = 0
+            tvoc_a = 0
+            self._sensorErrorEvent('A', 'CCS', True)
+        try:
+            ccs2.set_environmental_data(bHumid, bTemp)
+            co2_b = ccs2.eco2
+            tvoc_b = ccs2.tvoc
+            co2_b = self._WORKAROUND_READERROR(co2_b, 15)
+            if processed:
+                co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
+                tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
+                self._sensorErrorEvent('B', 'CCS', False)
+        except:
+            co2_b = 0
+            tvoc_b = 0
+            self._sensorErrorEvent('B', 'CCS', True)
+
         return sensor_data
 
     def _sensorThread(self):
