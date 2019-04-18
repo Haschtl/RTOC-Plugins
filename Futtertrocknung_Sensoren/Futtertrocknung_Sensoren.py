@@ -11,14 +11,25 @@ import busio
 import adafruit_ccs811
 import os
 import json
+import traceback
 
 devicename = "Sensoren"
 
 dht22 = Adafruit_DHT.DHT22
 # css811: sudo nano /boot/config.txt for i2c baudrate
 i2c = busio.I2C(board.SCL, board.SDA)
-ccs2 = adafruit_ccs811.CCS811(i2c)
-ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
+try:
+    ccs2 = adafruit_ccs811.CCS811(i2c)
+except:
+    print('ERROR CCS Sensor Messstelle B')
+    print(traceback.format_exc())
+    ccs2 = None
+try:
+    ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
+except:
+    print('ERROR CCS Sensor Messstelle A')
+    print(traceback.format_exc())
+    ccs1 = None
 DHT_pins = {"A": 24, "B": 23, "C": 27, "D": 17}
 
 _sensorErrors = {
@@ -80,14 +91,17 @@ class Plugin(LoggerPlugin):
 
     def _waitForSensors(self):
         # Wait for the sensor to be ready and calibrate the thermistor
-        while not ccs1.data_ready:
-            pass
-        temp = ccs1.temperature
-        ccs1.temp_offset = temp - 25.0
-        while not ccs2.data_ready:
-            pass
-        temp2 = ccs2.temperature
-        ccs2.temp_offset = temp2 - 25.0
+        if ccs1 is not None:
+            while not ccs1.data_ready:
+                pass
+            temp = ccs1.temperature
+            ccs1.temp_offset = temp - 25.0
+            
+        if ccs2 is not None:
+            while not ccs2.data_ready:
+                pass
+            temp2 = ccs2.temperature
+            ccs2.temp_offset = temp2 - 25.0
 
     def saveConfig(self):
         packagedir = self.getDir(__file__)
