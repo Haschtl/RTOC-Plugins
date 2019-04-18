@@ -68,3 +68,6 @@ class Plugin(LoggerPlugin, controller):
         #
         # def setDesired(self, mode, value):
         #     pass
+
+if __name__ == '__main__':
+    a = Plugin(stream=None, plot=None, event=None)
