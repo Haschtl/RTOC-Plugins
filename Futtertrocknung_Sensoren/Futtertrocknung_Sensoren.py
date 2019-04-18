@@ -7,17 +7,18 @@ except ImportError:
 
 import time
 from threading import Thread
-import Adafruit_DHT
+#import Adafruit_DHT
 import board
 import busio
 import adafruit_ccs811
+import adafruit_dht
 import os
 import json
 import traceback
 
 devicename = "Sensoren"
 
-dht22 = Adafruit_DHT.DHT22
+#dht22 = Adafruit_DHT.DHT22
 # css811: sudo nano /boot/config.txt for i2c baudrate
 i2c = busio.I2C(board.SCL, board.SDA)
 try:
@@ -32,7 +33,13 @@ except:
     print('ERROR CCS Sensor Messstelle A')
     print(traceback.format_exc())
     ccs1 = None
-DHT_pins = {"A": 24, "B": 23, "C": 27, "D": 17}
+#DHT_pins = {"A": 24, "B": 23, "C": 27, "D": 17}
+
+DHT_A = adafruit_dht.DHT22(board.D24)
+DHT_B = adafruit_dht.DHT22(board.D23)
+DHT_C = adafruit_dht.DHT22(board.D27)
+DHT_D = adafruit_dht.DHT22(board.D17)
+
 
 _sensorErrors = {
     'A': {'CCS': False, 'DHT': False},
@@ -205,38 +212,40 @@ class Plugin(LoggerPlugin):
                            sname=sensor, dname=messstelle.upper(), priority=0)
 
     def _getAllSensors(self, processed=True):
-        aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 1, 0)
-        bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 1, 0)
-        cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 1, 0)
-        dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 1, 0)
+        # aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 1, 0)
+        # bHumid, bTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['B'], 1, 0)
+        # cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 1, 0)
+        # dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 1, 0)
 
         # aHumid, aTemp = 0,0
         # bHumid, bTemp = 0,0
         # cHumid, cTemp = 0,0
         # dHumid, dTemp = 0,0
+        aHumid, aTemp = self.trySensorRead(DHT_A, "A", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
+        bHumid, bTemp = self.trySensorRead(DHT_B, "B", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
+        cHumid, cTemp = self.trySensorRead(DHT_C, "C", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
+        dHumid, dTemp = self.trySensorRead(DHT_D, "D", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
+        # aHumid = self._WORKAROUND_READERROR(aHumid, 15,100)
+        # bHumid = self._WORKAROUND_READERROR(bHumid, 15, 100)
+        # cHumid = self._WORKAROUND_READERROR(cHumid, 15, 100)
+        # dHumid = self._WORKAROUND_READERROR(dHumid, 15, 100)
 
-        aHumid = self._WORKAROUND_READERROR(aHumid, 15,100)
-        bHumid = self._WORKAROUND_READERROR(bHumid, 15, 100)
-        cHumid = self._WORKAROUND_READERROR(cHumid, 15, 100)
-        dHumid = self._WORKAROUND_READERROR(dHumid, 15, 100)
+        # aTemp = self._WORKAROUND_READERROR(aTemp, 15,100)
+        # bTemp = self._WORKAROUND_READERROR(bTemp, 15, 100)
+        # cTemp = self._WORKAROUND_READERROR(cTemp, 15, 100)
+        # dTemp = self._WORKAROUND_READERROR(dTemp, 15, 100)
 
-        aTemp = self._WORKAROUND_READERROR(aTemp, 15,100)
-        bTemp = self._WORKAROUND_READERROR(bTemp, 15, 100)
-        cTemp = self._WORKAROUND_READERROR(cTemp, 15, 100)
-        dTemp = self._WORKAROUND_READERROR(dTemp, 15, 100)
-
-        if processed:
-            aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
-            aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
-            bHumid = self._processSensor('B', 'DHT', 'Feuchtigkeit', bHumid)
-            bTemp = self._processSensor('B', 'DHT', 'Temperatur', bTemp)
-            cHumid = self._processSensor('C', 'DHT', 'Feuchtigkeit', cHumid)
-            cTemp = self._processSensor('C', 'DHT', 'Temperatur', cTemp)
-            dHumid = self._processSensor('D', 'DHT', 'Feuchtigkeit', dHumid)
-            dTemp = self._processSensor('D', 'DHT', 'Temperatur', dTemp)
+        # if processed:
+        #     aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
+        #     aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
+        #     bHumid = self._processSensor('B', 'DHT', 'Feuchtigkeit', bHumid)
+        #     bTemp = self._processSensor('B', 'DHT', 'Temperatur', bTemp)
+        #     cHumid = self._processSensor('C', 'DHT', 'Feuchtigkeit', cHumid)
+        #     cTemp = self._processSensor('C', 'DHT', 'Temperatur', cTemp)
+        #     dHumid = self._processSensor('D', 'DHT', 'Feuchtigkeit', dHumid)
+        #     dTemp = self._processSensor('D', 'DHT', 'Temperatur', dTemp)
 
         rpiTemp = self._get_cpu_temperature()
-
         rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
 
         try:
@@ -279,6 +288,24 @@ class Plugin(LoggerPlugin):
         }
 
         return sensor_data
+
+    def trySensorRead(self, value1, messtelle, sensor, signal, signal2, processed=True, gain=1):
+        try:
+            #ccs1.set_environmental_data(aHumid, aTemp)
+            a = value1.humidity
+            b = value1.temperature
+            a = self._WORKAROUND_READERROR(a, 15, gain)
+            b = self._WORKAROUND_READERROR(b, 15, gain)
+            if processed:
+                a = self._processSensor(messtelle, sensor, signal, a)
+                b = self._processSensor(messtelle, sensor, signal2, b)
+            self._sensorErrorEvent(messtelle, sensor, False)
+        except:
+            a = 0
+            b = 0
+            self._sensorErrorEvent(messtelle, sensor, True)
+            print(traceback.format_exc())
+        return a,b
 
     def _sensorThread(self):
         self._waitForSensors()
