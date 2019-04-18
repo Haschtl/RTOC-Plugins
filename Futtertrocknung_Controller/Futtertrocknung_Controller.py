@@ -55,6 +55,7 @@ class Plugin(LoggerPlugin, controller):
             }
             #print(sensor_data)
             self.stream(list=sensor_data)
+            print(sensor_data)
             diff = (time.time() - start_time)
 
 
