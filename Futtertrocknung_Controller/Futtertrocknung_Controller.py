@@ -45,7 +45,7 @@ class Plugin(LoggerPlugin, controller):
 
             # Stream all measurements
             sensor_data = {
-                'E': {'Temperatur': [self.rpm, 'U/min'], 'Luftdruck': [self.air_pressure, 'bar'], 'Temperatur1': [self.temperature1, '°C'], 'Temperatur2': [self.temperature2, '°C'], 'Durchfluss': [self.flow_rate, 'm³/s']}
+                'E': {'Drehzahl': [self.rpm, 'U/min'], 'Luftdruck': [self.air_pressure, 'bar'], 'Temperatur1': [self.temperature1, '°C'], 'Temperatur2': [self.temperature2, '°C'], 'Durchfluss': [self.flow_rate, 'm³/s']}
             }
             #print(sensor_data)
             self.stream(list=sensor_data)
