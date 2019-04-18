@@ -6,6 +6,7 @@ except ImportError:
 import time
 import os
 import sys
+from threading import Thread
 
 userpath = os.path.expanduser('~/heutrocknung/Lüftersteuerung/API')
 if not os.path.exists(userpath):
@@ -30,6 +31,9 @@ class Plugin(LoggerPlugin, controller_api.controller):
         self.run = True
         self.samplerate = 1
 
+        self._thread = Thread(target=self._getControllerData)
+        self._thread.start()
+
         def _getControllerData(self):
             diff = 0
             while self.run:
@@ -37,36 +41,12 @@ class Plugin(LoggerPlugin, controller_api.controller):
                     time.sleep(1/self.samplerate-diff)
                 start_time = time.time()
 
-                self.reglerModus = "Druck"
-                self.reglerActiv = False
-                self.potiEnabled = False
-                self.pressure_P = 0
-                self.pressure_I = 0
-                self.pressure_D = 0
-                self.flow_P = 0
-                self.flow_I = 0
-                self.flow_D = 0
-                self.pressureRange = [0, 10]
-                self.flowRange = [0, 10]
-
-                eFrequency = 0
-                ePressure = 0
-                eFlow = 0
-                pressureDesired = 0
-                flowDesired = 0
-                frequencyDesired = 0
-
-                rpiTemp = self._get_cpu_temperature()
                 # Stream all measurements
-                self.stream(list=[
-                    [eFrequency, 'eFrequency', 'U/min'],
-                    [ePressure, 'ePressure', 'bar'],
-                    [eFlow, 'eFlow', 'm³/min'],
-                    [pressureDesired, 'pressureDesired', 'bar'],
-                    [flowDesired, 'flowDesired', 'm³/min'],
-                    [frequencyDesired, 'frequencyDesired', 'U/min'],
-                    [rpiTemp, 'CPU', '°C']
-                ])
+                sensor_data = {
+                    'E': {'Temperatur': [self.rpm, 'U/min'], 'Luftdruck': [self.air_pressure, 'bar'], 'Temperatur1': [self.temperature1, '°C'], 'Temperatur2': [self.temperature2, '°C'], 'Durchfluss': [self.flow_rate, 'm³/s']}
+                }
+
+                self.stream(dict=sensor_data)
                 diff = (time.time() - start_time)
 
         # def setActive(self, active=True):
