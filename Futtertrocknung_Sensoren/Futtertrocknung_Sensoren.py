@@ -270,6 +270,7 @@ class Plugin(LoggerPlugin):
 
     def _sensorThread(self):
         self._waitForSensors()
+        time.sleep(2)
         diff = 0
         while self.run:
             if diff < 1/self.samplerate:
