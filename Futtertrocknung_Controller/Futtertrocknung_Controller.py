@@ -70,4 +70,7 @@ class Plugin(LoggerPlugin, controller):
         #     pass
 
 if __name__ == '__main__':
-    a = Plugin(stream=None, plot=None, event=None)
+    try:
+        a = Plugin(stream=None, plot=None, event=None)
+    except KeyboardInterrupt:
+        a.run = False
