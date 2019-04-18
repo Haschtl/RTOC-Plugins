@@ -232,6 +232,7 @@ class Plugin(LoggerPlugin):
             co2_a = ccs1.eco2
             tvoc_a = ccs1.tvoc
             co2_a = self._WORKAROUND_READERROR(co2_a, 15)
+            tvoc_a = self._WORKAROUND_READERROR(tvoc_a, 15)
             if processed:
                 co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
                 tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
@@ -246,6 +247,7 @@ class Plugin(LoggerPlugin):
             co2_b = ccs2.eco2
             tvoc_b = ccs2.tvoc
             co2_b = self._WORKAROUND_READERROR(co2_b, 15)
+            tvoc_b = self._WORKAROUND_READERROR(tvoc_b, 15)
             if processed:
                 co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
                 tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
