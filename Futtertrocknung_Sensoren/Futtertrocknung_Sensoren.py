@@ -86,8 +86,8 @@ class Plugin(LoggerPlugin):
         self._rangeNoiseLevel = 0.05 # %
         self.loadConfig()
 
-        self.thread = Thread(target=self._sensorThread)
-        self.thread.start()
+        self._thread = Thread(target=self._sensorThread)
+        self._thread.start()
 
     def _waitForSensors(self):
         # Wait for the sensor to be ready and calibrate the thermistor
