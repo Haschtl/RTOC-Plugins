@@ -26,7 +26,7 @@ devicename = "Controller"
 class Plugin(LoggerPlugin, controller_api.controller):
     def __init__(self, stream=None, plot=None, event=None):
         #super(Plugin, self).__init__(stream, plot, event)
-        LoggerPlugin.__init__(stream, plot, event)
+        LoggerPlugin.__init__(self, stream, plot, event)
         self.setDeviceName(devicename)
 
         self.run = True
