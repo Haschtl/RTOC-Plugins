@@ -96,7 +96,7 @@ class Plugin(LoggerPlugin):
                 pass
             temp = ccs1.temperature
             ccs1.temp_offset = temp - 25.0
-            
+
         if ccs2 is not None:
             while not ccs2.data_ready:
                 pass
@@ -206,6 +206,7 @@ class Plugin(LoggerPlugin):
         try:
             co2_a = ccs1.eco2
             tvoc_a = ccs1.tvoc
+            co2_a = self._WORKAROUND_READERROR(co2_a, 15)
             if processed:
                 co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
                 tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
@@ -217,6 +218,7 @@ class Plugin(LoggerPlugin):
         try:
             co2_b = ccs2.eco2
             tvoc_b = ccs2.tvoc
+            co2_b = self._WORKAROUND_READERROR(co2_b, 15)
             if processed:
                 co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
                 tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
@@ -231,6 +233,11 @@ class Plugin(LoggerPlugin):
         cHumid, cTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['C'], 10, 0)
         dHumid, dTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['D'], 10, 0)
 
+        aHumid = self._WORKAROUND_READERROR(aHumid, 15,100)
+        bHumid = self._WORKAROUND_READERROR(bHumid, 15, 100)
+        cHumid = self._WORKAROUND_READERROR(cHumid, 15, 100)
+        dHumid = self._WORKAROUND_READERROR(dHumid, 15, 100)
+        
         if processed:
             aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
             aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
@@ -270,3 +277,10 @@ class Plugin(LoggerPlugin):
         temp = float(tFile.read())
         tempC = temp/1000
         return tempC
+
+    def _WORKAROUND_READERROR(self, value,x=15,gain=1):
+        value = value*gain
+        while value>pow(2,x):
+            value = value - pow(2,x)
+        value = value/gain
+        return value
