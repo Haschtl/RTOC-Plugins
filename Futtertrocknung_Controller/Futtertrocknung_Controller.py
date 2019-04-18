@@ -33,7 +33,7 @@ class Plugin(LoggerPlugin, controller):
         self.setDeviceName(devicename)
 
         self.run = True
-        self.samplerate = 1
+        self.samplerate = 10
 
         self._thread = Thread(target=self._getControllerData)
         self._thread.start()

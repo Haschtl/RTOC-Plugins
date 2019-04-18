@@ -87,7 +87,7 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
 
         self.run = True
-        self.samplerate = 1
+        self.samplerate = 10
 
         # Sensor error flags
         self._sensorErrors = _sensorErrors
