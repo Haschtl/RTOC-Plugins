@@ -33,8 +33,8 @@ class Plugin(LoggerPlugin, controller):
         self.run = True
         self.samplerate = 1
 
-        #self._thread = Thread(target=self._getControllerData)
-        #self._thread.start()
+        self._thread = Thread(target=self._getControllerData)
+        self._thread.start()
 
     def _getControllerData(self):
         diff = 0
