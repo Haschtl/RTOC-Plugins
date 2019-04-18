@@ -4,12 +4,25 @@ except ImportError:
     from RTOC.LoggerPlugin import LoggerPlugin
 
 import time
+import os
+import sys
 
+userpath = os.path.expanduser('~/heutrocknung/Lüftersteuerung/API')
+if not os.path.exists(userpath):
+    print('WRONG DIR TO IMPORT Controller API')
+    sys.exit(1)
+else:
+    try:
+        sys.path.insert(0, userpath)
+        import controller_api
+    except ImportError:
+        print('Could not import Controller API from '+userpath)
+        sys.exit(1)
 
 devicename = "Controller"
 
 
-class Plugin(LoggerPlugin):
+class Plugin(LoggerPlugin, controller_api):
     def __init__(self, stream=None, plot=None, event=None):
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
