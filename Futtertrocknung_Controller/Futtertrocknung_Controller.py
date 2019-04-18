@@ -35,6 +35,7 @@ class Plugin(LoggerPlugin, controller):
 
         self._thread = Thread(target=self._getControllerData)
         self._thread.start()
+        print('FUTTERTROCKNUNG CONTROLLER GESTARTET')
 
     def _getControllerData(self):
         diff = 0
