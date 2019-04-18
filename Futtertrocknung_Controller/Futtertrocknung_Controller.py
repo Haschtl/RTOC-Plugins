@@ -14,7 +14,7 @@ if not os.path.exists(userpath):
 else:
     try:
         sys.path.insert(0, userpath)
-        import controller_api
+        from controller_api import controller
     except ImportError:
         print('Could not import Controller API from '+userpath)
         sys.exit(1)
@@ -22,7 +22,7 @@ else:
 devicename = "Controller"
 
 
-class Plugin(LoggerPlugin, controller_api):
+class Plugin(LoggerPlugin, controller):
     def __init__(self, stream=None, plot=None, event=None):
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
