@@ -231,8 +231,8 @@ class Plugin(LoggerPlugin):
 
         try:
             #ccs1.set_environmental_data(aHumid, aTemp)
-            co2_a = ccs1.eco2
-            tvoc_a = ccs1.tvoc
+            co2_a = 0#ccs1.eco2
+            tvoc_a = 0#ccs1.tvoc
             co2_a = self._WORKAROUND_READERROR(co2_a, 15)
             tvoc_a = self._WORKAROUND_READERROR(tvoc_a, 15)
             if processed:
@@ -246,8 +246,8 @@ class Plugin(LoggerPlugin):
             print(traceback.format_exc())
         try:
             #ccs2.set_environmental_data(bHumid, bTemp)
-            co2_b = ccs2.eco2
-            tvoc_b = ccs2.tvoc
+            co2_b = 0#ccs2.eco2
+            tvoc_b = 0#ccs2.tvoc
             co2_b = self._WORKAROUND_READERROR(co2_b, 15)
             tvoc_b = self._WORKAROUND_READERROR(tvoc_b, 15)
             if processed:
