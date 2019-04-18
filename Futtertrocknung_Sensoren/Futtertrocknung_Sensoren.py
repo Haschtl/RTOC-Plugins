@@ -228,7 +228,7 @@ class Plugin(LoggerPlugin):
         rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
 
         try:
-            ccs1.set_environmental_data(aHumid, aTemp)
+            #ccs1.set_environmental_data(aHumid, aTemp)
             co2_a = ccs1.eco2
             tvoc_a = ccs1.tvoc
             co2_a = self._WORKAROUND_READERROR(co2_a, 15)
@@ -242,7 +242,7 @@ class Plugin(LoggerPlugin):
             self._sensorErrorEvent('A', 'CCS', True)
             print(traceback.format_exc())
         try:
-            ccs2.set_environmental_data(bHumid, bTemp)
+            #ccs2.set_environmental_data(bHumid, bTemp)
             co2_b = ccs2.eco2
             tvoc_b = ccs2.tvoc
             co2_b = self._WORKAROUND_READERROR(co2_b, 15)
