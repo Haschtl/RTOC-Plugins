@@ -43,7 +43,7 @@ class Plugin(LoggerPlugin, controller):
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
-
+            print('vor lesen')
             # Stream all measurements
             rpm = self.rpm
             pressure = self.air_pressure
@@ -54,6 +54,7 @@ class Plugin(LoggerPlugin, controller):
                 'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s']}
             }
             #print(sensor_data)
+            print('vor senden')
             self.stream(list=sensor_data)
             print(sensor_data)
             diff = (time.time() - start_time)
