@@ -220,6 +220,11 @@ class Plugin(LoggerPlugin):
         cHumid = self._WORKAROUND_READERROR(cHumid, 15, 100)
         dHumid = self._WORKAROUND_READERROR(dHumid, 15, 100)
 
+        aTemp = self._WORKAROUND_READERROR(aTemp, 15,100)
+        bTemp = self._WORKAROUND_READERROR(bTemp, 15, 100)
+        cTemp = self._WORKAROUND_READERROR(cTemp, 15, 100)
+        dTemp = self._WORKAROUND_READERROR(dTemp, 15, 100)
+
         if processed:
             aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
             aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
