@@ -50,9 +50,9 @@ _sensorErrors = {
 
 # Sensor warning ranges
 sensorRange = {
-    'A': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 100]},
+    'A': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 300]},
           'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
-    'B': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 100]},
+    'B': {'CCS': {'Temperatur': [-100, 40], 'CO2-Gehalt': [0, 1000], 'TVOC-Gehalt': [0, 300]},
           'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
     'C': {'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
     'D': {'DHT': {'Temperatur': [-100, 40], 'Feuchtigkeit': [5, 80]}},
@@ -174,6 +174,10 @@ class Plugin(LoggerPlugin):
         self.saveConfig()
 
     def _processSensor(self, messstelle, sensor, signal, value):
+        lastValue = self._sensor_data['messstelle']['signal'][0]
+        if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
+            value = lastValue
+            print('last measured value was wrong')
         if signal == 'Temperatur':
             name = 'Temperatur'
             u = '°C'
