@@ -99,11 +99,11 @@ class Plugin(LoggerPlugin):
         self._thread.start()
 
         self._sensor_data = {
-            'A': {'Temperatur': [0, '°C'], 'CO2-Gehalt': [0, 'ppm'], 'TVOC-Gehalt': [0, 'ppm'], 'Temperatur2': [0, '°C'], 'Feuchtigkeit': [0, '%']},
-            'B': {'Temperatur': [0, '°C'], 'CO2-Gehalt': [0, 'ppm'], 'TVOC-Gehalt': [0, 'ppm'], 'Temperatur': [0, '°C'], 'Feuchtigkeit': [0, '%']},
-            'C': {'Temperatur': [0, '°C'], 'Feuchtigkeit': [0, '%']},
-            'D': {'Temperatur': [0, '°C'], 'Feuchtigkeit': [0, '%']},
-            'Bedienelement': {'CPU-Temperatur': [0, '°C']},
+            'A': {'Temperatur': [None, '°C'], 'CO2-Gehalt': [None, 'ppm'], 'TVOC-Gehalt': [None, 'ppm'], 'Temperatur2': [None, '°C'], 'Feuchtigkeit': [None, '%']},
+            'B': {'Temperatur': [None, '°C'], 'CO2-Gehalt': [None, 'ppm'], 'TVOC-Gehalt': [None, 'ppm'], 'Temperatur': [None, '°C'], 'Feuchtigkeit': [None, '%']},
+            'C': {'Temperatur': [None, '°C'], 'Feuchtigkeit': [None, '%']},
+            'D': {'Temperatur': [None, '°C'], 'Feuchtigkeit': [None, '%']},
+            'Bedienelement': {'CPU-Temperatur': [None, '°C']},
         }
 
     def _waitForSensors(self):
@@ -191,9 +191,10 @@ class Plugin(LoggerPlugin):
             u = '?'
         value += self.sensorCalib[messstelle][sensor][signal]
         lastValue = self._sensor_data[messstelle][signal][0]
-        if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
-            print('last measured value was wrong: '+str(value)+', setting lastValue: '+str(lastValue))
-            value = lastValue
+        if lastValue is not None:
+            if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
+                print('last measured value was wrong: '+str(value)+', setting lastValue: '+str(lastValue))
+                value = lastValue
         fallback = self._rangeNoiseLevel*value
         old = self._sensorRangeHit[messstelle][sensor][signal]
         if value > self.sensorRange[messstelle][sensor][signal][1] and not old:
