@@ -12,7 +12,7 @@ import board
 import busio
 import adafruit_ccs811
 #import adafruit_dht
-import dht22
+from . import dht22
 import os
 import json
 import traceback
