@@ -52,7 +52,7 @@ class Plugin(LoggerPlugin, controller):
             flowDes = self.flow_rate_set
             temp1 = self.temperature1
             temp2 = self.temperature2
-            poti = self.potentiometer
+            poti = self.potentiometer*100
             reglerAn = self.control_enabled
             if reglerAn:
                 manuell = self.control_manual_selection
