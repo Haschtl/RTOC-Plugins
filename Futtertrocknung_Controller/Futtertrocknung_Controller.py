@@ -56,7 +56,7 @@ class Plugin(LoggerPlugin, controller):
             reglerAn = self.control_enabled
             if reglerAn:
                 manuell = self.control_manual_selection
-                if manuell:
+                if not manuell:
                     modus = 1
                 else:
                     m = self.control_input
