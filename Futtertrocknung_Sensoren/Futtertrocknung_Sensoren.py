@@ -174,7 +174,7 @@ class Plugin(LoggerPlugin):
         self.saveConfig()
 
     def _processSensor(self, messstelle, sensor, signal, value):
-        lastValue = self._sensor_data[messstelle]['signal'][0]
+        lastValue = self._sensor_data[messstelle][signal][0]
         if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
             value = lastValue
             print('last measured value was wrong')
