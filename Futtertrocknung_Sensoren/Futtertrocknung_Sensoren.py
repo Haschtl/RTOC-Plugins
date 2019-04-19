@@ -11,7 +11,8 @@ from threading import Thread
 import board
 import busio
 import adafruit_ccs811
-import adafruit_dht
+#import adafruit_dht
+import dht22
 import os
 import json
 import traceback
@@ -35,10 +36,10 @@ except:
     ccs1 = None
 #DHT_pins = {"A": 24, "B": 23, "C": 27, "D": 17}
 
-DHT_A = adafruit_dht.DHT22(board.D24)
-DHT_B = adafruit_dht.DHT22(board.D23)
-DHT_C = adafruit_dht.DHT22(board.D27)
-DHT_D = adafruit_dht.DHT22(board.D17)
+DHT_A = dht22.DHTBase(False, board.D24, 10)
+DHT_B = dht22.DHTBase(False, board.D23, 10)
+DHT_C = dht22.DHTBase(False, board.D27, 10)
+DHT_D = dht22.DHTBase(False, board.D17, 10)
 
 
 _sensorErrors = {
@@ -281,8 +282,9 @@ class Plugin(LoggerPlugin):
     def trySensorRead(self, value1, messtelle, sensor, signal, signal2, processed=True, gain=1):
         try:
             #ccs1.set_environmental_data(aHumid, aTemp)
-            a = value1.humidity
-            b = value1.temperature
+            # a = value1.humidity
+            # b = value1.temperature
+            b,a = value1.temperature_humidity
             a = self._WORKAROUND_READERROR(a, 15, gain)
             b = self._WORKAROUND_READERROR(b, 15, gain)
             if processed:
