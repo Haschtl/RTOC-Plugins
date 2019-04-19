@@ -52,18 +52,29 @@ class Plugin(LoggerPlugin, controller):
             flowDes = self.flow_rate_set
             temp1 = self.temperature1
             temp2 = self.temperature2
-            poti = self._potentiometer
-            reglerAn = self._control_enabled
+            poti = self.potentiometer
+            reglerAn = self.control_enabled
             if reglerAn:
-                manuell = self._control_manual_selection
+                manuell = self.control_manual_selection
                 if manuell:
                     modus = 2
                 else:
                     modus = 1
             else:
                 modus = 0
+
+            status = self.controller_not_settled
+            if not status:
+                if self.controller_timed_out or self.set_value_out_of_range or self.overtemperature or self.bmp_sensor_fault or self.hvac_sensor_fault:
+                    status = -1
+                else:
+                    status = 0
+            else:
+                status = 1
+
+
             sensor_data = {
-                'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s'], 'Solldruck': [pressureDes, 'hPa'], 'Sollfluss': [flowDes, 'm³/s'], },
+                'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s'], 'Solldruck': [pressureDes, 'hPa'], 'Sollfluss': [flowDes, 'm³/s'], 'Reglerstatus': [status, '']},
                 'Bedienelement': {'Modus': [modus,''], 'Potentiometer':[poti, '%']}
             }
             #print(sensor_data)
