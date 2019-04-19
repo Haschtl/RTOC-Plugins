@@ -190,11 +190,11 @@ class Plugin(LoggerPlugin):
             name = '?'
             u = '?'
         value += self.sensorCalib[messstelle][sensor][signal]
-        lastValue = self._sensor_data[messstelle][signal][0]
-        if lastValue is not None:
-            if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
-                print('last measured value was wrong: '+str(value)+', setting lastValue: '+str(lastValue))
-                value = lastValue
+        # lastValue = self._sensor_data[messstelle][signal][0]
+        # if lastValue is not None:
+        #     if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
+        #         print('last measured value was wrong: '+str(value)+', setting lastValue: '+str(lastValue))
+        #         value = lastValue
         fallback = self._rangeNoiseLevel*value
         old = self._sensorRangeHit[messstelle][sensor][signal]
         if value > self.sensorRange[messstelle][sensor][signal][1] and not old:
@@ -294,6 +294,19 @@ class Plugin(LoggerPlugin):
                 a = self._processSensor(messtelle, sensor, signal, a)
                 b = self._processSensor(messtelle, sensor, signal2, b)
             self._sensorErrorEvent(messtelle, sensor, False)
+
+            lastA = self._sensor_data[messtelle][signal][0]
+            lastB = self._sensor_data[messtelle][signal2][0]
+            if lastA is not None:
+                if abs(lastA-a)>=10 or (a<0 or a>100):
+                    print('New humidity value is wrong: '+str(lastA)+', setting lastValue: '+str(lastA))
+                    a = lastA
+
+            if lastB is not None:
+                if abs(lastB-b)>=10 and (b<10 or b>60):
+                    print('New temperature value is wrong: '+str(lastB)+', setting lastValue: '+str(lastB))
+                    b = lastB
+
         except:
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
