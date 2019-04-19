@@ -174,10 +174,6 @@ class Plugin(LoggerPlugin):
         self.saveConfig()
 
     def _processSensor(self, messstelle, sensor, signal, value):
-        lastValue = self._sensor_data[messstelle][signal][0]
-        if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
-            print('last measured value was wrong: '+str(value)+', setting lastValue: '+str(lastValue))
-            value = lastValue
         if signal == 'Temperatur':
             name = 'Temperatur'
             u = '°C'
@@ -193,8 +189,12 @@ class Plugin(LoggerPlugin):
         else:
             name = '?'
             u = '?'
-        fallback = self._rangeNoiseLevel*value
         value += self.sensorCalib[messstelle][sensor][signal]
+        lastValue = self._sensor_data[messstelle][signal][0]
+        if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
+            print('last measured value was wrong: '+str(value)+', setting lastValue: '+str(lastValue))
+            value = lastValue
+        fallback = self._rangeNoiseLevel*value
         old = self._sensorRangeHit[messstelle][sensor][signal]
         if value > self.sensorRange[messstelle][sensor][signal][1] and not old:
             self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu hoch!',
