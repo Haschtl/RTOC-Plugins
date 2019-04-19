@@ -47,11 +47,24 @@ class Plugin(LoggerPlugin, controller):
             # Stream all measurements
             rpm = self.rpm
             pressure = self.air_pressure
+            flow = self.flow_rate
+            pressureDes = self.air_pressure_set
+            flowDes = self.flow_rate_set
             temp1 = self.temperature1
             temp2 = self.temperature2
-            flow = self.flow_rate
+            poti = self._potentiometer
+            reglerAn = self._control_enabled
+            if reglerAn:
+                manuell = self._control_manual_selection
+                if manuell:
+                    modus = 2
+                else:
+                    modus = 1
+            else:
+                modus = 0
             sensor_data = {
-                'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s']}
+                'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s'], 'Solldruck': [pressureDes, 'hPa'], 'Sollfluss': [flowDes, 'm³/s'], },
+                'Bedienelement': {'Modus': [modus,''], 'Potentiometer':[poti, '%']}
             }
             #print(sensor_data)
             self.stream(list=sensor_data)
