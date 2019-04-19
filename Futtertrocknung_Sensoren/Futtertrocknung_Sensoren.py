@@ -267,8 +267,8 @@ class Plugin(LoggerPlugin):
                 tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
                 self._sensorErrorEvent('A', 'CCS', False)
         except:
-            co2_a = self.sensor_data["A"]['CO2-Gehalt'][0]
-            tvoc_a = self.sensor_data['A']['TVOC-Gehalt'][0]
+            co2_a = self._sensor_data["A"]['CO2-Gehalt'][0]
+            tvoc_a = self._sensor_data['A']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('A', 'CCS', True)
             #print(traceback.format_exc())
         try:
@@ -282,12 +282,12 @@ class Plugin(LoggerPlugin):
                 tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
                 self._sensorErrorEvent('B', 'CCS', False)
         except:
-            co2_b = self.sensor_data["B"]['CO2-Gehalt'][0]
-            tvoc_b = self.sensor_data['B']['TVOC-Gehalt'][0]
+            co2_b = self._sensor_data["B"]['CO2-Gehalt'][0]
+            tvoc_b = self._sensor_data['B']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('B', 'CCS', True)
             #print(traceback.format_exc())
 
-        self.sensor_data = {
+        self._sensor_data = {
             'A': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
             'B': {'Temperatur': [bTemp, '°C'], 'CO2-Gehalt': [co2_b, 'ppm'], 'TVOC-Gehalt': [tvoc_b, 'ppm'], 'Temperatur': [bTemp, '°C'], 'Feuchtigkeit': [bHumid, '%']},
             'C': {'Temperatur': [cTemp, '°C'], 'Feuchtigkeit': [cHumid, '%']},
@@ -295,7 +295,7 @@ class Plugin(LoggerPlugin):
             'Bedienelement': {'CPU-Temperatur': [rpiTemp, '°C']},
         }
 
-        return self.sensor_data
+        return self._sensor_data
 
     def trySensorRead(self, value1, messtelle, sensor, signal, signal2, processed=True, gain=1):
         try:
@@ -309,8 +309,8 @@ class Plugin(LoggerPlugin):
                 b = self._processSensor(messtelle, sensor, signal2, b)
             self._sensorErrorEvent(messtelle, sensor, False)
         except:
-            a = self.sensor_data[messtelle][signal][0]
-            b = self.sensor_data[messtelle][signal2][0]
+            a = self._sensor_data[messtelle][signal][0]
+            b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)
             #print(traceback.format_exc())
         return a,b
