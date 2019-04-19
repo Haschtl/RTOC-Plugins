@@ -68,13 +68,9 @@ class Plugin(LoggerPlugin, controller):
                 modus = 0
 
             status = self.controller_not_settled
-            if not status:
-                if self.controller_timed_out or self.set_value_out_of_range or self.overtemperature or self.bmp_sensor_fault or self.hvac_sensor_fault:
-                    status = -1
-                else:
-                    status = 0
-            else:
-                status = 1
+            #if not status:
+            if self.controller_timed_out or self.set_value_out_of_range or self.overtemperature or self.bmp_sensor_fault or self.hvac_sensor_fault:
+                status = -1
 
 
             sensor_data = {
