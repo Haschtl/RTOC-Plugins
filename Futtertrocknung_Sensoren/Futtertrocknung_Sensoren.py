@@ -174,10 +174,10 @@ class Plugin(LoggerPlugin):
         self.saveConfig()
 
     def _processSensor(self, messstelle, sensor, signal, value):
-        lastValue = self._sensor_data[messstelle][signal][1]
+        lastValue = self._sensor_data[messstelle][signal][0]
         if abs(lastValue-value)>=self.sensorRange[messstelle][sensor][signal][1]*0.1:
+            print('last measured value was wrong: '+str(value)+', setting lastValue: '+str(lastValue))
             value = lastValue
-            print('last measured value was wrong')
         if signal == 'Temperatur':
             name = 'Temperatur'
             u = '°C'
@@ -237,25 +237,6 @@ class Plugin(LoggerPlugin):
         bHumid, bTemp = self.trySensorRead(DHT_B, "B", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
         cHumid, cTemp = self.trySensorRead(DHT_C, "C", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
         dHumid, dTemp = self.trySensorRead(DHT_D, "D", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
-        # aHumid = self._WORKAROUND_READERROR(aHumid, 15,100)
-        # bHumid = self._WORKAROUND_READERROR(bHumid, 15, 100)
-        # cHumid = self._WORKAROUND_READERROR(cHumid, 15, 100)
-        # dHumid = self._WORKAROUND_READERROR(dHumid, 15, 100)
-
-        # aTemp = self._WORKAROUND_READERROR(aTemp, 15,100)
-        # bTemp = self._WORKAROUND_READERROR(bTemp, 15, 100)
-        # cTemp = self._WORKAROUND_READERROR(cTemp, 15, 100)
-        # dTemp = self._WORKAROUND_READERROR(dTemp, 15, 100)
-
-        # if processed:
-        #     aHumid = self._processSensor('A', 'DHT', 'Feuchtigkeit', aHumid)
-        #     aTemp = self._processSensor('A', 'DHT', 'Temperatur', aTemp)
-        #     bHumid = self._processSensor('B', 'DHT', 'Feuchtigkeit', bHumid)
-        #     bTemp = self._processSensor('B', 'DHT', 'Temperatur', bTemp)
-        #     cHumid = self._processSensor('C', 'DHT', 'Feuchtigkeit', cHumid)
-        #     cTemp = self._processSensor('C', 'DHT', 'Temperatur', cTemp)
-        #     dHumid = self._processSensor('D', 'DHT', 'Feuchtigkeit', dHumid)
-        #     dTemp = self._processSensor('D', 'DHT', 'Temperatur', dTemp)
 
         rpiTemp = self._get_cpu_temperature()
         rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
