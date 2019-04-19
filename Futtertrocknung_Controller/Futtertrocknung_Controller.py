@@ -34,7 +34,8 @@ class Plugin(LoggerPlugin, controller):
 
         self.run = True
         self.samplerate = 10
-
+        self._controller_sensor_error = 0
+        self._lastControllerStatus = 0
         self._thread = Thread(target=self._getControllerData)
         self._thread.start()
 
@@ -67,14 +68,70 @@ class Plugin(LoggerPlugin, controller):
             else:
                 modus = 0
 
-            status = self.controller_not_settled
-            #if not status:
-            if self.controller_timed_out or self.set_value_out_of_range or self.overtemperature or self.bmp_sensor_fault or self.hvac_sensor_fault:
-                status = -1
+            if modus in [0,1]:
+                status = 0
+            else:
+                not_settled = self.controller_not_settled
+                if not_settled:
+                    if self.controller_timed_out:
+                        status = -1 #rot
+                        if status != self._lastControllerStatus:
+                            self.event('Regler-Timeout! Lüfter wird abgeschaltet.', sname='E', dname='Reglerstatus', priority=2)
+                    elif self.set_value_out_of_range:
+                        status = -2 #rot
+                    else:
+                        status = 2 #orange
+                else:
+                    status = 1 #grün
+
+            self._lastControllerStatus = status
+
+            failure = 0
+            if self.overtemperature:
+                failure += 1
+            if self.bmp_sensor_fault:
+                failure +=3
+            if self.hvac_sensor_fault:
+                failure +=5
+
+            if failure != self._controller_sensor_error:
+                overtemp = False
+                bmp_sensor_fault = False
+                hvac_sensor_fault = False
+                if failure == 0:
+                    # no error
+                    pass
+                elif failure == 1:
+                    overtemp = True
+                elif failure == 3:
+                    bmp_sensor_fault = True
+                elif failure == 5:
+                    hvac_sensor_fault = True
+                elif failure == 4:
+                    overtemp = True
+                    bmp_sensor_fault = True
+                elif failure == 6:
+                    overtemp = True
+                    hvac_sensor_fault = True
+                elif failure == 8:
+                    bmp_sensor_fault = True
+                    hvac_sensor_fault = True
+                elif failure == 9:
+                    overtemp = True
+                    bmp_sensor_fault = True
+                    hvac_sensor_fault = True
+
+                if overtemp:
+                    self.event('Temperatur im Schacht zu hoch!', sname='E', dname='Temperatur1', priority=2)
+                if bmp_sensor_fault:
+                    self.event('Sensorfehler (BMP) an Messstelle E!', sname='E', dname='Temperatur1', priority=2)
+                if hvac_sensor_fault:
+                    self.event('Sensorfehler (HVAC) an Messstelle E!', sname='E', dname='Temperatur1', priority=2)
+                self._controller_sensor_error = failure
 
 
             sensor_data = {
-                'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s'], 'Solldruck': [pressureDes, 'hPa'], 'Sollfluss': [flowDes, 'm³/s'], 'Reglerstatus': [status, '']},
+                'E': {'Drehzahl': [rpm, 'U/min'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s'], 'Solldruck': [pressureDes, 'hPa'], 'Sollfluss': [flowDes, 'm³/s'], 'Reglerstatus': [status, ''], 'Sensorfehler': [failure,'']},
                 'Bedienelement': {'Modus': [modus,''], 'Potentiometer':[poti, '%']}
             }
             #print(sensor_data)
