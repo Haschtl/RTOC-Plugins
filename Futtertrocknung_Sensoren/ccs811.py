@@ -36,7 +36,7 @@ import time
 import math
 
 from micropython import const
-from .i2c_device import I2CDevice
+from . import i2c_device
 from . import i2c_bit
 from . import i2c_bits
 
@@ -118,7 +118,7 @@ class CCS811:
             self.initI2C()
 
     def initI2C(self):
-        self.i2c_device = I2CDevice(self.i2c_bus, self.address)
+        self.i2c_device = i2c_device.I2CDevice(self.i2c_bus, self.address)
         #check that the HW id is correct
         if self.hw_id != _HW_ID_CODE:
             raise RuntimeError("Device ID returned is not correct! Please check your wiring.")
