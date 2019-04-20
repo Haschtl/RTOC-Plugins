@@ -36,9 +36,14 @@ import time
 import math
 
 from micropython import const
-from . import i2c_device
-from . import i2c_bit
-from . import i2c_bits
+try:
+    from . import i2c_device
+    from . import i2c_bit
+    from . import i2c_bits
+except ImportError:
+    import i2c_device
+    import i2c_bit
+    import i2c_bits
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_CCS811.git"
