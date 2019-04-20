@@ -100,8 +100,6 @@ class CCS811:
 
         self.interrupt_enabled = False
 
-        #default to read every second
-        self.drive_mode = DRIVE_MODE_1SEC
         self.i2c_device = None
         self.i2c_bus = i2c_bus
         self.address = address
@@ -134,6 +132,8 @@ class CCS811:
         self.drive_mode = i2c_bits.RWBits(3, 0x01, 4)
         print(self.drive_mode)
 
+        #default to read every second
+        self.drive_mode = DRIVE_MODE_1SEC
         #check that the HW id is correct
         if self.hw_id != _HW_ID_CODE:
             raise RuntimeError("Device ID returned is not correct! Please check your wiring.")
