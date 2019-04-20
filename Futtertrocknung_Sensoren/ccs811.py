@@ -103,12 +103,7 @@ class CCS811:
     def initI2C(self):
         self.i2c_device = i2c_device.I2CDevice(self.i2c_bus, self.address)
 
-        #try to start the app
-        buf = bytearray(1)
-        buf[0] = 0xF4
-        with self.i2c_device as i2c:
-            i2c.write(buf, end=1, stop=True)
-        time.sleep(.1)
+
 
         self.error = i2c_bit.ROBit(0x00, 0)
         a0 = i2c_bit.ROBit(0xe0, 0)
@@ -129,11 +124,16 @@ class CCS811:
         self.int_thresh = i2c_bit.RWBit(0x01, 2)
         self.interrupt_enabled = i2c_bit.RWBit(0x01, 3)
         self.drive_mode = i2c_bits.RWBits(3, 0x01, 4)
-        a = self.drive_mode
-        print(a)
 
         #default to read every second
         self.drive_mode = DRIVE_MODE_1SEC
+
+        #try to start the app
+        buf = bytearray(1)
+        buf[0] = 0xF4
+        with self.i2c_device as i2c:
+            i2c.write(buf, end=1, stop=True)
+        time.sleep(.1)
         #check that the HW id is correct
         # if self.hw_id != _HW_ID_CODE:
         #     raise RuntimeError("Device ID returned is not correct! Please check your wiring.")
