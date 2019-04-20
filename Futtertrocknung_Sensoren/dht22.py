@@ -37,7 +37,7 @@ try:
     _USE_PULSEIO = True
 except ImportError:
     pass   # This is OK, we'll try to bitbang it!
-import stat_filter
+from . import stat_filter
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_DHT.git"
