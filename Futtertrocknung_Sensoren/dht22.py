@@ -37,7 +37,7 @@ try:
     _USE_PULSEIO = True
 except ImportError:
     pass   # This is OK, we'll try to bitbang it!
-
+import stat_filter
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_DHT.git"
@@ -70,6 +70,10 @@ class DHTBase:
         self._humidity = None
         self._temperature = None
         self._measurement = None,None
+
+        self.temperature_filter=stat_filter.Stat_Filter(-50,200,5,10)
+        self.humidity_filter=stat_filter.Stat_Filter(0,100,2,10)
+
         # We don't use a context because linux-based systems are sluggish
         # and we're better off having a running process
         if _USE_PULSEIO:
@@ -258,8 +262,9 @@ class DHTBase:
             data returned from the device (try again)
         """
         self.measure()
-        self._measurement=self._temperature,self._humidity
-        return self._measurement
+        self._temperature=self.temperature_filter.statistic_filter(self._temperature)
+        self._humidity=self.humidity_filter.statistic_filter(self._temperature)
+        return self._temperature,self._humidity
 
 class DHT11(DHTBase):
     """ Support for DHT11 device.
