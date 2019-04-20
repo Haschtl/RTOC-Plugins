@@ -85,14 +85,6 @@ class CCS811:
     """
     #set up the registers
 
-    #print(str(error))
-    #print(i2c_bit.ROBit(0xe0, 0))
-    #print(i2c_bit.ROBit(0xe0, 1))
-    #print(i2c_bit.ROBit(0xe0, 2))
-    #print(i2c_bit.ROBit(0xe0, 3))
-    #print(i2c_bit.ROBit(0xe0, 4))
-    #print(i2c_bit.ROBit(0xe0, 5))
-
     temp_offset = 0.0
     """Temperature offset."""
 
@@ -119,13 +111,20 @@ class CCS811:
         time.sleep(.1)
 
         self.error = i2c_bit.ROBit(0x00, 0)
+        a0 = i2c_bit.ROBit(0xe0, 0)
+        a0 = i2c_bit.ROBit(0xe0, 1)
+        a0 = i2c_bit.ROBit(0xe0, 2)
+        a0 = i2c_bit.ROBit(0xe0, 3)
+        a0 = i2c_bit.ROBit(0xe0, 4)
+        a0 = i2c_bit.ROBit(0xe0, 5)
         """True when an error has occured."""
         self.data_ready = i2c_bit.ROBit(0x00, 3)
         """True when new data has been read."""
         self.app_valid = i2c_bit.ROBit(0x00, 4)
         self.fw_mode = i2c_bit.ROBit(0x00, 7)
-
+        #
         self.hw_id = i2c_bits.ROBits(8, 0x20, 0)
+
 
         self.int_thresh = i2c_bit.RWBit(0x01, 2)
         self.interrupt_enabled = i2c_bit.RWBit(0x01, 3)
