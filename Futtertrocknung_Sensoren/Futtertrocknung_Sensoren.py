@@ -93,7 +93,7 @@ class Plugin(LoggerPlugin):
         # Sensor error flags
         self._sensorErrors = _sensorErrors
         self._sensorRangeHit = _sensorRangeHit
-        self._rangeNoiseLevel = 0.05 # %
+        self._rangeNoiseLevel = 0.05  # %
         self.loadConfig()
 
         self._thread = Thread(target=self._sensorThread)
@@ -230,10 +230,14 @@ class Plugin(LoggerPlugin):
         # bHumid, bTemp = 0,0
         # cHumid, cTemp = 0,0
         # dHumid, dTemp = 0,0
-        aHumid, aTemp = self.trySensorRead(DHT_A, "A", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
-        bHumid, bTemp = self.trySensorRead(DHT_B, "B", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
-        cHumid, cTemp = self.trySensorRead(DHT_C, "C", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
-        dHumid, dTemp = self.trySensorRead(DHT_D, "D", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
+        aHumid, aTemp = self.trySensorRead(
+            DHT_A, "A", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
+        bHumid, bTemp = self.trySensorRead(
+            DHT_B, "B", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
+        cHumid, cTemp = self.trySensorRead(
+            DHT_C, "C", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
+        dHumid, dTemp = self.trySensorRead(
+            DHT_D, "D", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
 
         rpiTemp = self._get_cpu_temperature()
         rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
@@ -252,7 +256,7 @@ class Plugin(LoggerPlugin):
             co2_a = self._sensor_data["A"]['CO2-Gehalt'][0]
             tvoc_a = self._sensor_data['A']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('A', 'CCS', True)
-            #print(traceback.format_exc())
+            # print(traceback.format_exc())
         try:
             #ccs2.set_environmental_data(bHumid, bTemp)
             co2_b = ccs2.eco2
@@ -267,7 +271,7 @@ class Plugin(LoggerPlugin):
             co2_b = self._sensor_data["B"]['CO2-Gehalt'][0]
             tvoc_b = self._sensor_data['B']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('B', 'CCS', True)
-            #print(traceback.format_exc())
+            # print(traceback.format_exc())
 
         self._sensor_data = {
             'A': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
@@ -284,9 +288,9 @@ class Plugin(LoggerPlugin):
             #ccs1.set_environmental_data(aHumid, aTemp)
             # a = value1.humidity
             # b = value1.temperature
-            b,a = value1.temperature_humidity
-            a = self._WORKAROUND_READERROR(a, 15, gain)
-            b = self._WORKAROUND_READERROR(b, 15, gain)
+            b, a = value1.temperature_humidity
+            a = self._WORKAROUND_READERROR(a, 15, gain, self._sensor_data[messtelle][signal][0])
+            b = self._WORKAROUND_READERROR(b, 15, gain, self._sensor_data[messtelle][signal2][0])
             if processed:
                 a = self._processSensor(messtelle, sensor, signal, a)
                 b = self._processSensor(messtelle, sensor, signal2, b)
@@ -295,8 +299,8 @@ class Plugin(LoggerPlugin):
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)
-            #print(traceback.format_exc())
-        return a,b
+            # print(traceback.format_exc())
+        return a, b
 
     def _sensorThread(self):
         self._waitForSensors()
@@ -316,11 +320,17 @@ class Plugin(LoggerPlugin):
         tempC = temp/1000
         return tempC
 
-    def _WORKAROUND_READERROR(self, value,x=15,gain=1):
+    def _WORKAROUND_READERROR(self, value, x=15, gain=1, oldvalue=None):
+
         if value == None:
             value = 0
         value = value*gain
-        while value>pow(2,x):
-            value = value - pow(2,x)
+        if oldvalue is not None:
+            while value > pow(2, x):
+                value = value - pow(2, x)
+        else:
+            if value > pow(2, x):
+                value = oldvalue
         value = value/gain
+
         return value
