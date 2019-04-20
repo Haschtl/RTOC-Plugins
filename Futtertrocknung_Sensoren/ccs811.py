@@ -159,14 +159,14 @@ class CCS811:
     def tvoc(self): # pylint: disable=invalid-name
         """Total Volatile Organic Compound in parts per billion."""
         self._update_data()
-        self._tvoc=self._tvoc_filter.statistic_filter(self._tvoc)
+        #self._tvoc=self._tvoc_filter.statistic_filter(self._tvoc)
         return self._tvoc
 
     @property
     def eco2(self): # pylint: disable=invalid-name
         """Equivalent Carbon Dioxide in parts per million. Clipped to 400 to 8192ppm."""
         self._update_data()
-        self._eco2=self._eco2_filter.statistic_filter(self._eco2)
+        #self._eco2=self._eco2_filter.statistic_filter(self._eco2)
         return self._eco2
 
     @property
