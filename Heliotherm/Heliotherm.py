@@ -14,7 +14,8 @@ import os
 
 devicename = "Heliotherm"
 
-HOST = "192.168.178.72"
+#HOST = "192.168.178.72"
+HOST = "192.168.2.104"
 
 #from pymodbus3.client.sync import ModbusTcpClient
 from pyModbusTCP.client import ModbusClient
