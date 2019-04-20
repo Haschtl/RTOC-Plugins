@@ -40,7 +40,7 @@ try:
     from . import i2c_device
     from . import i2c_bit
     from . import i2c_bits
-except ImportError:
+except SystemError:
     import i2c_device
     import i2c_bit
     import i2c_bits
