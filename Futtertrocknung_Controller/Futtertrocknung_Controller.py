@@ -98,7 +98,7 @@ class Plugin(LoggerPlugin, controller):
                         self.event('Regler wieder eingeschwungen.', sname='E', dname='Reglerstatus', priority=0)
 
 
-            self._lastSettled = not_settled
+                self._lastSettled = not_settled
             self._lastControllerStatus = status
 
             failure = 0

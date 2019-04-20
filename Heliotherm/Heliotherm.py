@@ -221,6 +221,10 @@ class Plugin(LoggerPlugin):
             self.__updater = Thread(target=self.updateT)
             self.__updater.start()
 
+    def helio_set(self, reg, value):
+        pass
+        #self.c.write_single_register(reg_addr,reg_value)
+        #self.c.write_multiple_registers
     def helio_get(self):
         #client = ModbusTcpClient(self.__base_address)
         #client.write_coil(1, True)
