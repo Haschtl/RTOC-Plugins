@@ -112,9 +112,6 @@ class CCS811:
 
     def initI2C(self):
         self.i2c_device = i2c_device.I2CDevice(self.i2c_bus, self.address)
-        #check that the HW id is correct
-        if self.hw_id != _HW_ID_CODE:
-            raise RuntimeError("Device ID returned is not correct! Please check your wiring.")
 
         #try to start the app
         buf = bytearray(1)
@@ -136,6 +133,11 @@ class CCS811:
         self.interrupt_enabled = i2c_bit.RWBit(0x01, 3)
         self.drive_mode = i2c_bits.RWBits(3, 0x01, 4)
         print(self.drive_mode)
+
+        #check that the HW id is correct
+        if self.hw_id != _HW_ID_CODE:
+            raise RuntimeError("Device ID returned is not correct! Please check your wiring.")
+
         #make sure there are no errors and we have entered application mode
         #if self.error:
         #    raise RuntimeError("Device returned a error! Try removing and reapplying power to "
