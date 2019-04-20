@@ -135,16 +135,16 @@ class CCS811:
         #default to read every second
         self.drive_mode = DRIVE_MODE_1SEC
         #check that the HW id is correct
-        if self.hw_id != _HW_ID_CODE:
-            raise RuntimeError("Device ID returned is not correct! Please check your wiring.")
+        # if self.hw_id != _HW_ID_CODE:
+        #     raise RuntimeError("Device ID returned is not correct! Please check your wiring.")
 
         #make sure there are no errors and we have entered application mode
         #if self.error:
         #    raise RuntimeError("Device returned a error! Try removing and reapplying power to "
         #                       "the device and running the code again.")
-        if not self.fw_mode:
-            raise RuntimeError("Device did not enter application mode! If you got here, there may "
-                               "be a problem with the firmware on your sensor.")
+        # if not self.fw_mode:
+        #     raise RuntimeError("Device did not enter application mode! If you got here, there may "
+        #                       "be a problem with the firmware on your sensor.")
 
 
     @property
