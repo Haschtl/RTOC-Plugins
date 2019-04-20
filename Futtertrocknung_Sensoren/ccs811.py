@@ -83,8 +83,6 @@ class CCS811:
     :param ~busio.I2C i2c: The I2C bus.
     :param int addr: The I2C address of the CCS811.
     """
-
-
     temp_offset = 0.0
     """Temperature offset."""
 
@@ -116,6 +114,9 @@ class CCS811:
 
 
     def initI2C(self):
+        if self.i2c_device:
+            self.i2c_device.close()
+            self.i2c_desive=None
         self.i2c_device = i2c_device.I2CDevice(self.i2c_bus, self.address)
 
 
@@ -127,11 +128,6 @@ class CCS811:
             a0 = i2c_bit.ROBit(0xe0, 4)
             a0 = i2c_bit.ROBit(0xe0, 5)
         else:
-
-
-
-
-
 
             #default to read every second
             self.drive_mode = DRIVE_MODE_1SEC
@@ -168,7 +164,7 @@ class CCS811:
     def _update_data(self):
         #self.error = i2c_bit.ROBit(0x00, 0)
         if self.error:
-            print('CCS811: Device returned a error! Retry.')
+            print('CCS811: Device returned an error! Retry.')
             self.initI2C()
             # self._update_data()
         else: # self.data_ready:

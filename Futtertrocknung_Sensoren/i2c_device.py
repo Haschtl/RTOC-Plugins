@@ -152,3 +152,6 @@ class I2CDevice:
     def __exit__(self, *exc):
         self.i2c.unlock()
         return False
+
+    def close(self):
+        self.i2c.unlock()
