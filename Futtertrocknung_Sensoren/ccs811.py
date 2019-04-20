@@ -130,7 +130,8 @@ class CCS811:
         self.int_thresh = i2c_bit.RWBit(0x01, 2)
         self.interrupt_enabled = i2c_bit.RWBit(0x01, 3)
         self.drive_mode = i2c_bits.RWBits(3, 0x01, 4)
-        print(bytearray(self.drive_mode))
+        a = self.drive_mode
+        print(a)
 
         #default to read every second
         self.drive_mode = DRIVE_MODE_1SEC
