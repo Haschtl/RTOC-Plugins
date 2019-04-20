@@ -23,18 +23,7 @@ devicename = "Sensoren"
 #dht22 = Adafruit_DHT.DHT22
 # css811: sudo nano /boot/config.txt for i2c baudrate
 i2c = busio.I2C(board.SCL, board.SDA)
-try:
-    ccs2 = adafruit_ccs811.CCS811(i2c)
-except:
-    print('ERROR CCS Sensor Messstelle B')
-    print(traceback.format_exc())
-    ccs2 = None
-try:
-    ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
-except:
-    print('ERROR CCS Sensor Messstelle A')
-    print(traceback.format_exc())
-    ccs1 = None
+
 #DHT_pins = {"A": 24, "B": 23, "C": 27, "D": 17}
 
 DHT_A = dht22.DHTBase(False, board.D24, 10)
@@ -91,6 +80,19 @@ class Plugin(LoggerPlugin):
         self.run = True
         self.samplerate = 10
 
+        try:
+            self.ccs2 = adafruit_ccs811.CCS811(i2c)
+        except:
+            print('ERROR CCS Sensor Messstelle B')
+            print(traceback.format_exc())
+            self.ccs2 = None
+        try:
+            self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
+        except:
+            print('ERROR CCS Sensor Messstelle A')
+            print(traceback.format_exc())
+            self.ccs1 = None
+
         # Sensor error flags
         self._sensorErrors = _sensorErrors
         self._sensorRangeHit = _sensorRangeHit
@@ -110,17 +112,17 @@ class Plugin(LoggerPlugin):
 
     def _waitForSensors(self):
         # Wait for the sensor to be ready and calibrate the thermistor
-        if ccs1 is not None:
-            while not ccs1.data_ready:
+        if self.ccs1 is not None:
+            while not self.ccs1.data_ready:
                 pass
-            temp = ccs1.temperature
-            ccs1.temp_offset = temp - 25.0
+            temp = self.ccs1.temperature
+            self.ccs1.temp_offset = temp - 25.0
 
-        if ccs2 is not None:
-            while not ccs2.data_ready:
+        if self.ccs2 is not None:
+            while not self.ccs2.data_ready:
                 pass
-            temp2 = ccs2.temperature
-            ccs2.temp_offset = temp2 - 25.0
+            temp2 = self.ccs2.temperature
+            self.ccs2.temp_offset = temp2 - 25.0
 
     def saveConfig(self):
         packagedir = self.getDir(__file__)
@@ -243,9 +245,20 @@ class Plugin(LoggerPlugin):
         rpiTemp = self._get_cpu_temperature()
         rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
 
+        if self.ccs1 == None:
+            try:
+                self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
+            except:
+                self.ccs1 = None
+        if self.ccs2 == None:
+            try:
+                self.ccs2 = adafruit_ccs811.CCS811(i2c)
+            except:
+                self.ccs2 = None
         try:
             #ccs1.set_environmental_data(aHumid, aTemp)
-            co2_a, tvoc_a = ccs1.eco2_tvoc
+            co2_a = self.ccs1.eco2
+            tvoc_a = self.ccs1.tvoc
             co2_a = self._WORKAROUND_READERROR(co2_a, 15)
             tvoc_a = self._WORKAROUND_READERROR(tvoc_a, 15)
             if processed:
@@ -259,7 +272,8 @@ class Plugin(LoggerPlugin):
             # print(traceback.format_exc())
         try:
             #ccs2.set_environmental_data(bHumid, bTemp)
-            co2_b, tvoc_b = ccs1.eco2_tvoc
+            co2_b = self.ccs2.eco2
+            tvoc_b = self.ccs2.tvoc
             co2_b = self._WORKAROUND_READERROR(co2_b, 15)
             tvoc_b = self._WORKAROUND_READERROR(tvoc_b, 15)
             if processed:
