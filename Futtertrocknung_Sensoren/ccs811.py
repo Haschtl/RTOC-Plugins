@@ -98,10 +98,8 @@ class CCS811:
         self._eco2 = None # pylint: disable=invalid-name
         self._tvoc = None # pylint: disable=invalid-name
         # if not self.error:
-        self.initI2C()
-
-        #set up the registers
         self.error = i2c_bit.ROBit(0x00, 0)
+        #set up the registers
         """True when an error has occured."""
         self.data_ready = i2c_bit.ROBit(0x00, 3)
         """True when new data has been read."""
@@ -113,6 +111,9 @@ class CCS811:
         self.int_thresh = i2c_bit.RWBit(0x01, 2)
         self.interrupt_enabled = i2c_bit.RWBit(0x01, 3)
         self.drive_mode = i2c_bits.RWBits(3, 0x01, 4)
+
+        self.initI2C()
+
 
     def initI2C(self):
         self.i2c_device = i2c_device.I2CDevice(self.i2c_bus, self.address)
