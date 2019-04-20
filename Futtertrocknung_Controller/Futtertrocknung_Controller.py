@@ -36,6 +36,8 @@ class Plugin(LoggerPlugin, controller):
         self.samplerate = 10
         self._controller_sensor_error = 0
         self._lastControllerStatus = 0
+        self._lastSettled = 1
+        self._lastModus = 0
         self._thread = Thread(target=self._getControllerData)
         self._thread.start()
 
@@ -67,7 +69,16 @@ class Plugin(LoggerPlugin, controller):
                         modus = 3
             else:
                 modus = 0
-
+            if modus != self._lastModus:
+                if modus == 1:
+                    self.event('Gebläsedrehzahl wird manuell eingestellt.', sname='E', dname='Reglerstatus', priority=0)
+                elif modus == 2:
+                    self.event('Gebläsedrehzahl wird auf den Volumenstrom geregelt.', sname='E', dname='Reglerstatus', priority=0)
+                elif modus == 3:
+                    self.event('Gebläsedrehzahl wird auf den Luftdrucksensor geregelt.', sname='E', dname='Reglerstatus', priority=0)
+                else:
+                    self.event('Gebläse abgeschaltet.', sname='E', dname='Reglerstatus', priority=0)
+            self._lastModus = modus
             if modus in [0,1]:
                 status = 0
             else:
@@ -76,14 +87,18 @@ class Plugin(LoggerPlugin, controller):
                     if self.controller_timed_out:
                         status = -1 #rot
                         if status != self._lastControllerStatus:
-                            self.event('Regler-Timeout! Lüfter wird abgeschaltet.', sname='E', dname='Reglerstatus', priority=2)
+                            self.event('Regler ist nicht eingeschwungen.', sname='E', dname='Reglerstatus', priority=2)
                     elif self.set_value_out_of_range:
                         status = -2 #rot
                     else:
                         status = 2 #orange
                 else:
                     status = 1 #grün
+                    if self._lastSettled != status:
+                        self.event('Regler wieder eingeschwungen.', sname='E', dname='Reglerstatus', priority=0)
 
+
+            self._lastSettled = not_settled
             self._lastControllerStatus = status
 
             failure = 0
