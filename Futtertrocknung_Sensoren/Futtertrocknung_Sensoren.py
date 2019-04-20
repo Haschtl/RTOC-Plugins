@@ -248,11 +248,13 @@ class Plugin(LoggerPlugin):
         if self.ccs1 == None:
             try:
                 self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
+                self._waitForSensors()
             except:
                 self.ccs1 = None
         if self.ccs2 == None:
             try:
                 self.ccs2 = adafruit_ccs811.CCS811(i2c)
+                self._waitForSensors()
             except:
                 self.ccs2 = None
         try:
