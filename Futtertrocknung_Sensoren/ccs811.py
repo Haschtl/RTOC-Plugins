@@ -276,4 +276,4 @@ if __name__ == '__main__':
     i2c = busio.I2C(board.SCL, board.SDA)
     c = CCS811(i2c)
     while True:
-        print(c.eco2_tvoc)
+        a = c.eco2_tvoc
