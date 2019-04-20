@@ -36,9 +36,9 @@ import time
 import math
 
 from micropython import const
-from adafruit_bus_device.i2c_device import I2CDevice
-from adafruit_register import i2c_bit
-from adafruit_register import i2c_bits
+from .i2c_device import I2CDevice
+from . import i2c_bit
+from . import i2c_bits
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_CCS811.git"
@@ -109,12 +109,13 @@ class CCS811:
 
         #default to read every second
         self.drive_mode = DRIVE_MODE_1SEC
+        self.i2c_device = None
         self.i2c_bus = i2c_bus
         self.address = address
         self._eco2 = None # pylint: disable=invalid-name
         self._tvoc = None # pylint: disable=invalid-name
         if not self.error:
-            self.initI2C
+            self.initI2C()
 
     def initI2C(self):
         self.i2c_device = I2CDevice(self.i2c_bus, self.address)
@@ -153,7 +154,8 @@ class CCS811:
         if self.error:
             print('CCS811: Device returned a error! Retrying initialization...')
             self.initI2C()
-        if self.data_ready:
+            self._update_data()
+        else: # self.data_ready:
             buf = bytearray(9)
             buf[0] = _ALG_RESULT_DATA
             with self.i2c_device as i2c:
@@ -231,8 +233,9 @@ class CCS811:
 
         buf = bytearray([_ENV_DATA, hum_perc, 0x00, ((temp_conv >> 8) & 0xFF), (temp_conv & 0xFF)])
 
-        with self.i2c_device as i2c:
-            i2c.write(buf)
+        if self.i2c_device:
+            with self.i2c_device as i2c:
+                i2c.write(buf)
 
     def set_interrupt_thresholds(self, low_med, med_high, hysteresis):
         """Set the thresholds used for triggering the interrupt based on eCO2.
@@ -248,8 +251,9 @@ class CCS811:
                          ((med_high >> 8) & 0xF),
                          (med_high & 0xF),
                          hysteresis])
-        with self.i2c_device as i2c:
-            i2c.write(buf)
+        if self.i2c_device:
+            with self.i2c_device as i2c:
+                i2c.write(buf)
 
     # def reset(self):
     #     """Initiate a software reset."""
