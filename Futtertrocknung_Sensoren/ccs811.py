@@ -84,7 +84,7 @@ class CCS811:
     :param int addr: The I2C address of the CCS811.
     """
     #set up the registers
-    error = i2c_bit.ROBit(0x00, 0)
+
     #print(str(error))
     #print(i2c_bit.ROBit(0xe0, 0))
     #print(i2c_bit.ROBit(0xe0, 1))
@@ -107,8 +107,8 @@ class CCS811:
         self.address = address
         self._eco2 = None # pylint: disable=invalid-name
         self._tvoc = None # pylint: disable=invalid-name
-        if not self.error:
-            self.initI2C()
+        # if not self.error:
+        self.initI2C()
 
     def initI2C(self):
         self.i2c_device = i2c_device.I2CDevice(self.i2c_bus, self.address)
@@ -123,6 +123,7 @@ class CCS811:
             i2c.write(buf, end=1, stop=True)
         time.sleep(.1)
 
+        self.error = i2c_bit.ROBit(0x00, 0)
         """True when an error has occured."""
         self.data_ready = i2c_bit.ROBit(0x00, 3)
         """True when new data has been read."""
