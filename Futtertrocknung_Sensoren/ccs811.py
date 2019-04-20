@@ -135,6 +135,7 @@ class CCS811:
         self.int_thresh = i2c_bit.RWBit(0x01, 2)
         self.interrupt_enabled = i2c_bit.RWBit(0x01, 3)
         self.drive_mode = i2c_bits.RWBits(3, 0x01, 4)
+        print(self.drive_mode)
         #make sure there are no errors and we have entered application mode
         #if self.error:
         #    raise RuntimeError("Device returned a error! Try removing and reapplying power to "
