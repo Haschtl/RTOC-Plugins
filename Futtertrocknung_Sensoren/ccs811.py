@@ -160,9 +160,9 @@ class CCS811:
     def _update_data(self):
         self.error = i2c_bit.ROBit(0x00, 0)
         if self.error:
-            print('CCS811: Device returned a error! Retrying initialization...')
+            print('CCS811: Device returned a error! Retry.')
             self.initI2C()
-            self._update_data()
+            # self._update_data()
         else: # self.data_ready:
             buf = bytearray(9)
             buf[0] = _ALG_RESULT_DATA
