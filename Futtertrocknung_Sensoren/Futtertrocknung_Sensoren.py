@@ -10,7 +10,7 @@ from threading import Thread
 #import Adafruit_DHT
 import board
 import busio
-import adafruit_ccs811
+from . import ccs811 as adafruit_ccs811
 #import ccs811 as adafruit_ccs811
 #import adafruit_dht
 from . import dht22
