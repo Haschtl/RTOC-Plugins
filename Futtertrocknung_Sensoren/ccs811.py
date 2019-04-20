@@ -80,8 +80,7 @@ class CCS811:
     """
     #set up the registers
     error = i2c_bit.ROBit(0x00, 0)
-    print(str(error))
-    error = 0
+    #print(str(error))
     #print(i2c_bit.ROBit(0xe0, 0))
     #print(i2c_bit.ROBit(0xe0, 1))
     #print(i2c_bit.ROBit(0xe0, 2))
@@ -105,8 +104,20 @@ class CCS811:
     """Temperature offset."""
 
     def __init__(self, i2c_bus, address=0x5A):
-        self.i2c_device = I2CDevice(i2c_bus, address)
-        print(self.error_code)
+
+        self.interrupt_enabled = False
+
+        #default to read every second
+        self.drive_mode = DRIVE_MODE_1SEC
+        self.i2c_bus = i2c_bus
+        self.address = address
+        self._eco2 = None # pylint: disable=invalid-name
+        self._tvoc = None # pylint: disable=invalid-name
+        if not self.error:
+            self.initI2C
+
+    def initI2C(self):
+        self.i2c_device = I2CDevice(self.i2c_bus, self.address)
         #check that the HW id is correct
         if self.hw_id != _HW_ID_CODE:
             raise RuntimeError("Device ID returned is not correct! Please check your wiring.")
@@ -126,13 +137,6 @@ class CCS811:
             raise RuntimeError("Device did not enter application mode! If you got here, there may "
                                "be a problem with the firmware on your sensor.")
 
-        self.interrupt_enabled = False
-
-        #default to read every second
-        self.drive_mode = DRIVE_MODE_1SEC
-
-        self._eco2 = None # pylint: disable=invalid-name
-        self._tvoc = None # pylint: disable=invalid-name
 
     @property
     def error_code(self):
@@ -145,6 +149,10 @@ class CCS811:
         return buf[1]
 
     def _update_data(self):
+        self.error = i2c_bit.ROBit(0x00, 0)
+        if self.error:
+            print('CCS811: Device returned a error! Retrying initialization...')
+            self.initI2C()
         if self.data_ready:
             buf = bytearray(9)
             buf[0] = _ALG_RESULT_DATA
@@ -155,14 +163,20 @@ class CCS811:
             self._eco2 = (buf[1] << 8) | (buf[2])
             self._tvoc = (buf[3] << 8) | (buf[4])
 
-            if self.error:
-                raise RuntimeError("Error:" + str(self.error_code))
+            #if self.error:
+                #raise RuntimeError("Error:" + str(self.error_code))
 
     @property
     def tvoc(self): # pylint: disable=invalid-name
         """Total Volatile Organic Compound in parts per billion."""
         self._update_data()
         return self._tvoc
+
+    @property
+    def eco2_tvoc(self): # pylint: disable=invalid-name
+        """Total Volatile Organic Compound in parts per billion."""
+        self._update_data()
+        return self._eco2, self._tvoc
 
     @property
     def eco2(self): # pylint: disable=invalid-name
@@ -237,18 +251,18 @@ class CCS811:
         with self.i2c_device as i2c:
             i2c.write(buf)
 
-    def reset(self):
-        """Initiate a software reset."""
-        #reset sequence from the datasheet
-        seq = bytearray([_SW_RESET, 0x11, 0xE5, 0x72, 0x8A])
-        with self.i2c_device as i2c:
-            i2c.write(seq)
+    # def reset(self):
+    #     """Initiate a software reset."""
+    #     #reset sequence from the datasheet
+    #     seq = bytearray([_SW_RESET, 0x11, 0xE5, 0x72, 0x8A])
+    #     with self.i2c_device as i2c:
+    #         i2c.write(seq)
 
 if __name__ == '__main__':
     import board
     import busio
-    
 
-    
+
+
     i2c = busio.I2C(board.SCL, board.SDA)
     CCS811(i2c)
