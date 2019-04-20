@@ -112,17 +112,20 @@ class Plugin(LoggerPlugin):
 
     def _waitForSensors(self):
         # Wait for the sensor to be ready and calibrate the thermistor
-        if self.ccs1 is not None:
-            while not self.ccs1.data_ready:
-                pass
-            temp = self.ccs1.temperature
-            self.ccs1.temp_offset = temp - 25.0
+        try:
+            if self.ccs1 is not None:
+                while not self.ccs1.data_ready:
+                    pass
+                temp = self.ccs1.temperature
+                self.ccs1.temp_offset = temp - 25.0
 
-        if self.ccs2 is not None:
-            while not self.ccs2.data_ready:
-                pass
-            temp2 = self.ccs2.temperature
-            self.ccs2.temp_offset = temp2 - 25.0
+            if self.ccs2 is not None:
+                while not self.ccs2.data_ready:
+                    pass
+                temp2 = self.ccs2.temperature
+                self.ccs2.temp_offset = temp2 - 25.0
+        except:
+            print(traceback.format_exc())
 
     def saveConfig(self):
         packagedir = self.getDir(__file__)
