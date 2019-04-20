@@ -261,8 +261,7 @@ class CCS811:
 if __name__ == '__main__':
     import board
     import busio
-
-
-
     i2c = busio.I2C(board.SCL, board.SDA)
-    CCS811(i2c)
+    c = CCS811(i2c)
+    while True:
+        print(c.eco2_tvoc)
