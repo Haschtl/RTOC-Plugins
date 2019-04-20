@@ -94,7 +94,7 @@ class Plugin(LoggerPlugin, controller):
                         status = 2 #orange
                 else:
                     status = 1 #grün
-                    if self._lastSettled != status:
+                    if self._lastSettled != not_settled:
                         self.event('Regler wieder eingeschwungen.', sname='E', dname='Reglerstatus', priority=0)
 
 
