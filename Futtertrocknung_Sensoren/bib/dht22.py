@@ -262,7 +262,7 @@ class DHTBase:
             data returned from the device (try again)
         """
         self.measure()
-        print(self._temperature)
+        # print(self._temperature)
         self._temperature=self.temperature_filter.statistic_filter(self._temperature)
         self._humidity=self.humidity_filter.statistic_filter(self._temperature)
         return self._temperature,self._humidity

@@ -305,6 +305,8 @@ class Plugin(LoggerPlugin):
             # a = value1.humidity
             # b = value1.temperature
             b, a = value1.temperature_humidity
+            print(b)
+            print(a)
             if processed:
                 a = self._processSensor(messtelle, sensor, signal, a)
                 b = self._processSensor(messtelle, sensor, signal2, b)
