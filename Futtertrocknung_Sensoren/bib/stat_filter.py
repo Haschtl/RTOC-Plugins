@@ -38,7 +38,7 @@ class Stat_Filter():
             if len(h) > maxlen:
                 maxlen = len(h)
                 longest = h
-        print(self._histogram)
+        #print(self._histogram)
         #print(value)
         return self.mean(longest)
 
