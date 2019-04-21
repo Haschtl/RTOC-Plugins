@@ -262,8 +262,6 @@ class Plugin(LoggerPlugin):
             #ccs1.set_environmental_data(aHumid, aTemp)
             co2_a = self.ccs1.eco2
             tvoc_a = self.ccs1.tvoc
-            co2_a = self._WORKAROUND_READERROR(co2_a, 15)
-            tvoc_a = self._WORKAROUND_READERROR(tvoc_a, 15)
             if processed:
                 co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
                 tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
@@ -277,8 +275,6 @@ class Plugin(LoggerPlugin):
             #ccs2.set_environmental_data(bHumid, bTemp)
             co2_b = self.ccs2.eco2
             tvoc_b = self.ccs2.tvoc
-            co2_b = self._WORKAROUND_READERROR(co2_b, 15)
-            tvoc_b = self._WORKAROUND_READERROR(tvoc_b, 15)
             if processed:
                 co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
                 tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
@@ -305,8 +301,6 @@ class Plugin(LoggerPlugin):
             # a = value1.humidity
             # b = value1.temperature
             b, a = value1.temperature_humidity
-            a = self._WORKAROUND_READERROR(a, 15, gain, self._sensor_data[messtelle][signal][0])
-            b = self._WORKAROUND_READERROR(b, 15, gain, self._sensor_data[messtelle][signal2][0])
             if processed:
                 a = self._processSensor(messtelle, sensor, signal, a)
                 b = self._processSensor(messtelle, sensor, signal2, b)
@@ -336,17 +330,6 @@ class Plugin(LoggerPlugin):
         tempC = temp/1000
         return tempC
 
-    def _WORKAROUND_READERROR(self, value, x=15, gain=1, oldvalue=None):
-
-        if value == None:
-            value = 0
-        value = value*gain
-        if oldvalue is not None:
-            while value > pow(2, x):
-                value = value - pow(2, x)
-        else:
-            if value > pow(2, x):
-                value = oldvalue
-        value = value/gain
-
-        return value
+if __name__ == '__main__':
+    dev = Plugin(stream=None, plot=None, event=None)
+    
