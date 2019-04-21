@@ -1,5 +1,3 @@
-
-
 try:
     from LoggerPlugin import LoggerPlugin
 except ImportError:
@@ -10,10 +8,10 @@ from threading import Thread
 #import Adafruit_DHT
 import board
 import busio
-from . import ccs811 as adafruit_ccs811
+from .bib import ccs811 as adafruit_ccs811
 #import ccs811 as adafruit_ccs811
 #import adafruit_dht
-from . import dht22
+from .bib import dht22
 import os
 import json
 import traceback
