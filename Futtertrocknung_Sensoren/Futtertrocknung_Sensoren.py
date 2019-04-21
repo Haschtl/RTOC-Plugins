@@ -274,7 +274,7 @@ class Plugin(LoggerPlugin):
             co2_a = self._sensor_data["A"]['CO2-Gehalt'][0]
             tvoc_a = self._sensor_data['A']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('A', 'CCS', True)
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
         try:
             #ccs2.set_environmental_data(bHumid, bTemp)
             co2_b = self.ccs2.eco2
@@ -287,7 +287,7 @@ class Plugin(LoggerPlugin):
             co2_b = self._sensor_data["B"]['CO2-Gehalt'][0]
             tvoc_b = self._sensor_data['B']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('B', 'CCS', True)
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
 
         self._sensor_data = {
             'A': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
@@ -313,7 +313,7 @@ class Plugin(LoggerPlugin):
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
         return a, b
 
     def _sensorThread(self):

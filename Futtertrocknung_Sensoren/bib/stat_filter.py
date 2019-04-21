@@ -38,6 +38,7 @@ class Stat_Filter():
             if len(h) > maxlen:
                 maxlen = len(h)
                 longest = h
+        print(self.mean(longest))
         return self.mean(longest)
 
     # def _WORKAROUND_READERROR(self, value, x=15, gain=1, oldvalue=None):
