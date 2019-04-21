@@ -8,10 +8,14 @@ from threading import Thread
 #import Adafruit_DHT
 import board
 import busio
-from .bib import ccs811 as adafruit_ccs811
 #import ccs811 as adafruit_ccs811
 #import adafruit_dht
-from .bib import dht22
+try:
+    from .bib import ccs811 as adafruit_ccs811
+    from .bib import dht22
+except:
+    from bib import ccs811 as adafruit_ccs811
+    from bib import dht22
 import os
 import json
 import traceback
@@ -332,4 +336,3 @@ class Plugin(LoggerPlugin):
 
 if __name__ == '__main__':
     dev = Plugin(stream=None, plot=None, event=None)
-    
