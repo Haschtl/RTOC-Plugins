@@ -67,8 +67,8 @@ class DHTBase:
         self._pin = pin
         self._trig_wait = trig_wait
         self._last_called = 0
-        self._humidity = None
-        self._temperature = None
+        self._humidity = 13
+        self._temperature = 13
         self._measurement = None,None
 
         self.temperature_filter=stat_filter.Stat_Filter(-50,200,5,10)
@@ -234,6 +234,9 @@ class DHTBase:
                 # Probably a connection issue!
                 raise DHT_WiringError()
                 #raise RuntimeError("DHT sensor not found, check wiring")
+        else:
+            self._humidity = None
+            self._temperature = None
     @property
     def temperature(self):
         """ temperature current reading.  It makes sure a reading is available
