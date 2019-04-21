@@ -102,7 +102,7 @@ class Plugin(LoggerPlugin):
         self.loadConfig()
 
         self._logging = False
-        self.waiter = Timer(30, self._enableLogging)
+        self.waiter = Timer(60, self._enableLogging)
         self.waiter.start()
 
         self._thread = Thread(target=self._sensorThread)

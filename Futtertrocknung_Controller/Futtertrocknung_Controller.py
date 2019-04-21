@@ -94,7 +94,7 @@ class Plugin(LoggerPlugin, controller):
                         status = 2 #orange
                 else:
                     status = 1 #grün
-                    if self._lastSettled != not_settled:
+                    if self._lastSettled != not_settled and self._lastControllerStatus == -1:
                         self.event('Regler wieder eingeschwungen.', sname='E', dname='Reglerstatus', priority=0)
 
 
@@ -137,11 +137,11 @@ class Plugin(LoggerPlugin, controller):
                     hvac_sensor_fault = True
 
                 if overtemp:
-                    self.event('Temperatur im Schacht zu hoch!', sname='E', dname='Temperatur1', priority=2)
+                    self.event('Temperatur im Schacht zu hoch!', dname='E', sname='Fehler', priority=2)
                 if bmp_sensor_fault:
-                    self.event('Sensorfehler (BMP) an Messstelle E!', sname='E', dname='Temperatur1', priority=2)
+                    self.event('Sensorfehler (BMP) an Messstelle E!', dname='E', sname='Fehler', priority=2)
                 if hvac_sensor_fault:
-                    self.event('Sensorfehler (HVAC) an Messstelle E!', sname='E', dname='Temperatur1', priority=2)
+                    self.event('Sensorfehler (HVAC) an Messstelle E!', dname='E', sname='Fehler', priority=2)
                 self._controller_sensor_error = failure
 
 
