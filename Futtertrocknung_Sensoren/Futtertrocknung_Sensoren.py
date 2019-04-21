@@ -4,7 +4,7 @@ except ImportError:
     from RTOC.LoggerPlugin import LoggerPlugin
 
 import time
-from threading import Thread
+from threading import Thread, Timer
 #import Adafruit_DHT
 import board
 import busio
@@ -100,6 +100,10 @@ class Plugin(LoggerPlugin):
         self._sensorRangeHit = _sensorRangeHit
         self._rangeNoiseLevel = 0.05  # %
         self.loadConfig()
+
+        self._logging = False
+        self.waiter = Timer(30, self._enableLogging)
+        self.waiter.start()
 
         self._thread = Thread(target=self._sensorThread)
         self._thread.start()
@@ -201,18 +205,19 @@ class Plugin(LoggerPlugin):
         value += self.sensorCalib[messstelle][sensor][signal]
         fallback = self._rangeNoiseLevel*value
         old = self._sensorRangeHit[messstelle][sensor][signal]
-        if value > self.sensorRange[messstelle][sensor][signal][1] and not old:
-            self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu hoch!',
-                       sname=name, dname=messstelle.upper(), priority=1)
-            self._sensorRangeHit[messstelle][sensor][signal] = True
-        elif value < self.sensorRange[messstelle][sensor][signal][0] and not old:
-            self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu niedrig!',
-                       sname=name, dname=messstelle.upper(), priority=1)
-            self._sensorRangeHit[messstelle][sensor][signal] = True
-        elif old and value >= self.sensorRange[messstelle][sensor][signal][0]+fallback and value <= self.sensorRange[messstelle][sensor][signal][1]-fallback:
-            self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value)) + u+' wieder in gutem Bereich!',
-                       sname=name, dname=messstelle.upper(), priority=0)
-            self._sensorRangeHit[messstelle][sensor][signal] = False
+        if self._logging:
+            if value > self.sensorRange[messstelle][sensor][signal][1] and not old:
+                self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu hoch!',
+                           sname=name, dname=messstelle.upper(), priority=1)
+                self._sensorRangeHit[messstelle][sensor][signal] = True
+            elif value < self.sensorRange[messstelle][sensor][signal][0] and not old:
+                self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu niedrig!',
+                           sname=name, dname=messstelle.upper(), priority=1)
+                self._sensorRangeHit[messstelle][sensor][signal] = True
+            elif old and value >= self.sensorRange[messstelle][sensor][signal][0]+fallback and value <= self.sensorRange[messstelle][sensor][signal][1]-fallback:
+                self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value)) + u+' wieder in gutem Bereich!',
+                           sname=name, dname=messstelle.upper(), priority=0)
+                self._sensorRangeHit[messstelle][sensor][signal] = False
         return value
 
     def _sensorErrorEvent(self, messstelle, sensor, value=True):
@@ -325,7 +330,8 @@ class Plugin(LoggerPlugin):
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
             sensor_data = self._getAllSensors()
-            self.stream(list=sensor_data)
+            if self._logging:
+                self.stream(list=sensor_data)
             diff = (time.time() - start_time)
 
     def _get_cpu_temperature(self):
@@ -333,6 +339,9 @@ class Plugin(LoggerPlugin):
         temp = float(tFile.read())
         tempC = temp/1000
         return tempC
+
+    def _enableLogging(self):
+        self._logging = True
 
 if __name__ == '__main__':
     dev = Plugin(stream=None, plot=None, event=None)
