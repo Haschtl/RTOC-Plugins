@@ -39,7 +39,7 @@ class Stat_Filter():
                 maxlen = len(h)
                 longest = h
         #print(self._histogram)
-        print(value)
+        #print(value)
         return self.mean(longest)
 
     # def _WORKAROUND_READERROR(self, value, x=15, gain=1, oldvalue=None):
