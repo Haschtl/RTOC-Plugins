@@ -325,6 +325,7 @@ class Plugin(LoggerPlugin):
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
             sensor_data = self._getAllSensors()
+            print(sensor_data)
             self.stream(list=sensor_data)
             diff = (time.time() - start_time)
 

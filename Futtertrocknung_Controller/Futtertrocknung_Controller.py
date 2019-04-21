@@ -71,11 +71,11 @@ class Plugin(LoggerPlugin, controller):
                 modus = 0
             if modus != self._lastModus:
                 if modus == 1:
-                    self.event('Gebläsedrehzahl wird manuell eingestellt.', sname='E', dname='Reglerstatus', priority=0)
+                    self.event('Gebläsedrehzahl wird manuell eingestellt.', dname='E', sname='Reglerstatus', priority=0)
                 elif modus == 2:
-                    self.event('Gebläsedrehzahl wird auf den Volumenstrom geregelt.', sname='E', dname='Reglerstatus', priority=0)
+                    self.event('Gebläsedrehzahl wird auf den Volumenstrom geregelt.', dname='E', sname='Reglerstatus', priority=0)
                 elif modus == 3:
-                    self.event('Gebläsedrehzahl wird auf den Luftdrucksensor geregelt.', sname='E', dname='Reglerstatus', priority=0)
+                    self.event('Gebläsedrehzahl wird auf den Luftdrucksensor geregelt.', dname='E', sname='Reglerstatus', priority=0)
                 else:
                     self.event('Gebläse abgeschaltet.', sname='E', dname='Reglerstatus', priority=0)
             self._lastModus = modus
