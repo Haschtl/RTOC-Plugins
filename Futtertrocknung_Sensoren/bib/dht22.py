@@ -266,7 +266,7 @@ class DHTBase:
         """
         self.measure()
         self._temperature=self.temperature_filter.statistic_filter(self._temperature)
-        self._humidity=self.humidity_filter.statistic_filter(self._temperature)
+        self._humidity=self.humidity_filter.statistic_filter(self._humidity)
         return self._temperature,self._humidity
 
 class DHT11(DHTBase):
