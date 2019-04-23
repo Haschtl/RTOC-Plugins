@@ -21,6 +21,8 @@ import json
 import traceback
 
 devicename = "Sensoren"
+ACTIVE_SAMPLERATE = 10
+PASSIVE_SAMPLERATE = 0.1
 
 #dht22 = Adafruit_DHT.DHT22
 # css811: sudo nano /boot/config.txt for i2c baudrate
@@ -80,7 +82,7 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
 
         self.run = True
-        self.samplerate = 10
+        self.samplerate = ACTIVE_SAMPLERATE
 
         try:
             self.ccs2 = adafruit_ccs811.CCS811(i2c)
@@ -107,6 +109,9 @@ class Plugin(LoggerPlugin):
 
         self._thread = Thread(target=self._sensorThread)
         self._thread.start()
+
+        self._displayThread = Thread(target=self._checkDisplayThread)
+        self._displayThread.start()
 
         self._sensor_data = {
             'A': {'Temperatur': [None, '°C'], 'CO2-Gehalt': [None, 'ppm'], 'TVOC-Gehalt': [None, 'ppm'], 'Temperatur2': [None, '°C'], 'Feuchtigkeit': [None, '%']},
@@ -342,6 +347,18 @@ class Plugin(LoggerPlugin):
 
     def _enableLogging(self):
         self._logging = True
+
+    def _checkDisplayThread(self):
+        while self.run:
+            with open("/sys/class/backlight/rpi_backlight/bl_power", "r") as f:
+                text = f.read()
+            state = bool(text)
+            print(state)
+            if state:
+                self.samplerate = PASSIVE_SAMPLERATE
+            else:
+                self.samplerate = ACTIVE_SAMPLERATE
+            time.sleep(0.2)
 
 if __name__ == '__main__':
     dev = Plugin(stream=None, plot=None, event=None)

@@ -25,6 +25,10 @@ else:
 
 devicename = "Controller"
 
+ACTIVE_SAMPLERATE = 10
+PASSIVE_SAMPLERATE = 0.1
+
+
 class Plugin(LoggerPlugin, controller):
     def __init__(self, stream=None, plot=None, event=None):
         #super(Plugin, self).__init__(stream, plot, event)
@@ -33,13 +37,15 @@ class Plugin(LoggerPlugin, controller):
         self.setDeviceName(devicename)
 
         self.run = True
-        self.samplerate = 10
+        self.samplerate = ACTIVE_SAMPLERATE
         self._controller_sensor_error = 0
         self._lastControllerStatus = 0
         self._lastSettled = 1
         self._lastModus = 0
         self._thread = Thread(target=self._getControllerData)
         self._thread.start()
+        self._displayThread = Thread(target=self._checkDisplayThread)
+        self._displayThread.start()
 
     def _getControllerData(self):
         diff = 0
@@ -152,6 +158,18 @@ class Plugin(LoggerPlugin, controller):
             #print(sensor_data)
             self.stream(list=sensor_data)
             diff = (time.time() - start_time)
+
+    def _checkDisplayThread(self):
+        while self.run:
+            with open("/sys/class/backlight/rpi_backlight/bl_power", "r") as f:
+                text = f.read()
+            state = bool(text)
+            print(state)
+            if state:
+                self.samplerate = PASSIVE_SAMPLERATE
+            else:
+                self.samplerate = ACTIVE_SAMPLERATE
+            time.sleep(0.2)
 
 
 if __name__ == '__main__':

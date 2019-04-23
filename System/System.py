@@ -8,6 +8,7 @@ from threading import Thread
 from PyQt5 import uic
 from PyQt5 import QtWidgets
 import time
+import logging
 
 import platform
 import os
@@ -512,8 +513,8 @@ def setStyleSheet(app, myapp):
         mw = myapp
         return app, mw
     except:
-        #tb = traceback.format_exc()
-        #print(tb)
+        tb = traceback.format_exc()
+        logging.debug(tb)
         print("New Style not installed")
         with open("/data/ui/darkmode.html", 'r') as myfile:
             stylesheet = myfile.read().replace('\n', '')
