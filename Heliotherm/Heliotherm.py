@@ -20,7 +20,7 @@ HOST = "192.168.2.104"
 #from pymodbus3.client.sync import ModbusTcpClient
 from pyModbusTCP.client import ModbusClient
 import logging as log
-log.basicConfig(level=log.DEBUG)
+log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
 ############################# DO NOT EDIT FROM HERE ################################################

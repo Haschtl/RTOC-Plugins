@@ -12,7 +12,7 @@ from PyQt5 import uic
 from PyQt5 import QtWidgets
 import os
 import logging as log
-log.basicConfig(level=log.DEBUG)
+log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
 devicename = "ReflowPlatte"

@@ -11,7 +11,7 @@ import sys
 from threading import Thread
 import traceback
 import logging as log
-log.basicConfig(level=log.DEBUG)
+log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
 userpath = os.path.expanduser('~/heutrocknung/Lüftersteuerung/API')

@@ -20,7 +20,7 @@ from collections import deque
 
 from PyHT6022.LibUsbScope import Oscilloscope
 import logging as log
-log.basicConfig(level=log.DEBUG)
+log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
 devicename = 'Hantek6022'

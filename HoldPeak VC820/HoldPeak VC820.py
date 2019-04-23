@@ -13,7 +13,7 @@ import os
 from PyQt5 import uic
 from PyQt5 import QtWidgets
 import logging as log
-log.basicConfig(level=log.DEBUG)
+log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
 devicename = "HoldPeak"

@@ -9,7 +9,7 @@ import time
 from ina219 import INA219
 from ina219 import DeviceRangeError
 import logging as log
-log.basicConfig(level=log.DEBUG)
+log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
 devicename = "INA219_Modul"
