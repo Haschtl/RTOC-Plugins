@@ -8,6 +8,9 @@ from threading import Thread
 import time
 from ina219 import INA219
 from ina219 import DeviceRangeError
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 devicename = "INA219_Modul"
 
@@ -25,7 +28,7 @@ class Plugin(LoggerPlugin):
         self.ina = INA219(SHUNT_OHMS, MAX_EXPECTED_AMPS, address=I2C_ADDRESS)
         self.ina.configure(self.ina.RANGE_16V)
         self.run = True
-        self.samplerate = samplerate            # frequency in Hz (1/sec)
+        self.samplerate = SAMPLERATE            # frequency in Hz (1/sec)
         self.datanames = ['Bus Voltage', 'Bus Current', 'Power', 'Shunt Voltage']
         self.dataunits = ['V', 'mA','mW','mV']
         self.data = [0,0,0,0]
@@ -53,14 +56,14 @@ class Plugin(LoggerPlugin):
             time.sleep(1/self.samplerate)
             self.ina.wake()
             self.data[0] = self.ina.voltage()
-	        try:
+            try:
                 self.data[1] = self.ina.current()
                 self.data[2] = self.ina.power()
                 self.data[3] = self.ina.shunt_voltage()
                 self.status = True
             except DeviceRangeError as e:
                 # Current out of device range with specified shunt resister
-                print(e)
+                logging.debug(e)
                 self.event(text='Current out of device range with specified shunt resistor',sname=devicename, priority=1)
                 self.status = False
             self.ina.sleep()

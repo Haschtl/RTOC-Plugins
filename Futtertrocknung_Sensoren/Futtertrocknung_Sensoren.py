@@ -19,6 +19,9 @@ except:
 import os
 import json
 import traceback
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 devicename = "Sensoren"
 ACTIVE_SAMPLERATE = 10
@@ -87,14 +90,14 @@ class Plugin(LoggerPlugin):
         try:
             self.ccs2 = adafruit_ccs811.CCS811(i2c)
         except:
-            print('ERROR CCS Sensor Messstelle B')
-            print(traceback.format_exc())
+            logging.error('ERROR CCS Sensor Messstelle B')
+            logging.debug(traceback.format_exc())
             self.ccs2 = None
         try:
             self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
         except:
-            print('ERROR CCS Sensor Messstelle A')
-            print(traceback.format_exc())
+            logging.error('ERROR CCS Sensor Messstelle A')
+            logging.debug(traceback.format_exc())
             self.ccs1 = None
 
         # Sensor error flags
@@ -136,7 +139,7 @@ class Plugin(LoggerPlugin):
                 temp2 = self.ccs2.temperature
                 self.ccs2.temp_offset = temp2 - 25.0
         except:
-            print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
 
     def saveConfig(self):
         packagedir = self.getDir(__file__)
@@ -156,11 +159,11 @@ class Plugin(LoggerPlugin):
                 self.sensorCalib = config['sensorCalib']
                 self.sensorRange = config['sensorRange']
             except:
-                print('Error loading config')
+                logging.error('Error loading config')
                 self.sensorCalib = sensorCalib
                 self.sensorRange = sensorRange
         else:
-            print('No config-file found.')
+            logging.error('No config-file found.')
             self.sensorCalib = sensorCalib
             self.sensorRange = sensorRange
 
@@ -284,7 +287,7 @@ class Plugin(LoggerPlugin):
             co2_a = self._sensor_data["A"]['CO2-Gehalt'][0]
             tvoc_a = self._sensor_data['A']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('A', 'CCS', True)
-            # print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
         try:
             #ccs2.set_environmental_data(bHumid, bTemp)
             co2_b = self.ccs2.eco2
@@ -297,7 +300,7 @@ class Plugin(LoggerPlugin):
             co2_b = self._sensor_data["B"]['CO2-Gehalt'][0]
             tvoc_b = self._sensor_data['B']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('B', 'CCS', True)
-            # print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
 
         self._sensor_data = {
             'A': {'Temperatur': [aTemp, '°C'], 'CO2-Gehalt': [co2_a, 'ppm'], 'TVOC-Gehalt': [tvoc_a, 'ppm'], 'Temperatur2': [aTemp, '°C'], 'Feuchtigkeit': [aHumid, '%']},
@@ -323,7 +326,7 @@ class Plugin(LoggerPlugin):
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)
-            # print(traceback.format_exc())
+            logging.debug(traceback.format_exc())
         return a, b
 
     def _sensorThread(self):
@@ -353,7 +356,7 @@ class Plugin(LoggerPlugin):
             with open("/sys/class/backlight/rpi_backlight/bl_power", "r") as f:
                 text = f.read()
             state = bool(text)
-            print(state)
+            logging.debug(state)
             if state:
                 self.samplerate = PASSIVE_SAMPLERATE
             else:

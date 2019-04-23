@@ -18,6 +18,10 @@ import re
 import cpuinfo
 import psutil
 import datetime
+import traceback
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 devicename = "System"
 
@@ -515,7 +519,7 @@ def setStyleSheet(app, myapp):
     except:
         tb = traceback.format_exc()
         logging.debug(tb)
-        print("New Style not installed")
+        logging.warning("New Style not installed")
         with open("/data/ui/darkmode.html", 'r') as myfile:
             stylesheet = myfile.read().replace('\n', '')
         app.setStyleSheet(stylesheet)

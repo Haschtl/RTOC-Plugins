@@ -19,7 +19,9 @@ HOST = "192.168.2.104"
 
 #from pymodbus3.client.sync import ModbusTcpClient
 from pyModbusTCP.client import ModbusClient
-
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 ############################# DO NOT EDIT FROM HERE ################################################
 
@@ -265,7 +267,7 @@ class Plugin(LoggerPlugin):
                 self.widget.pushButton.setText("Fehler")
                 return None, None, None
         else:
-            print('Could not read registers.')
+            logging.error('Could not read registers.')
             return None, None, None
 
     def __changeSamplerate(self):

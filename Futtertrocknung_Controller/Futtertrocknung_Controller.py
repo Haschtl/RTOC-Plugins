@@ -10,17 +10,20 @@ import os
 import sys
 from threading import Thread
 import traceback
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 userpath = os.path.expanduser('~/heutrocknung/Lüftersteuerung/API')
 if not os.path.exists(userpath):
-    print('WRONG DIR TO IMPORT Controller API')
+    logging.error('WRONG DIR TO IMPORT Controller API')
     sys.exit(1)
 else:
     try:
         sys.path.insert(0, userpath)
         from controller_api import controller
     except ImportError:
-        print('Could not import Controller API from '+userpath)
+        logging.error('Could not import Controller API from '+userpath)
         sys.exit(1)
 
 devicename = "Controller"
@@ -155,7 +158,7 @@ class Plugin(LoggerPlugin, controller):
                 'E': {'Drehzahl': [rpm, 'Hz'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s'], 'Solldruck': [pressureDes, 'hPa'], 'Sollfluss': [flowDes, 'm³/s'], 'Reglerstatus': [status, ''], 'Sensorfehler': [failure,'']},
                 'Bedienelement': {'Modus': [modus,''], 'Potentiometer':[poti, '%'], 'PotiVerwenden': [self.set_control_with_potentiometer, '']}
             }
-            #print(sensor_data)
+            #logging.debug(sensor_data)
             self.stream(list=sensor_data)
             diff = (time.time() - start_time)
 
@@ -164,7 +167,7 @@ class Plugin(LoggerPlugin, controller):
             with open("/sys/class/backlight/rpi_backlight/bl_power", "r") as f:
                 text = f.read()
             state = bool(text)
-            print(state)
+            logging.debug(state)
             if state:
                 self.samplerate = PASSIVE_SAMPLERATE
             else:

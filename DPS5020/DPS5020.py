@@ -10,6 +10,9 @@ import os
 
 from PyQt5 import uic
 from PyQt5 import QtWidgets
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 try:
     import minimalmodbus
@@ -75,7 +78,7 @@ class Plugin(LoggerPlugin):
             return True
         except:
             tb = traceback.format_exc()
-            print(tb)
+            logging.debug(tb)
             return False
 
     # THIS IS YOUR THREAD
@@ -149,12 +152,12 @@ class Plugin(LoggerPlugin):
             return True, [self.__data[2]/100, self.__data[3]/100, self.__data[4]/100, self.__data[5]/100, self.__data[0]/100, self.__data[1]/100]
         except:
             tb = traceback.format_exc()
-            print(tb)
+            logging.debug(tb)
             return False, []
 
     def setPower(self, value=False):
         if self.run:
-            print("Changing power-state")
+            logging.info("Changing power-state")
             # onoff=self.__powerSupply.read_register(9)
             # self.powerButton.setChecked(bool(onoff))
             self.__lock.acquire()
@@ -169,7 +172,7 @@ class Plugin(LoggerPlugin):
 
     def setLocked(self, value=True):
         if self.run:
-            print("Changing locked-state")
+            logging.info("Changing locked-state")
             # onoff=self.__powerSupply.read_register(6)
             # self.powerButton.setChecked(bool(onoff))
             self.__lock.acquire()

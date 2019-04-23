@@ -12,6 +12,9 @@ import os
 
 from PyQt5 import uic
 from PyQt5 import QtWidgets
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 devicename = "HoldPeak"
 default_device = 'COM7'
@@ -59,7 +62,7 @@ class Plugin(LoggerPlugin):
             return True
         except:
             tb = traceback.format_exc()
-            print(tb)
+            logging.debug(tb)
             return False
 
     # THIS IS YOUR THREAD
@@ -118,24 +121,24 @@ class Plugin(LoggerPlugin):
     def get_data(self):
         test = self.serial_port.read(1)
         if len(test) != 1:
-            print("recieved incomplete data, skipping...", file=sys.stderr)
+            logging.error("recieved incomplete data, skipping...", file=sys.stderr)
             return False, None, None
         if MultimeterMessage.check_first_byte(test[0]):
             data = test + self.serial_port.read(MultimeterMessage.MESSAGE_LENGTH-1)
         else:
-            print("received incorrect data (%s), skipping..." % test.hex(), file=sys.stderr)
+            logging.error("received incorrect data (%s), skipping..." % test.hex(), file=sys.stderr)
             return False, None, None
         if len(data) != MultimeterMessage.MESSAGE_LENGTH:
-            print("received incomplete message (%s), skipping..." % data.hex(), file=sys.stderr)
+            logging.error("received incomplete message (%s), skipping..." % data.hex(), file=sys.stderr)
             return False, None, None
         try:
             message = MultimeterMessage(data)
             #message.value = message.get_base_reading()
         except ValueError as e:
-            print(e)
-            print("Error decoding: %s on message %s" % (str(e), data.hex()))
+            logging.debug(e)
+            logging.error("Error decoding: %s on message %s" % (str(e), data.hex()))
             return False, None, None
-        # print(str(message))
+        # logging.debug(str(message))
         # return True, message.value, message.unit
         return True, round(message.value*message.multiplier, 10), message.base_unit
 

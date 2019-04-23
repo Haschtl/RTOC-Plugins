@@ -8,6 +8,9 @@ import time
 from threading import Thread
 import time
 import traceback
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 devicename = "PIKO"
 
@@ -47,5 +50,5 @@ class Plugin(LoggerPlugin):
                 if data != False:
                     self.stream(data, datanames, devicename+'_'+NAMES[idx], dataunits)
             except:
-                #print(traceback.format_exc())
-                print('Problem with getting data from '+ADRESSES[idx])
+                logging.debug(traceback.format_exc())
+                logging.error('Problem with getting data from '+ADRESSES[idx])

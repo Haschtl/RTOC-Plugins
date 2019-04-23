@@ -19,6 +19,9 @@ from struct import pack
 from collections import deque
 
 from PyHT6022.LibUsbScope import Oscilloscope
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 devicename = 'Hantek6022'
 
@@ -65,7 +68,7 @@ class Plugin(LoggerPlugin):
         diff = 0
         #self.data = []
         #start_time = time.time()
-        #print("Clearing FIFO and starting data transfer...")
+        #logging.debug("Clearing FIFO and starting data transfer...")
         while self.run:
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
@@ -95,7 +98,7 @@ class Plugin(LoggerPlugin):
         self.scope.start_capture()
         while self.run:
             self.scope.poll()
-        # print("Stopping new transfers.")
+        # logging.info("Stopping new transfers.")
         #scope.stop_capture()
         self.scope.stop_capture()
         shutdown_event.set()
@@ -230,9 +233,9 @@ class Plugin(LoggerPlugin):
         else:
             self.scope.supports_single_channel = True;
 
-        print("Setting up scope!")
+        logging.info("Setting up scope!")
         self.scope.set_interface(self.alternative);
-        print("ISO" if self.scope.is_iso else "BULK", "packet size:", self.scope.packetsize)
+        logging.info("ISO" if self.scope.is_iso else "BULK", "packet size:", self.scope.packetsize)
         if self.widget.channel2CheckBox.isChecked():
             self.scope.set_num_channels(2)
         else:

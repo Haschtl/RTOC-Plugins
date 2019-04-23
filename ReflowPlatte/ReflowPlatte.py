@@ -11,6 +11,9 @@ import requests
 from PyQt5 import uic
 from PyQt5 import QtWidgets
 import os
+import logging as log
+log.basicConfig(level=log.DEBUG)
+logging = log.getLogger(__name__)
 
 devicename = "ReflowPlatte"
 
@@ -104,8 +107,8 @@ class Plugin(LoggerPlugin):
             return True, r
         except:
             tb = traceback.format_exc()
-            # print(tb)
-            print("TRACEBACK HAS BEEN IGNORED. HTTP-POST FAILED")
+            logging.debug(tb)
+            logging.error("TRACEBACK HAS BEEN IGNORED. HTTP-POST FAILED")
             return False, "Error posting "+str(adress)
             return False, r
 
@@ -120,8 +123,8 @@ class Plugin(LoggerPlugin):
             return True, io
         except:
             tb = traceback.format_exc()
-            # print(tb)
-            print("TRACEBACK HAS BEEN IGNORED. HTTP-GET FAILED")
+            logging.debug(tb)
+            logging.error("TRACEBACK HAS BEEN IGNORED. HTTP-GET FAILED")
             return False, "Error getting "+str(path)
 
     def __changeSamplerate(self):
