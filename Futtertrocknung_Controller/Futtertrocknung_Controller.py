@@ -86,7 +86,7 @@ class Plugin(LoggerPlugin, controller):
                 elif modus == 3:
                     self.event('Gebläsedrehzahl wird auf den Luftdrucksensor geregelt.', dname='E', sname='Reglerstatus', priority=0)
                 else:
-                    self.event('Gebläse abgeschaltet.', sname='E', dname='Reglerstatus', priority=0)
+                    self.event('Gebläse abgeschaltet.', dname='E', sname='Reglerstatus', priority=0)
             self._lastModus = modus
             if modus in [0,1]:
                 status = 0
@@ -96,7 +96,7 @@ class Plugin(LoggerPlugin, controller):
                     if self.controller_timed_out:
                         status = -1 #rot
                         if status != self._lastControllerStatus:
-                            self.event('Regler ist nicht eingeschwungen.', sname='E', dname='Reglerstatus', priority=2)
+                            self.event('Regler ist nicht eingeschwungen.', dname='E', sname='Reglerstatus', priority=2)
                     elif self.set_value_out_of_range:
                         status = -2 #rot
                     else:
@@ -104,7 +104,7 @@ class Plugin(LoggerPlugin, controller):
                 else:
                     status = 1 #grün
                     if self._lastSettled != not_settled and self._lastControllerStatus == -1:
-                        self.event('Regler wieder eingeschwungen.', sname='E', dname='Reglerstatus', priority=0)
+                        self.event('Regler wieder eingeschwungen.', dname='E', sname='Reglerstatus', priority=0)
 
 
                 self._lastSettled = not_settled
