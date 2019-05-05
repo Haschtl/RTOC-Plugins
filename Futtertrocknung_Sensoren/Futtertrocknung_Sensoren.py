@@ -357,7 +357,7 @@ class Plugin(LoggerPlugin):
                 text = f.read()
             state = bool(text)
             logging.debug(state)
-            if state:
+            if state == '1\n':
                 self.samplerate = PASSIVE_SAMPLERATE
             else:
                 self.samplerate = ACTIVE_SAMPLERATE
