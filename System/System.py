@@ -61,7 +61,7 @@ class toggleTable(QtWidgets.QWidget):
                                 sname = key+"."+key2
                                 datas.append(v)
                                 snames.append(sname)
-                            except:
+                            except Exception:
                                 pass
 
                     if datas != []:
@@ -289,7 +289,7 @@ def getTemperature():
             d[e]['Current'] = io[e][0].current
             d[e]['High'] = io[e][0].high
             d[e]['Critical'] = io[e][0].critical
-    except:
+    except Exception:
         d['only']={}
         d['only']['Fail']='Linux'
 
@@ -304,7 +304,7 @@ def getFans():
             d[e]={}
             d[e]['Label'] = io[e][0].label
             d[e]['Current'] = io[e][0].current
-    except:
+    except Exception:
         d['only']={}
         d['only']['Fail']='Linux'
     return d
@@ -426,18 +426,18 @@ def getCpuTimes():
             ans[m]['Steal'] = addr.steal
             ans[m]['Guest'] = addr.guest
             ans[m]['GuestNice'] = addr.guest_nice
-        except:
+        except Exception:
             pass
         try:
             ans[m]['Current Freq'] = f[n].current
             ans[m]['Min Freq'] = f[n].min
             ans[m]['Max Freq'] = f[n].max
-        except:
+        except Exception:
             pass
         try:
             ans[m]['Interrupt'] = f[n].interrupt
             ans[m]['DPC'] = f[n].dpc
-        except:
+        except Exception:
             pass
     d = psutil.cpu_times(False)
     e = psutil.cpu_percent(None, False)
@@ -456,7 +456,7 @@ def getCpuTimes():
         ans[m]['Steal'] = d.steal
         ans[m]['Guest'] = d.guest
         ans[m]['GuestNice'] = d.guest_nice
-    except:
+    except Exception:
         pass
     ans[m]['Current Freq'] = f.current
     ans[m]['Min Freq'] = f.min
@@ -464,7 +464,7 @@ def getCpuTimes():
     try:
         ans[m]['Interrupt'] = f[m].interrupt
         ans[m]['DPC'] = f[m].dpc
-    except:
+    except Exception:
         pass
     return ans
 
@@ -516,7 +516,7 @@ def setStyleSheet(app, myapp):
         #mw = qtmodern.windows.ModernWindow(myapp)
         mw = myapp
         return app, mw
-    except:
+    except Exception:
         tb = traceback.format_exc()
         logging.debug(tb)
         logging.warning("New Style not installed")

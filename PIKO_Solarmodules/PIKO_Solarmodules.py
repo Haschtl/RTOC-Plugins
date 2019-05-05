@@ -49,6 +49,6 @@ class Plugin(LoggerPlugin):
                 data, datanames, dataunits = s.get_data()
                 if data != False:
                     self.stream(data, datanames, devicename+'_'+NAMES[idx], dataunits)
-            except:
+            except Exception:
                 logging.debug(traceback.format_exc())
                 logging.error('Problem with getting data from '+ADRESSES[idx])

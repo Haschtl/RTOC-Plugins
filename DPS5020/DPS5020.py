@@ -76,7 +76,7 @@ class Plugin(LoggerPlugin):
             self.__powerSupply.mode = minimalmodbus.MODE_RTU
             # -------------
             return True
-        except:
+        except Exception:
             tb = traceback.format_exc()
             logging.debug(tb)
             return False
@@ -150,7 +150,7 @@ class Plugin(LoggerPlugin):
                 ['VOut', 'IOut', "POut", "VIn", "VSet", "ISet"]
             self.setLabels()
             return True, [self.__data[2]/100, self.__data[3]/100, self.__data[4]/100, self.__data[5]/100, self.__data[0]/100, self.__data[1]/100]
-        except:
+        except Exception:
             tb = traceback.format_exc()
             logging.debug(tb)
             return False, []

@@ -13,7 +13,7 @@ import busio
 try:
     from .bib import ccs811 as adafruit_ccs811
     from .bib import dht22
-except:
+except Exception:
     from bib import ccs811 as adafruit_ccs811
     from bib import dht22
 import os
@@ -89,13 +89,13 @@ class Plugin(LoggerPlugin):
 
         try:
             self.ccs2 = adafruit_ccs811.CCS811(i2c)
-        except:
+        except Exception:
             logging.error('ERROR CCS Sensor Messstelle B')
             logging.debug(traceback.format_exc())
             self.ccs2 = None
         try:
             self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
-        except:
+        except Exception:
             logging.error('ERROR CCS Sensor Messstelle A')
             logging.debug(traceback.format_exc())
             self.ccs1 = None
@@ -138,7 +138,7 @@ class Plugin(LoggerPlugin):
                     pass
                 temp2 = self.ccs2.temperature
                 self.ccs2.temp_offset = temp2 - 25.0
-        except:
+        except Exception:
             logging.debug(traceback.format_exc())
 
     def saveConfig(self):
@@ -158,7 +158,7 @@ class Plugin(LoggerPlugin):
 
                 self.sensorCalib = config['sensorCalib']
                 self.sensorRange = config['sensorRange']
-            except:
+            except Exception:
                 logging.error('Error loading config')
                 self.sensorCalib = sensorCalib
                 self.sensorRange = sensorRange
@@ -267,13 +267,13 @@ class Plugin(LoggerPlugin):
             try:
                 self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
                 self._waitForSensors()
-            except:
+            except Exception:
                 self.ccs1 = None
         if self.ccs2 == None:
             try:
                 self.ccs2 = adafruit_ccs811.CCS811(i2c)
                 self._waitForSensors()
-            except:
+            except Exception:
                 self.ccs2 = None
         try:
             #ccs1.set_environmental_data(aHumid, aTemp)
@@ -283,7 +283,7 @@ class Plugin(LoggerPlugin):
                 co2_a = self._processSensor('A', 'CCS', 'CO2-Gehalt', co2_a)
                 tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
                 self._sensorErrorEvent('A', 'CCS', False)
-        except:
+        except Exception:
             co2_a = self._sensor_data["A"]['CO2-Gehalt'][0]
             tvoc_a = self._sensor_data['A']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('A', 'CCS', True)
@@ -296,7 +296,7 @@ class Plugin(LoggerPlugin):
                 co2_b = self._processSensor('B', 'CCS', 'CO2-Gehalt', co2_b)
                 tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
                 self._sensorErrorEvent('B', 'CCS', False)
-        except:
+        except Exception:
             co2_b = self._sensor_data["B"]['CO2-Gehalt'][0]
             tvoc_b = self._sensor_data['B']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('B', 'CCS', True)
@@ -322,7 +322,7 @@ class Plugin(LoggerPlugin):
                 a = self._processSensor(messtelle, sensor, signal, a)
                 b = self._processSensor(messtelle, sensor, signal2, b)
             self._sensorErrorEvent(messtelle, sensor, False)
-        except:
+        except Exception:
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)

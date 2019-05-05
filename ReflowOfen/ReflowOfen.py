@@ -105,7 +105,7 @@ class Plugin(LoggerPlugin):
                 raise Exception(
                     "Error: {code} - {content}".format(code=r.status_code, content=r.content.decode('utf-8')))
             return True, r
-        except:
+        except Exception:
             tb = traceback.format_exc()
             logging.debug(tb)
             logging.error("TRACEBACK HAS BEEN IGNORED. HTTP-POST FAILED")
@@ -121,7 +121,7 @@ class Plugin(LoggerPlugin):
             #io = json.load(io)
             #io = json.loads(data)
             return True, io
-        except:
+        except Exception:
             tb = traceback.format_exc()
             logging.debug(tb)
             logging.error("TRACEBACK HAS BEEN IGNORED. HTTP-GET FAILED")

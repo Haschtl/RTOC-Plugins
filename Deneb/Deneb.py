@@ -121,7 +121,7 @@ class Plugin(LoggerPlugin):
             try:
                 self.deneb_get_all()
                 ok = True
-            except:
+            except Exception:
                 ok = False
             if ok:
                 self.run = True

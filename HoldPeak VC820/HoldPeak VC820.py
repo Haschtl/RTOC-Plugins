@@ -60,7 +60,7 @@ class Plugin(LoggerPlugin):
             self.serial_port.rts = False
             # -------------
             return True
-        except:
+        except Exception:
             tb = traceback.format_exc()
             logging.debug(tb)
             return False
