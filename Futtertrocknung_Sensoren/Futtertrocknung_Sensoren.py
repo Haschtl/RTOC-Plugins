@@ -263,13 +263,13 @@ class Plugin(LoggerPlugin):
         rpiTemp = self._get_cpu_temperature()
         rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
 
-        if self.ccs1 == None:
+        if self.ccs1 is None:
             try:
                 self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
                 self._waitForSensors()
             except Exception:
                 self.ccs1 = None
-        if self.ccs2 == None:
+        if self.ccs2 is None:
             try:
                 self.ccs2 = adafruit_ccs811.CCS811(i2c)
                 self._waitForSensors()

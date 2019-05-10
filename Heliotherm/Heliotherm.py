@@ -235,7 +235,7 @@ class Plugin(LoggerPlugin):
         #result = client.read_coils(0,1)
         resultWrite = self.c.read_holding_registers(100, 47)
         resultRead = self.c.read_input_registers(10,65)
-        if resultRead != None:
+        if resultRead is not None:
             for idx, d in enumerate(resultRead):
                 if d>=2 **16/2:
                     resultRead[idx] = 2 **16 - d

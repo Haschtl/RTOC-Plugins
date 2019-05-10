@@ -184,7 +184,7 @@ class Oscilloscope(object):
             to grab. Returns a tuple with channel 1 data, channel 2 data, time since capture init, and a trigger
             index on success, and None on failure.
         """
-        if self.cal_data == None:
+        if self.cal_data is None:
             return None
         else:
             data_ch1 = (c_short * data_points)()

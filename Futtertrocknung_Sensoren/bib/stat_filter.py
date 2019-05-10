@@ -44,7 +44,7 @@ class Stat_Filter():
 
     # def _WORKAROUND_READERROR(self, value, x=15, gain=1, oldvalue=None):
     #
-    #     if value == None:
+    #     if value is None:
     #         value = 0
     #     value = value*gain
     #     if oldvalue is not None:
