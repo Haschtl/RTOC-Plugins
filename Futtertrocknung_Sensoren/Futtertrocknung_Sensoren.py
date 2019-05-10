@@ -261,7 +261,7 @@ class Plugin(LoggerPlugin):
             DHT_D, "D", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
 
         rpiTemp = self._get_cpu_temperature()
-        rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
+        # rpiTemp = self._processSensor('Bedienelement', 'Intern', 'CPU-Temperatur', rpiTemp)
 
         if self.ccs1 is None:
             try:
