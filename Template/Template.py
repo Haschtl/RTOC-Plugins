@@ -65,7 +65,7 @@ class Plugin(LoggerPlugin):
             # Or send an event with self.event(text='',sname='')
             # (but use with caution, it can spam your RTOC plots):
             if self.firstrun:
-                self.event('Test event', sname='Plot')
+                self.event('Test event', sname='Plot', id='testID')
                 self.firstrun = False
 
             diff = (time.time() - start_time)
