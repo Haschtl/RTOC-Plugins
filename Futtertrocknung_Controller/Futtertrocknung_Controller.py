@@ -158,6 +158,7 @@ class Plugin(LoggerPlugin, controller):
                 'E': {'Drehzahl': [rpm, 'Hz'], 'Luftdruck': [pressure, 'hPa'], 'Temperatur1': [temp1, '°C'], 'Temperatur2': [temp2, '°C'], 'Durchfluss': [flow, 'm³/s'], 'Solldruck': [pressureDes, 'hPa'], 'Sollfluss': [flowDes, 'm³/s'], 'Reglerstatus': [status, ''], 'Sensorfehler': [failure,'']},
                 'Bedienelement': {'Modus': [modus,''], 'Potentiometer':[poti, '%'], 'PotiVerwenden': [self.set_control_with_potentiometer, '']}
             }
+
             #logging.debug(sensor_data)
             self.stream(list=sensor_data)
             diff = (time.time() - start_time)
