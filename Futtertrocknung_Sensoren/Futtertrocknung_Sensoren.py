@@ -216,15 +216,15 @@ class Plugin(LoggerPlugin):
         if self._logging:
             if value > self.sensorRange[messstelle][sensor][signal][1] and not old:
                 self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu hoch!',
-                           sname=name, dname=messstelle.upper(), priority=1)
+                           sname=name, dname=messstelle.upper(), priority=1, id=name+messstelle.upper()+'_zu_hoch')
                 self._sensorRangeHit[messstelle][sensor][signal] = True
             elif value < self.sensorRange[messstelle][sensor][signal][0] and not old:
                 self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value))+u+' zu niedrig!',
-                           sname=name, dname=messstelle.upper(), priority=1)
+                           sname=name, dname=messstelle.upper(), priority=1, id=name+messstelle.upper()+'_zu_niedrig')
                 self._sensorRangeHit[messstelle][sensor][signal] = True
             elif old and value >= self.sensorRange[messstelle][sensor][signal][0]+fallback and value <= self.sensorRange[messstelle][sensor][signal][1]-fallback:
                 self.event(name+' an Messstelle '+messstelle.upper()+' ist mit '+str(round(value)) + u+' wieder in gutem Bereich!',
-                           sname=name, dname=messstelle.upper(), priority=0)
+                           sname=name, dname=messstelle.upper(), priority=0, id=name+messstelle.upper()+'_ok')
                 self._sensorRangeHit[messstelle][sensor][signal] = False
         return value
 
@@ -235,11 +235,11 @@ class Plugin(LoggerPlugin):
             if value:
                 self.event('Sensorfehler ('+sensor.upper()+') an Messstelle ' +
                            messstelle.upper()+'!',
-                           sname=sensor, dname=messstelle.upper(), priority=1)
+                           sname=sensor, dname=messstelle.upper(), priority=1, id=sensor.upper()+'_'+messstelle.upper()+'_fehler')
             else:
                 self.event('Sensorfehler ('+sensor.upper()+') an Messstelle '+messstelle.upper() +
                            ' behoben!',
-                           sname=sensor, dname=messstelle.upper(), priority=0)
+                           sname=sensor, dname=messstelle.upper(), priority=0, id=sensor.upper()+'_'+messstelle.upper()+'_ok')
 
     def _getAllSensors(self, processed=True):
         # aHumid, aTemp = Adafruit_DHT.read_retry(dht22, DHT_pins['A'], 1, 0)

@@ -43,7 +43,7 @@ class Plugin(LoggerPlugin):
             'C': {'Temperatur': [self.r(), '°C'], 'Feuchtigkeit': [self.r(), '%']},
             'D': {'Temperatur': [self.r(), '°C'], 'Feuchtigkeit': [self.r(), '%']},
             'Bedienelement': {'CPU-Temperatur': [self.r(), '°C']},
-            'E': {'Drehzahl': [self.r(), 'Hz'], 'Luftdruck': [self.r(), 'hPa'], 'Temperatur1': [self.r(), '°C'], 'Temperatur2': [self.r(), '°C'], 'Durchfluss': [self.r(), 'm³/s'], 'Solldruck': [self.r(), 'hPa'], 'Sollfluss': [self.r(), 'm³/s'], 'Reglerstatus': [self.r(), ''], 'Sensorfehler': [self.r(),'']},
+            'E': {'Drehzahl': [self.r(), 'Hz'], 'Luftdruck': [self.r(), 'hPa'], 'Temperatur1': [self.r(), '°C'], 'Temperatur2': [self.r(), '°C'], 'Durchfluss': [self.r(), 'm³/s'], 'Solldruck': [self.r(), 'hPa'], 'Sollfluss': [self.r(), 'm³/s'], 'Reglerstatus': [1, ''], 'Sensorfehler': [self.r(),'']},
             'Bedienelement': {'Modus': [0,''], 'Potentiometer':[0, '%'], 'PotiVerwenden': [0, '']
         }}
 

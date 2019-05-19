@@ -80,13 +80,13 @@ class Plugin(LoggerPlugin, controller):
                 modus = 0
             if modus != self._lastModus:
                 if modus == 1:
-                    self.event('Gebläsedrehzahl wird manuell eingestellt.', dname='E', sname='Reglerstatus', priority=0)
+                    self.event('Gebläsedrehzahl wird manuell eingestellt.', dname='E', sname='Reglerstatus', priority=0, id='manuell_drehz')
                 elif modus == 2:
-                    self.event('Gebläsedrehzahl wird auf den Volumenstrom geregelt.', dname='E', sname='Reglerstatus', priority=0)
+                    self.event('Gebläsedrehzahl wird auf den Volumenstrom geregelt.', dname='E', sname='Reglerstatus', priority=0, id='volumen_regler')
                 elif modus == 3:
-                    self.event('Gebläsedrehzahl wird auf den Luftdrucksensor geregelt.', dname='E', sname='Reglerstatus', priority=0)
+                    self.event('Gebläsedrehzahl wird auf den Luftdrucksensor geregelt.', dname='E', sname='Reglerstatus', priority=0, id='druck_regler')
                 else:
-                    self.event('Gebläse abgeschaltet.', dname='E', sname='Reglerstatus', priority=0)
+                    self.event('Gebläse abgeschaltet.', dname='E', sname='Reglerstatus', priority=0, id='geblaese_aus')
             self._lastModus = modus
             if modus in [0,1]:
                 status = 0
@@ -96,7 +96,7 @@ class Plugin(LoggerPlugin, controller):
                     if self.controller_timed_out:
                         status = -1 #rot
                         if status != self._lastControllerStatus:
-                            self.event('Regler ist nicht eingeschwungen.', dname='E', sname='Reglerstatus', priority=2)
+                            self.event('Regler ist nicht eingeschwungen.', dname='E', sname='Reglerstatus', priority=2, id='regler_instabil')
                     elif self.set_value_out_of_range:
                         status = -2 #rot
                     else:
@@ -104,7 +104,7 @@ class Plugin(LoggerPlugin, controller):
                 else:
                     status = 1 #grün
                     if self._lastSettled != not_settled and self._lastControllerStatus == -1:
-                        self.event('Regler wieder eingeschwungen.', dname='E', sname='Reglerstatus', priority=0)
+                        self.event('Regler wieder eingeschwungen.', dname='E', sname='Reglerstatus', priority=0, id='regler_stabil')
 
 
                 self._lastSettled = not_settled
@@ -146,11 +146,11 @@ class Plugin(LoggerPlugin, controller):
                     hvac_sensor_fault = True
 
                 if overtemp:
-                    self.event('Temperatur im Schacht zu hoch!', dname='E', sname='Fehler', priority=2)
+                    self.event('Temperatur im Schacht zu hoch!', dname='E', sname='Fehler', priority=2, id='zu_heiss')
                 if bmp_sensor_fault:
-                    self.event('Sensorfehler (BMP) an Messstelle E!', dname='E', sname='Fehler', priority=2)
+                    self.event('Sensorfehler (BMP) an Messstelle E!', dname='E', sname='Fehler', priority=2, id='druck_sensorfehler')
                 if hvac_sensor_fault:
-                    self.event('Sensorfehler (HVAC) an Messstelle E!', dname='E', sname='Fehler', priority=2)
+                    self.event('Sensorfehler (HVAC) an Messstelle E!', dname='E', sname='Fehler', priority=2, id='volumen_sensorfehler')
                 self._controller_sensor_error = failure
 
 
