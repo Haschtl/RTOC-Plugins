@@ -198,19 +198,33 @@ class Plugin(LoggerPlugin):
         if signal == 'Temperatur':
             name = 'Temperatur'
             u = '°C'
+            min = -60
+            max = 100
         elif signal == 'Feuchtigkeit':
             name = 'Feuchtigkeit'
             u = '%'
+            min=0
+            max=100
         elif signal == 'CO2-Gehalt':
             name = 'CO2-Gehalt'
             u = 'ppm'
+            min=4000
+            max=60000
         elif signal == 'TVOC-Gehalt':
             name = 'TVOC-Gehalt'
             u = 'ppm'
+            min=0
+            max=10000
         else:
             name = '?'
             u = '?'
+            min=-100
+            max=100
         value += self.sensorCalib[messstelle][sensor][signal]
+        if value > max:
+            value = max
+        elif value < min:
+            value = min
         fallback = self._rangeNoiseLevel*value
         old = self._sensorRangeHit[messstelle][sensor][signal]
         if self._logging:
