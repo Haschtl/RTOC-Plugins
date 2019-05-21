@@ -208,7 +208,7 @@ class Plugin(LoggerPlugin):
         elif signal == 'CO2-Gehalt':
             name = 'CO2-Gehalt'
             u = 'ppm'
-            min=4000
+            min=400
             max=60000
         elif signal == 'TVOC-Gehalt':
             name = 'TVOC-Gehalt'
