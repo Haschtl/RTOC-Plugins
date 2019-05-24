@@ -8,7 +8,7 @@ except ImportError:
 import time
 import os
 import sys
-from threading import Thread
+from threading import Thread, Timer
 import traceback
 import logging as log
 log.basicConfig(level=log.INFO)
@@ -45,17 +45,20 @@ class Plugin(LoggerPlugin, controller):
         self._lastControllerStatus = 0
         self._lastSettled = 1
         self._lastModus = 0
-        self._thread = Thread(target=self._getControllerData)
+        self._lastDisplayState = -1
+        # self._thread = Thread(target=self._getControllerData)
+        # self._thread.start()
+        self._thread = _perpetualTimer(self.samplerate, self._getControllerData)
         self._thread.start()
         self._displayThread = Thread(target=self._checkDisplayThread)
         self._displayThread.start()
 
     def _getControllerData(self):
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
+        # diff = 0
+        # while self.run:
+        #     if diff < 1/self.samplerate:
+        #         time.sleep(1/self.samplerate-diff)
+        #     start_time = time.time()
             # Stream all measurements
             rpm = self.rpm
             pressure = self.air_pressure
@@ -161,7 +164,7 @@ class Plugin(LoggerPlugin, controller):
 
             #logging.debug(sensor_data)
             self.stream(list=sensor_data)
-            diff = (time.time() - start_time)
+            # diff = (time.time() - start_time)
 
     def _checkDisplayThread(self):
         while self.run:
@@ -171,9 +174,47 @@ class Plugin(LoggerPlugin, controller):
             logging.debug(state)
             if state == '1\n':
                 self.samplerate = PASSIVE_SAMPLERATE
+                if self._lastDisplayState != 1:
+                    if self._thread:
+                        self._thread.cancel()
+                    self._thread = _perpetualTimer(self.samplerate, self._getControllerData)
+                    self._thread.start()
+                    logging.info('Samplerate changed to'+str(self.samplerate))
+                self._lastDisplayState = 1
             else:
                 self.samplerate = ACTIVE_SAMPLERATE
+                if self._lastDisplayState != 0:
+                    if self._thread:
+                        self._thread.cancel()
+                    self._thread = _perpetualTimer(self.samplerate, self._getControllerData)
+                    self._thread.start()
+                    logging.info('Samplerate changed to'+str(self.samplerate))
+                self._lastDisplayState = 0
             time.sleep(0.2)
+
+    def close(self):
+        self.run = False
+        if self._thread:
+            self._thread.cancel()
+
+
+class _perpetualTimer():  # Sollte optional noch QTimer sin!!!
+
+    def __init__(self, t, hFunction):
+        self._t = t
+        self._hFunction = hFunction
+        self._thread = Timer(self._t, self._handle_function)
+
+    def _handle_function(self):
+        self._hFunction()
+        self._thread = Timer(self._t, self._handle_function)
+        self._thread.start()
+
+    def start(self):
+        self._thread.start()
+
+    def cancel(self):
+        self._thread.cancel()
 
 
 if __name__ == '__main__':

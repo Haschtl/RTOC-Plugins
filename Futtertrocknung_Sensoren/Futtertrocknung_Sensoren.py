@@ -101,16 +101,19 @@ class Plugin(LoggerPlugin):
             self.ccs1 = None
 
         # Sensor error flags
+        self._lastDisplayState = -1
         self._sensorErrors = _sensorErrors
         self._sensorRangeHit = _sensorRangeHit
         self._rangeNoiseLevel = 0.05  # %
         self.loadConfig()
 
         self._logging = False
-        self.waiter = Timer(60, self._enableLogging)
-        self.waiter.start()
+        self._waiter = Timer(60, self._enableLogging)
+        self._waiter.start()
 
-        self._thread = Thread(target=self._sensorThread)
+        # self._thread = Thread(target=self._sensorThread)
+        # self._thread.start()
+        self._thread = _perpetualTimer(self.samplerate, self._sensorThread)
         self._thread.start()
 
         self._displayThread = Thread(target=self._checkDisplayThread)
@@ -345,16 +348,16 @@ class Plugin(LoggerPlugin):
 
     def _sensorThread(self):
         self._waitForSensors()
-        time.sleep(2)
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            sensor_data = self._getAllSensors()
-            if self._logging:
-                self.stream(list=sensor_data)
-            diff = (time.time() - start_time)
+        # time.sleep(2)
+        #diff = 0
+        #while self.run:
+            #if diff < 1/self.samplerate:
+            #    time.sleep(1/self.samplerate-diff)
+            # start_time = time.time()
+        sensor_data = self._getAllSensors()
+        if self._logging:
+            self.stream(list=sensor_data)
+            #diff = (time.time() - start_time)
 
     def _get_cpu_temperature(self):
         tFile = open('/sys/class/thermal/thermal_zone0/temp')
@@ -373,9 +376,47 @@ class Plugin(LoggerPlugin):
             logging.debug(state)
             if state == '1\n':
                 self.samplerate = PASSIVE_SAMPLERATE
+                if self._lastDisplayState != 1:
+                    if self._thread:
+                        self._thread.cancel()
+                    self._thread = _perpetualTimer(self.samplerate, self._sensorThread)
+                    self._thread.start()
+                    logging.info('Samplerate changed to'+str(self.samplerate))
+                self._lastDisplayState = 1
             else:
                 self.samplerate = ACTIVE_SAMPLERATE
+                if self._lastDisplayState != 0:
+                    if self._thread:
+                        self._thread.cancel()
+                    self._thread = _perpetualTimer(self.samplerate, self._sensorThread)
+                    self._thread.start()
+                    logging.info('Samplerate changed to'+str(self.samplerate))
+                self._lastDisplayState = 0
             time.sleep(0.2)
+
+    def close(self):
+        self.run = False
+        if self._thread:
+            self._thread.cancel()
+
+
+class _perpetualTimer():  # Sollte optional noch QTimer sin!!!
+
+    def __init__(self, t, hFunction):
+        self._t = t
+        self._hFunction = hFunction
+        self._thread = Timer(self._t, self._handle_function)
+
+    def _handle_function(self):
+        self._hFunction()
+        self._thread = Timer(self._t, self._handle_function)
+        self._thread.start()
+
+    def start(self):
+        self._thread.start()
+
+    def cancel(self):
+        self._thread.cancel()
 
 if __name__ == '__main__':
     dev = Plugin(stream=None, plot=None, event=None)
