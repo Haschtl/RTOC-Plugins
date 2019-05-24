@@ -36,16 +36,16 @@ class Plugin(LoggerPlugin):
         self.__lock = Lock()
         self.__data = None
         self.smallGUI = True
-        self.locked = False
-        self.power = False
+        self._locked = False
+        self._power = False
         self.__serialBaudrate = SERIAL_BAUDRATE
         self.__serialByteSize = SERIAL_BYTESIZE
         self.__serialTimeOut = SERIAL_TIMEOUT
-        self.CV = True  # False = CC
+        self._CV = True  # False = CC
 
         # Data-logger thread
         self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self.updateT)    # Actualize data
+        self.__updater = Thread(target=self._updateT)    # Actualize data
         # self.updater.start()
 
     def __openPort(self, portname=default_device):
@@ -82,9 +82,9 @@ class Plugin(LoggerPlugin):
             return False
 
     # THIS IS YOUR THREAD
-    def updateT(self):
+    def _updateT(self):
         while self.run:
-            valid, values = self.get_data()
+            valid, values = self._get_data()
             self.__dataY = values
             if valid:
                 self.stream(self.__dataY,  self.__datanames,  self.devicename, self.__dataunits)
@@ -95,13 +95,13 @@ class Plugin(LoggerPlugin):
         uic.loadUi(packagedir+"/DPS5020/dps5020.ui", self.widget)
         # self.setCallbacks()
         self.widget.pushButton.clicked.connect(self.__openPortCallback)
-        self.widget.currBox.editingFinished.connect(self.setCurrAction)
-        self.widget.voltBox.editingFinished.connect(self.setVoltAction)
-        self.widget.maxCurrBox.editingFinished.connect(self.setMaxCurrAction)
-        self.widget.maxVoltBox.editingFinished.connect(self.setMaxVoltAction)
-        self.widget.maxPowBox.editingFinished.connect(self.setMaxPowAction)
+        self.widget.currBox.editingFinished.connect(self._setCurrAction)
+        self.widget.voltBox.editingFinished.connect(self._setVoltAction)
+        self.widget.maxCurrBox.editingFinished.connect(self._setMaxCurrAction)
+        self.widget.maxVoltBox.editingFinished.connect(self._setMaxVoltAction)
+        self.widget.maxPowBox.editingFinished.connect(self._setMaxPowAction)
         self.__openPortCallback()
-        self.setLabels()
+        self._setLabels()
         return self.widget
 
     def __openPortCallback(self):
@@ -112,14 +112,14 @@ class Plugin(LoggerPlugin):
             port = self.widget.comboBox.currentText()
             if self.__openPort(port):
                 self.run = True
-                self.__updater = Thread(target=self.updateT)    # Actualize data
+                self.__updater = Thread(target=self._updateT)    # Actualize data
                 self.__updater.start()
                 self.widget.pushButton.setText("Beenden")
             else:
                 self.run = False
                 self.widget.pushButton.setText("Fehler")
 
-    def get_data(self):
+    def _get_data(self):
         try:
             self.__lock.acquire()
             self.__data = self.__powerSupply.read_registers(0, 11)
@@ -136,19 +136,19 @@ class Plugin(LoggerPlugin):
             # data[9] on/off 1/0 (R/W)
             # data[10] display intensity 1..5 (R/W)
             if self.__data[6] == 1:
-                self.locked = True
+                self._locked = True
             else:
-                self.locked = False
+                self._locked = False
             if self.__data[8] == 1:
-                self.CV = False
+                self._CV = False
             else:
-                self.CV = True
+                self._CV = True
             if self.__data[9] == 1:
-                self.power = True
+                self._power = True
             else:
-                self.power = False
+                self._power = False
                 ['VOut', 'IOut', "POut", "VIn", "VSet", "ISet"]
-            self.setLabels()
+            self._setLabels()
             return True, [self.__data[2]/100, self.__data[3]/100, self.__data[4]/100, self.__data[5]/100, self.__data[0]/100, self.__data[1]/100]
         except Exception:
             tb = traceback.format_exc()
@@ -168,7 +168,7 @@ class Plugin(LoggerPlugin):
                 self.__powerSupply.write_register(9, 0)
                 self.__event("Power off")
             self.__lock.release()
-            self.power = value
+            self._power = value
 
     def setLocked(self, value=True):
         if self.run:
@@ -180,7 +180,7 @@ class Plugin(LoggerPlugin):
                 self.__powerSupply.write_register(6, 1)
             else:
                 self.__powerSupply.write_register(6, 0)
-            self.locked = value
+            self._locked = value
             self.__lock.release()
 
     def setVoltage(self, value=0):
@@ -194,24 +194,24 @@ class Plugin(LoggerPlugin):
         self.__powerSupply.write_register(1, int(value*100))
         self.__lock.release()
 
-    def setCurrAction(self):
+    def _setCurrAction(self):
         value = self.widget.currBox.value()
         self.setCurrent(value)
 
-    def setVoltAction(self):
+    def _setVoltAction(self):
         value = self.widget.voltBox.value()
         self.setCurrent(value)
 
-    def setMaxCurrAction(self):
+    def _setMaxCurrAction(self):
         value = self.widget.maxCurrBox.value()
 
-    def setMaxVoltAction(self):
+    def _setMaxVoltAction(self):
         value = self.widget.maxVoltBox.value()
 
-    def setMaxPowAction(self):
+    def _setMaxPowAction(self):
         value = self.widget.maxPowBox.value()
 
-    def setLabels(self):
+    def _setLabels(self):
         # if self.__data:
             #    if self.widget.currBox.value()!=self.__data[1]/100:
             #        self.widget.currBox.setValue(self.__data[1]/100)

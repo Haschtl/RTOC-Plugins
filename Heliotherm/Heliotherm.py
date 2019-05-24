@@ -159,10 +159,9 @@ class Plugin(LoggerPlugin):
 
         self.__base_address = ""
         self.samplerate = 0.2
-        self.temp_des = 0
         self.__s = requests.Session()
 
-        self.error = False
+        self._error = False
         self._start(HOST)
 
     # THIS IS YOUR THREAD
@@ -176,11 +175,11 @@ class Plugin(LoggerPlugin):
             if y is not None:
 
                 self.stream(y, name, 'Heliotherm', units)
-                if self.error == True:
+                if self._error == True:
                     self.event('Wärmepumpe: Werte werden wieder empfangen', sname="Status", dname=devicename, priority=0)
-                    self.error = False
-            elif self.error == False:
-                self.error = True
+                    self._error = False
+            elif self._error == False:
+                self._error = True
                 self.event('Wärmepumpe: Messwerte können nicht empfangen werden', sname="Status", dname=devicename, priority=1)
 
             diff = (time.time() - start_time)

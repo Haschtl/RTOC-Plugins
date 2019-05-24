@@ -36,33 +36,33 @@ class Plugin(LoggerPlugin):
         #self.data = []
         #self.data_extend = self.data.append
         # Data-logger thread
-        self.scope = None
+        self._scope = None
         self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self.updateT)    # Actualize data
+        self.__updater = Thread(target=self._updateT)    # Actualize data
         # self.updater.start()
-        self.blocksize = 6*1024      # should be divisible by 6*1024
-        self.alternative = 1         # choose ISO 3072 bytes per 125 us
+        self._blocksize = 6*1024      # should be divisible by 6*1024
+        self._alternative = 1         # choose ISO 3072 bytes per 125 us
         #self.last_time = time.time()
         self.samplerate = 10
 
-        self.recordLength = 5000
-        self.blocksize = self.recordLength
-        #self.xData = deque(maxlen=self.recordLength)
-        self.yData1 = deque(maxlen=self.recordLength)
-        self.yData2 = deque(maxlen=self.recordLength)
+        self._recordLength = 5000
+        self._blocksize = self._recordLength
+        #self.xData = deque(maxlen=self._recordLength)
+        self._yData1 = deque(maxlen=self._recordLength)
+        self._yData2 = deque(maxlen=self._recordLength)
 
-        self.yData1Triggered = deque(maxlen=self.recordLength)
-        self.yData2Triggered = deque(maxlen=self.recordLength)
-        self.singleTriggerFound = False
+        self._yData1Triggered = deque(maxlen=self._recordLength)
+        self._yData2Triggered = deque(maxlen=self._recordLength)
+        self._singleTriggerFound = False
 
     # def close(self):
     #     self.run=False
 
-        # if self.scope:
-        #     self.scope.close_handle()
+        # if self._scope:
+        #     self._scope.close_handle()
 
     # THIS IS YOUR THREAD
-    def updateT(self):
+    def _updateT(self):
         self.__capturer = Thread(target=self.__captureT)
         self.__capturer.start()
         diff = 0
@@ -75,14 +75,14 @@ class Plugin(LoggerPlugin):
             start_time = time.time()
             if not self.widget.pauseButton.isChecked():
                 if self.widget.enableTriggerButton.isChecked():
-                    yData1, yData2, stop = self.__trigger(list(self.yData1),list(self.yData2))
+                    yData1, yData2, stop = self.__trigger(list(self._yData1),list(self._yData2))
                 else:
-                    yData1 = self.yData1
-                    yData2 = self.yData2
+                    yData1 = self._yData1
+                    yData2 = self._yData2
                     stop = False
-                samplerate = self.str2Samplerate(self.widget.samplerateComboBox.currentText())
+                samplerate = self._str2Samplerate(self.widget.samplerateComboBox.currentText())
                 xData = [(i-len(yData1))/samplerate for i in range(len(yData1))]
-                if len(self.yData1)>1:
+                if len(self._yData1)>1:
                     self.plot(xData, yData1, dname='Hantek', sname='CH1', unit='V')
                 if self.widget.channel2CheckBox.isChecked():
                     self.plot(xData, yData2, dname='Hantek', sname='CH2', unit='V')
@@ -94,16 +94,16 @@ class Plugin(LoggerPlugin):
 
     def __captureT(self):
         #self.last_time = time.time()
-        shutdown_event = self.scope.read_async(self.extend_callback, self.blocksize, outstanding_transfers=10,raw=True)
-        self.scope.start_capture()
+        shutdown_event = self._scope.read_async(self._extend_callback, self._blocksize, outstanding_transfers=10,raw=True)
+        self._scope.start_capture()
         while self.run:
-            self.scope.poll()
+            self._scope.poll()
         # logging.info("Stopping new transfers.")
         #scope.stop_capture()
-        self.scope.stop_capture()
+        self._scope.stop_capture()
         shutdown_event.set()
         time.sleep(0.1)
-        self.scope.close_handle()
+        self._scope.close_handle()
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
@@ -111,24 +111,24 @@ class Plugin(LoggerPlugin):
         uic.loadUi(packagedir+"/Hantek6022/hantek.ui", self.widget)
         # self.setCallbacks()
         self.widget.reconnectButton.clicked.connect(self.__openConnectionCallback)
-        self.widget.samplerateComboBox.currentTextChanged.connect(self.updateScopeSettings)
+        self.widget.samplerateComboBox.currentTextChanged.connect(self._updateScopeSettings)
         self.widget.recordLengthSpinBox.valueChanged.connect(self.changeLength)
         #self.widget.channel1CheckBox.valueChanged.connect(self.enableChannel1)
         self.widget.channel1CheckBox.setEnabled(False)
         self.widget.channel1ACDCComboBox.hide()#valueChanged.connect(self.)
-        self.widget.channel1VoltPDivComboBox.currentTextChanged.connect(self.updateScopeSettings)
-        self.widget.channel2VoltPDivComboBox.currentTextChanged.connect(self.updateScopeSettings)
-        self.widget.channel2CheckBox.stateChanged.connect(self.updateScopeSettings)
+        self.widget.channel1VoltPDivComboBox.currentTextChanged.connect(self._updateScopeSettings)
+        self.widget.channel2VoltPDivComboBox.currentTextChanged.connect(self._updateScopeSettings)
+        self.widget.channel2CheckBox.stateChanged.connect(self._updateScopeSettings)
         self.widget.channel2ACDCComboBox.hide()#valueChanged.connect(self.)
         #self.widget.pauseButton.clicked.connect(self.)
 
         #self.widget.triggerChannelComboBox.textChanged.connect(self.)
         #self.widget.triggerLevelSpinBox.valueChanged.connect(self.)
         #self.widget.enableTriggerButton.clicked.connect(self.)
-        self.recordLength = self.widget.recordLengthSpinBox.value()
-        self.xData = deque(maxlen=self.recordLength)
-        self.yData1 = deque(maxlen=self.recordLength)
-        self.yData2 = deque(maxlen=self.recordLength)
+        self._recordLength = self.widget.recordLengthSpinBox.value()
+        self.xData = deque(maxlen=self._recordLength)
+        self._yData1 = deque(maxlen=self._recordLength)
+        self._yData2 = deque(maxlen=self._recordLength)
         self.__openConnectionCallback()
         return self.widget
 
@@ -140,12 +140,12 @@ class Plugin(LoggerPlugin):
             self.__base_address = ""
             self.widget.reconnectButton.setEnabled(True)
         else:
-            self.updateScopeSettings()
+            self._updateScopeSettings()
             self.widget.reconnectButton.setText("Stop")
             self.widget.reconnectButton.setEnabled(True)
 
     def __trigger(self, data1, data2):
-        if not self.singleTriggerFound:
+        if not self._singleTriggerFound:
             if self.widget.channel2CheckBox.isChecked() and self.widget.triggerChannelComboBox.currentText()=='CH2':
                 triggerSignal = list(data2)
             else:
@@ -202,82 +202,82 @@ class Plugin(LoggerPlugin):
             if len(data1)>cutoff:
                 data1 = list(data1)[cutoff:]
 
-            if cutoff!=0 and self.widget.checkBox.isChecked() and not self.singleTriggerFound:
-                self.singleTriggerFound = True
+            if cutoff!=0 and self.widget.checkBox.isChecked() and not self._singleTriggerFound:
+                self._singleTriggerFound = True
             else:
-                self.singleTriggerFound = False
+                self._singleTriggerFound = False
             if self.widget.checkBox.isChecked():
-                self.yData1Triggered = deque(list(data1),maxlen=self.recordLength)
-                self.yData2Triggered = deque(list(data2),maxlen=self.recordLength)
+                self._yData1Triggered = deque(list(data1),maxlen=self._recordLength)
+                self._yData2Triggered = deque(list(data2),maxlen=self._recordLength)
         else:
-            if len(self.yData1Triggered)<self.recordLength:
+            if len(self._yData1Triggered)<self._recordLength:
                 stop = False
             else:
-                self.singleTriggerFound = False
+                self._singleTriggerFound = False
                 stop = True
-                data1 = self.yData1Triggered
-                data2 = self.yData2Triggered
+                data1 = self._yData1Triggered
+                data2 = self._yData2Triggered
 
         return data1, data2, stop
 
-    def updateScopeSettings(self):
-        if self.scope:
+    def _updateScopeSettings(self):
+        if self._scope:
             self.run = False
             self.__updater.join()
 
-        self.scope = Oscilloscope()
-        self.scope.setup()
-        self.scope.open_handle()
-        if (not self.scope.is_device_firmware_present):
-            self.scope.flash_firmware()
+        self._scope = Oscilloscope()
+        self._scope.setup()
+        self._scope.open_handle()
+        if (not self._scope.is_device_firmware_present):
+            self._scope.flash_firmware()
         else:
-            self.scope.supports_single_channel = True;
+            self._scope.supports_single_channel = True;
 
         logging.info("Setting up scope!")
-        self.scope.set_interface(self.alternative);
-        logging.info("ISO" if self.scope.is_iso else "BULK", "packet size:", self.scope.packetsize)
+        self._scope.set_interface(self._alternative);
+        logging.info("ISO" if self._scope.is_iso else "BULK", "packet size:", self._scope.packetsize)
         if self.widget.channel2CheckBox.isChecked():
-            self.scope.set_num_channels(2)
+            self._scope.set_num_channels(2)
         else:
-            self.scope.set_num_channels(1)
+            self._scope.set_num_channels(1)
         # set voltage range
-        voltagerange1 = self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText())
-        voltagerange2 = self.strVoltageToID(self.widget.channel2VoltPDivComboBox.currentText())
-        self.scope.set_ch1_voltage_range(voltagerange1)
-        self.scope.set_ch2_voltage_range(voltagerange2)
+        voltagerange1 = self._strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText())
+        voltagerange2 = self._strVoltageToID(self.widget.channel2VoltPDivComboBox.currentText())
+        self._scope.set_ch1_voltage_range(voltagerange1)
+        self._scope.set_ch2_voltage_range(voltagerange2)
 
-        self.scope.set_sample_rate(self.str2SamplerateID(self.widget.samplerateComboBox.currentText()))
+        self._scope.set_sample_rate(self._str2SamplerateID(self.widget.samplerateComboBox.currentText()))
 
-        self.blocksize = self.recordLength
+        self._blocksize = self._recordLength
 
         self.run = True
-        self.__updater = Thread(target=self.updateT)
+        self.__updater = Thread(target=self._updateT)
         self.__updater.start()
         #self.widget.reconnectButton.setText("Stop")
         #self.widget.reconnectButton.setEnabled(True)
 
 
     # def set_sampling_rate(self, samplerate): # sample rate in MHz or in 10khz
-    #     # if self.scope:
+    #     # if self._scope:
     #     #     self.run = False
     #     #     self.__updater.join()
-    #     #     self.scope.open_handle()
-    #     #     self.scope.set_sample_rate(samplerate)
-    #     #     self.__updater = Thread(target=self.updateT)
+    #     #     self._scope.open_handle()
+    #     #     self._scope.set_sample_rate(samplerate)
+    #     #     self.__updater = Thread(target=self._updateT)
     #     #     self.__updater.start()
-    #     self.updateScopeSettings()
+    #     self._updateScopeSettings()
 
     def calibrate(self):
-        if self.scope:
-            self.scope.setup_dso_cal_level()
-            cal_level = self.scope.get_calibration_data()
-            self.scope.set_dso_calibration(cal_level)
+        if self._scope:
+            self._scope.setup_dso_cal_level()
+            cal_level = self._scope.get_calibration_data()
+            self._scope.set_dso_calibration(cal_level)
 
     # def __changeSamplerate(self, strung):
-    #     #self.set_sampling_rate(self.str2SamplerateID(strung))
-    #     self.updateScopeSettings()
+    #     #self.set_sampling_rate(self._str2SamplerateID(strung))
+    #     self._updateScopeSettings()
 
-    def str2SamplerateID(self,strung):
+    def _str2SamplerateID(self,strung):
         if 'MHz' in strung:
             strung = strung.replace(' MHz','')
             return int(strung)
@@ -285,7 +285,7 @@ class Plugin(LoggerPlugin):
             strung = strung.replace(' kHz','')
             return int(int(strung)/10)
 
-    def str2Samplerate(self,strung):
+    def _str2Samplerate(self,strung):
         if 'MHz' in strung:
             strung = strung.replace(' MHz','')
             return int(strung)*1000000
@@ -294,22 +294,22 @@ class Plugin(LoggerPlugin):
             return int(strung)*1000
 
     # def __changeChannel1VoltPDiv(self, strung):
-    #     if self.scope:
-    #         voltagerange = self.strVoltageToID(strung)
-    #         self.scope.set_ch1_voltage_range(voltagerange)
+    #     if self._scope:
+    #         voltagerange = self._strVoltageToID(strung)
+    #         self._scope.set_ch1_voltage_range(voltagerange)
     #
     # def __changeChannel2VoltPDiv(self, strung):
-    #     if self.scope:
-    #         voltagerange = self.strVoltageToID(strung)
-    #         self.scope.set_ch2_voltage_range(voltagerange)
+    #     if self._scope:
+    #         voltagerange = self._strVoltageToID(strung)
+    #         self._scope.set_ch2_voltage_range(voltagerange)
 
-    def enableChannel2(self, value):
+    def _enableChannel2(self, value):
         if value:
-            self.scope.set_num_channels(2)
+            self._scope.set_num_channels(2)
         else:
-            self.scope.set_num_channels(1)
+            self._scope.set_num_channels(1)
 
-    def strVoltageToID(self, strung):
+    def _strVoltageToID(self, strung):
         voltagerange = 1
         if strung == '2.6 V':
             voltagerange = 2
@@ -319,32 +319,32 @@ class Plugin(LoggerPlugin):
             voltagerange = 10
         return voltagerange
 
-    def extend_callback(self, ch1_data, ch2_data):
-        voltage_data = self.scope.scale_read_data(ch1_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
+    def _extend_callback(self, ch1_data, ch2_data):
+        voltage_data = self._scope.scale_read_data(ch1_data, self._strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
         if len(voltage_data)>1:
-            self.yData1.extend(voltage_data)
-            if len(self.yData1Triggered)<self.recordLength:
-                if len(self.yData1Triggered)+len(voltage_data)<self.recordLength:
-                     self.yData1Triggered.extend(voltage_data)
+            self._yData1.extend(voltage_data)
+            if len(self._yData1Triggered)<self._recordLength:
+                if len(self._yData1Triggered)+len(voltage_data)<self._recordLength:
+                     self._yData1Triggered.extend(voltage_data)
                 else:
-                    self.yData1Triggered.extend(voltage_data[0:self.recordLength-len(self.yData1Triggered)])
+                    self._yData1Triggered.extend(voltage_data[0:self._recordLength-len(self._yData1Triggered)])
 
         if ch2_data != '':
-            voltage_data = self.scope.scale_read_data(ch2_data, self.strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
-            self.yData2.extend(voltage_data)
-            if len(self.yData2Triggered)<self.recordLength:
-                if len(self.yData2Triggered)+len(voltage_data)<self.recordLength:
-                     self.yData2Triggered.extend(voltage_data)
+            voltage_data = self._scope.scale_read_data(ch2_data, self._strVoltageToID(self.widget.channel1VoltPDivComboBox.currentText()))
+            self._yData2.extend(voltage_data)
+            if len(self._yData2Triggered)<self._recordLength:
+                if len(self._yData2Triggered)+len(voltage_data)<self._recordLength:
+                     self._yData2Triggered.extend(voltage_data)
                 else:
-                    self.yData2Triggered.extend(voltage_data[0:self.recordLength-len(self.yData2Triggered)])
+                    self._yData2Triggered.extend(voltage_data[0:self._recordLength-len(self._yData2Triggered)])
 
     def changeLength(self, newlen=10000):
-        self.recordLength = newlen
-        self.yData1 = deque(maxlen=self.recordLength)
-        self.yData2 = deque(maxlen=self.recordLength)
-        self.yData1Triggered = deque(maxlen=self.recordLength)
-        self.yData2Triggered = deque(maxlen=self.recordLength)
-        self.updateScopeSettings()
+        self._recordLength = newlen
+        self._yData1 = deque(maxlen=self._recordLength)
+        self._yData2 = deque(maxlen=self._recordLength)
+        self._yData1Triggered = deque(maxlen=self._recordLength)
+        self._yData2Triggered = deque(maxlen=self._recordLength)
+        self._updateScopeSettings()
 
 
 if __name__ == "__main__":

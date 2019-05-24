@@ -32,12 +32,10 @@ class Plugin(LoggerPlugin):
 
         # Data-logger thread
         self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self.updateT)    # Actualize data
+        self.__updater = Thread(target=self._updateT)    # Actualize data
         # self.updater.start()
 
     def __openPort(self, portname=default_device):
-        self.datanames = ['Data']     # Names for every data-stream
-
         # Communication setup
         #self.portname = "/dev/ttyUSB0"
         #self.portname = "COM7"
@@ -53,11 +51,11 @@ class Plugin(LoggerPlugin):
         # Ref: http://ask.xmodulo.com/change-usb-device-permission-linux.html
         #################################################################################
         try:
-            self.serial_port = serial.Serial(
+            self._serial_port = serial.Serial(
                 self.portname, baudrate=SERIAL_BAUDRATE, parity='N', bytesize=SERIAL_BYTESIZE, timeout=SERIAL_TIMEOUT, rtscts=1, dsrdtr=1)
             # dtr and rts settings required for adapter
-            self.serial_port.dtr = True
-            self.serial_port.rts = False
+            self._serial_port.dtr = True
+            self._serial_port.rts = False
             # -------------
             return True
         except Exception:
@@ -66,11 +64,11 @@ class Plugin(LoggerPlugin):
             return False
 
     # THIS IS YOUR THREAD
-    def updateT(self):
+    def _updateT(self):
         last_value = 0
         jump_allowed = True
         while self.run:
-            valid, value, unit = self.get_data()
+            valid, value, unit = self._get_data()
             if unit == "V":
                 datanames = ["Spannung"]
             elif unit == "A":
@@ -111,20 +109,20 @@ class Plugin(LoggerPlugin):
             port = self.widget.comboBox.currentText()
             if self.__openPort(port):
                 self.run = True
-                self.__updater = Thread(target=self.updateT)    # Actualize data
+                self.__updater = Thread(target=self._updateT)    # Actualize data
                 self.__updater.start()
                 self.widget.pushButton.setText("Beenden")
             else:
                 self.run = False
                 self.widget.pushButton.setText("Fehler")
 
-    def get_data(self):
-        test = self.serial_port.read(1)
+    def _get_data(self):
+        test = self._serial_port.read(1)
         if len(test) != 1:
             logging.error("recieved incomplete data, skipping...", file=sys.stderr)
             return False, None, None
         if MultimeterMessage.check_first_byte(test[0]):
-            data = test + self.serial_port.read(MultimeterMessage.MESSAGE_LENGTH-1)
+            data = test + self._serial_port.read(MultimeterMessage.MESSAGE_LENGTH-1)
         else:
             logging.error("received incorrect data (%s), skipping..." % test.hex(), file=sys.stderr)
             return False, None, None

@@ -25,22 +25,22 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
         self.smallGUI = True
 
-        self.dataY = [0, 0]
-        self.datanames = ["Temperatur", "SollTemp"]
-        self.dataunits = ["°C", "°C"]
+        self._dataY = [0, 0]
+        self._datanames = ["Temperatur", "SollTemp"]
+        self._dataunits = ["°C", "°C"]
 
         self.__base_address = ""
         self.samplerate = 1
-        self.temp_des = 0
+        self._temp_des = 0
         self.__s = requests.Session()
 
         # Data-logger thread
         self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self.updateT)    # Actualize data
+        self.__updater = Thread(target=self._updateT)    # Actualize data
         # self.updater.start()
 
     # THIS IS YOUR THREAD
-    def updateT(self):
+    def _updateT(self):
         diff = 0
         while self.run:
             if diff < 1/self.samplerate:
@@ -48,10 +48,10 @@ class Plugin(LoggerPlugin):
             start_time = time.time()
             valid, values = self.__get_data()
             if valid:
-                self.dataY = values
-                self.temp_des = values[1]
-                self.widget.spinBox.setValue(self.temp_des)
-                self.stream(self.dataY,  self.datanames,  self.devicename, self.dataunits)
+                self._dataY = values
+                self._temp_des = values[1]
+                self.widget.spinBox.setValue(self._temp_des)
+                self.stream(self._dataY,  self._datanames,  self.devicename, self._dataunits)
 
             diff = (time.time() - start_time)
 
@@ -131,9 +131,9 @@ class Plugin(LoggerPlugin):
         self.samplerate = self.widget.samplerateSpinBox.value()
 
     def __setTempDes(self):
-        if self.temp_des != self.widget.spinBox.value():
-            self.temp_des = self.widget.spinBox.value()
-            self.__get("?manual=1&temp_des="+str(self.temp_des))
+        if self._temp_des != self.widget.spinBox.value():
+            self._temp_des = self.widget.spinBox.value()
+            self.__get("?manual=1&temp_des="+str(self._temp_des))
 
 
 if __name__ == "__main__":

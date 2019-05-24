@@ -25,11 +25,10 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
         self.run = True
         self.samplerate = samplerate            # frequency in Hz (1/sec)
-        self.status = False
 
-        self.pikoservers = []
+        self._pikoservers = []
         for a in ADRESSES:
-            self.pikoservers.append(Piko(a))
+            self._pikoservers.append(Piko(a))
         self.__updater = Thread(target=self.__updateT)    # Actualize data
         self.__updater.start()
 
@@ -40,11 +39,11 @@ class Plugin(LoggerPlugin):
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
-            self.streamData()
+            self._streamData()
             diff = (time.time() - start_time)
 
-    def streamData(self):
-        for idx, s in enumerate(self.pikoservers):
+    def _streamData(self):
+        for idx, s in enumerate(self._pikoservers):
             try:
                 data, datanames, dataunits = s.get_data()
                 if data != False:

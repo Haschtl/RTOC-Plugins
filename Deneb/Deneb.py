@@ -61,7 +61,7 @@ class Plugin(LoggerPlugin):
 
         # Data-logger thread
         self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self.updateT)    # Actualize data
+        self.__updater = Thread(target=self._updateT)    # Actualize data
         # self.updater.start()
 
         self.__base_address = ""
@@ -70,13 +70,13 @@ class Plugin(LoggerPlugin):
         self.__s = requests.Session()
 
     # THIS IS YOUR THREAD
-    def updateT(self):
+    def _updateT(self):
         diff = 0
         while self.run:
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
-            name, y = self.deneb_get_all()
+            name, y = self._deneb_get_all()
             name0, y0, devname0 = [],[],"Engine0"
             name1, y1, devname1 = [],[],"Engine1"
             nameX, yX, devnameX = [],[], "Deneb"
@@ -119,13 +119,13 @@ class Plugin(LoggerPlugin):
             address = self.widget.comboBox.currentText()
             self.__base_address = "http://"+address+"/"
             try:
-                self.deneb_get_all()
+                self._deneb_get_all()
                 ok = True
             except Exception:
                 ok = False
             if ok:
                 self.run = True
-                self.__updater = Thread(target=self.updateT)
+                self.__updater = Thread(target=self._updateT)
                 self.__updater.start()
                 self.widget.pushButton.setText("Beenden")
             else:
@@ -133,7 +133,7 @@ class Plugin(LoggerPlugin):
                 self.run = False
                 self.widget.pushButton.setText("Fehler")
 
-    def deneb_get_all(self):
+    def _deneb_get_all(self):
         instring = C_client("parameter-dump;")
         data_blocks = instring.split(";")
         names = []

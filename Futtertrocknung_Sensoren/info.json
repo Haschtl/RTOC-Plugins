@@ -1,8 +1,8 @@
 {
-  "version":"1.2",
+  "version":"1.3",
   "name":"Futtertrocknung_Sensoren",
   "dependencies":["adafruit_CCS811", "adafruit_DHT","board","busio","adafruit-circuitpython-dht"],
-  "files":[],
+  "files":["Futtertrocknung_Sensoren.py", "config.json", "bib/ccs811.py", "bib/dht22.py", "bib/stat_filter.py"],
   "Info":"",
   "OS":"RaspberryPi",
   "GUI": false

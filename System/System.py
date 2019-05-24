@@ -25,9 +25,9 @@ logging = log.getLogger(__name__)
 
 devicename = "System"
 
-class toggleTable(QtWidgets.QWidget):
+class _toggleTable(QtWidgets.QWidget):
     def __init__(self, name, stream, updateDEF = None, staticDEF=None):
-        super(toggleTable, self).__init__()#
+        super(_toggleTable, self).__init__()#
         self.setDeviceName(devicename)
         self.updateDEF = updateDEF
         self.staticDEF = staticDEF
@@ -100,7 +100,7 @@ class Plugin(LoggerPlugin):
         self.samplerate = 1           # Function frequency in Hz (1/sec)
 
         # Data-logger thread
-        self.tables = []
+        self._tables = []
         self.run = True  # False -> stops thread
         self.__updater = Thread(target=self.__updateT)    # Actualize data
         self.__updater.start()
@@ -112,7 +112,7 @@ class Plugin(LoggerPlugin):
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
-            for t in self.tables:
+            for t in self._tables:
                 t.update()
             if self.widget.cpuStatCheck.isChecked():
                 s = psutil.cpu_stats()
@@ -130,42 +130,42 @@ class Plugin(LoggerPlugin):
         packagedir = self.getDir(__file__)
         uic.loadUi(packagedir+"/System/system.ui", self.widget)
         #self.setCallbacks()
-        self.tables = []
-        self.tables.append(toggleTable('Disk Partitions', self.stream, getDiskPartitions,None))
-        self.tables.append(toggleTable('Disk IO', self.stream, getDiskIO,None))
-        self.tables.append(toggleTable('Memory', self.stream, getMemory,None))
+        self._tables = []
+        self._tables.append(_toggleTable('Disk Partitions', self.stream, getDiskPartitions,None))
+        self._tables.append(_toggleTable('Disk IO', self.stream, getDiskIO,None))
+        self._tables.append(_toggleTable('Memory', self.stream, getMemory,None))
         self.widget.doubleSpinBox.valueChanged.connect(self.__changeSamplerate)
 
         self.widget.boottimeLabel.setText(datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S"))
         self.widget.cpucount.setText(str(psutil.cpu_count(False))+' ('+str(psutil.cpu_count())+')')
-        self.widget.memoryLayout.addWidget(self.tables[0])
-        self.widget.memoryLayout.addWidget(self.tables[1])
-        self.widget.memoryLayout.addWidget(self.tables[2])
+        self.widget.memoryLayout.addWidget(self._tables[0])
+        self.widget.memoryLayout.addWidget(self._tables[1])
+        self.widget.memoryLayout.addWidget(self._tables[2])
 
-        self.tables.append(toggleTable('Battery', self.stream, getBatteryInfo, None))
-        self.tables.append(toggleTable('Temperature', self.stream, getTemperature, None))
-        self.tables.append(toggleTable('Fans', self.stream, getFans, None))
-        self.widget.sensorsLayout.addWidget(self.tables[3])
-        self.widget.sensorsLayout.addWidget(self.tables[4])
-        self.widget.sensorsLayout.addWidget(self.tables[5])
+        self._tables.append(_toggleTable('Battery', self.stream, getBatteryInfo, None))
+        self._tables.append(_toggleTable('Temperature', self.stream, getTemperature, None))
+        self._tables.append(_toggleTable('Fans', self.stream, getFans, None))
+        self.widget.sensorsLayout.addWidget(self._tables[3])
+        self.widget.sensorsLayout.addWidget(self._tables[4])
+        self.widget.sensorsLayout.addWidget(self._tables[5])
 
-        self.tables.append(toggleTable('Network IO', self.stream, getNetworkIO, None))
-        self.widget.networkLayout.addWidget(self.tables[6])
-        self.tables.append(toggleTable('Network Connections', self.stream, getNetworkConnections, None))
-        self.widget.networkLayout.addWidget(self.tables[7])
-        self.tables.append(toggleTable('Network Adresses', self.stream, getNetworkInfo, None))
-        self.widget.networkLayout.addWidget(self.tables[8])
-        self.tables.append(toggleTable('Network Stats', self.stream, getNetworkStats, None))
-        self.widget.networkLayout.addWidget(self.tables[9])
+        self._tables.append(_toggleTable('Network IO', self.stream, getNetworkIO, None))
+        self.widget.networkLayout.addWidget(self._tables[6])
+        self._tables.append(_toggleTable('Network Connections', self.stream, getNetworkConnections, None))
+        self.widget.networkLayout.addWidget(self._tables[7])
+        self._tables.append(_toggleTable('Network Adresses', self.stream, getNetworkInfo, None))
+        self.widget.networkLayout.addWidget(self._tables[8])
+        self._tables.append(_toggleTable('Network Stats', self.stream, getNetworkStats, None))
+        self.widget.networkLayout.addWidget(self._tables[9])
 
-        self.tables.append(toggleTable('Network IO', self.stream, getUsers, None))
-        self.widget.usersLayout.addWidget(self.tables[10])
+        self._tables.append(_toggleTable('Network IO', self.stream, getUsers, None))
+        self.widget.usersLayout.addWidget(self._tables[10])
 
-        self.tables.append(toggleTable('CPU', self.stream, getCpuTimes, None))
-        self.widget.cpuLayout.addWidget(self.tables[11])
+        self._tables.append(_toggleTable('CPU', self.stream, getCpuTimes, None))
+        self.widget.cpuLayout.addWidget(self._tables[11])
 
-        self.tables.append(toggleTable('CPU', self.stream, getProcessList, None))
-        self.widget.processLayout.addWidget(self.tables[12])
+        self._tables.append(_toggleTable('CPU', self.stream, getProcessList, None))
+        self.widget.processLayout.addWidget(self._tables[12])
 
         return self.widget
 

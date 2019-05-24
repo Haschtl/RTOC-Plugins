@@ -1,5 +1,5 @@
 {
-  "version":"1.0",
+  "version":"1.1",
   "name":"DPS5020",
   "dependencies":["minimalmodbus"],
   "files":["DPS5020.py","DPS5020/dps5020.ui"],

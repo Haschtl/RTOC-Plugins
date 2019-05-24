@@ -1,0 +1,9 @@
+{
+  "version":"1.2",
+  "name":"Futtertrocknung_FAKE",
+  "dependencies":[],
+  "files":["Futtertrocknung_FAKE.py"],
+  "Info":"This is a test-plugin for Futtertrocknung_Controller and Futtertrocknung_Sensoren",
+  "OS":"all",
+  "GUI": false
+}

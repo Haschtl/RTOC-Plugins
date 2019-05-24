@@ -19,20 +19,19 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
         self.smallGUI = True
 
-        self.smallGUI = True
-        self.dataY = [0, 0, 0, 0, 0, 0]
-        self.datanames = ["Hotend0", "Hotend0Des", "Hotend1", "Hotend1Des", "Heatbed", "HeatbedDes"]
-        self.dataunits = ["°C", "°C", "°C", "°C", "°C", "°C"]
+        self._dataY = [0, 0, 0, 0, 0, 0]
+        self._datanames = ["Hotend0", "Hotend0Des", "Hotend1", "Hotend1Des", "Heatbed", "HeatbedDes"]
+        self._dataunits = ["°C", "°C", "°C", "°C", "°C", "°C"]
 
         self.samplerate = SAMPLERATE
 
         # Data-logger thread
         self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self.updateT)    # Actualize data
+        self.__updater = Thread(target=self._updateT)    # Actualize data
         # self.updater.start()
 
     # THIS IS YOUR THREAD
-    def updateT(self):
+    def _updateT(self):
         diff = 0
         while self.run:
             if diff < 1/self.samplerate:
@@ -40,11 +39,11 @@ class Plugin(LoggerPlugin):
             start_time = time.time()
             valid, values = self.__get_data()
             if valid:
-                self.dataY = values
+                self._dataY = values
                 self.widget.spinBox0.setValue(values[1])
                 self.widget.spinBox1.setValue(values[3])
                 self.widget.spinBoxB.setValue(values[5])
-                self.stream(self.dataY,  self.datanames,  self.devicename, self.dataunits)
+                self.stream(self._dataY,  self._datanames,  self.devicename, self._dataunits)
 
             diff = (time.time() - start_time)
 
@@ -96,15 +95,15 @@ class Plugin(LoggerPlugin):
         self.samplerate = self.widget.samplerateSpinBox.value()
 
     def __setTempDes0(self):
-        if self.dataY[1] != self.widget.spinBox0.value():
+        if self._dataY[1] != self.widget.spinBox0.value():
             self.__api.setNozzleTemp(self.widget.spinBox0.value(), 0)
 
     def __setTempDes1(self):
-        if self.dataY[3] != self.widget.spinBox1.value():
+        if self._dataY[3] != self.widget.spinBox1.value():
             self.__api.setNozzleTemp(self.widget.spinBox1.value(), 1)
 
     def __setTempDesB(self):
-        if self.dataY[5] != self.widget.spinBoxB.value():
+        if self._dataY[5] != self.widget.spinBoxB.value():
             self.__api.setBedTemp(self.widget.spinBoxB.value())
 
 

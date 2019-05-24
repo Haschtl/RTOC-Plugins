@@ -36,14 +36,14 @@ class Plugin(LoggerPlugin):
         # (this is just an example, which can be used for simple data-readings)
         self.run = False  # False -> stops thread
         self.samplerate = SAMPLERATE
-        self.firstrun = True
-        self.__updater = Thread(target=self.updateT)
+        self._firstrun = True
+        self.__updater = Thread(target=self._updateT)
         if AUTORUN:
             self.run = True  # False -> stops thread
             self.__updater.start()
 
     # This function is being called in a thread.
-    def updateT(self):
+    def _updateT(self):
         diff = 0
         while self.run:
             if diff < 1/self.samplerate:
@@ -64,9 +64,9 @@ class Plugin(LoggerPlugin):
 
             # Or send an event with self.event(text='',sname='')
             # (but use with caution, it can spam your RTOC plots):
-            if self.firstrun:
+            if self._firstrun:
                 self.event('Test event', sname='Plot', id='testID')
-                self.firstrun = False
+                self._firstrun = False
 
             diff = (time.time() - start_time)
 

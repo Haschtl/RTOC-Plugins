@@ -25,16 +25,16 @@ class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
-        self.ina = INA219(SHUNT_OHMS, MAX_EXPECTED_AMPS, address=I2C_ADDRESS)
-        self.ina.configure(self.ina.RANGE_16V)
+        self._ina = INA219(SHUNT_OHMS, MAX_EXPECTED_AMPS, address=I2C_ADDRESS)
+        self._ina.configure(self._ina.RANGE_16V)
         self.run = True
         self.samplerate = SAMPLERATE            # frequency in Hz (1/sec)
-        self.datanames = ['Bus Voltage', 'Bus Current', 'Power', 'Shunt Voltage']
-        self.dataunits = ['V', 'mA','mW','mV']
-        self.data = [0,0,0,0]
-        self.status = False
+        self._datanames = ['Bus Voltage', 'Bus Current', 'Power', 'Shunt Voltage']
+        self._dataunits = ['V', 'mA','mW','mV']
+        self._data = [0,0,0,0]
+        self._status = False
 
-        pullDataThread = Thread(target=self.getINA219_data)
+        pullDataThread = Thread(target=self._getINA219_data)
         pullDataThread.start()
 
         self.__updater = Thread(target=self.__updateT)    # Actualize data
@@ -47,23 +47,23 @@ class Plugin(LoggerPlugin):
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
-            if self.status:
-                self.stream(self.data, self.datanames, devicename, self.dataunits)
+            if self._status:
+                self.stream(self._data, self._datanames, devicename, self._dataunits)
             diff = (time.time() - start_time)
 
-    def getINA219_data(self):
+    def _getINA219_data(self):
         while self.run:
             time.sleep(1/self.samplerate)
-            self.ina.wake()
-            self.data[0] = self.ina.voltage()
+            self._ina.wake()
+            self._data[0] = self._ina.voltage()
             try:
-                self.data[1] = self.ina.current()
-                self.data[2] = self.ina.power()
-                self.data[3] = self.ina.shunt_voltage()
-                self.status = True
+                self._data[1] = self._ina.current()
+                self._data[2] = self._ina.power()
+                self._data[3] = self._ina.shunt_voltage()
+                self._status = True
             except DeviceRangeError as e:
                 # Current out of device range with specified shunt resister
                 logging.debug(e)
                 self.event(text='Current out of device range with specified shunt resistor',sname=devicename, priority=1)
-                self.status = False
-            self.ina.sleep()
+                self._status = False
+            self._ina.sleep()

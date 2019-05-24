@@ -268,13 +268,13 @@ class Plugin(LoggerPlugin):
         # bHumid, bTemp = 0,0
         # cHumid, cTemp = 0,0
         # dHumid, dTemp = 0,0
-        aHumid, aTemp = self.trySensorRead(
+        aHumid, aTemp = self._trySensorRead(
             DHT_A, "A", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
-        bHumid, bTemp = self.trySensorRead(
+        bHumid, bTemp = self._trySensorRead(
             DHT_B, "B", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
-        cHumid, cTemp = self.trySensorRead(
+        cHumid, cTemp = self._trySensorRead(
             DHT_C, "C", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
-        dHumid, dTemp = self.trySensorRead(
+        dHumid, dTemp = self._trySensorRead(
             DHT_D, "D", "DHT", "Feuchtigkeit", "Temperatur", True, 100)
 
         rpiTemp = self._get_cpu_temperature()
@@ -329,7 +329,7 @@ class Plugin(LoggerPlugin):
 
         return self._sensor_data
 
-    def trySensorRead(self, value1, messtelle, sensor, signal, signal2, processed=True, gain=1):
+    def _trySensorRead(self, value1, messtelle, sensor, signal, signal2, processed=True, gain=1):
         try:
             #ccs1.set_environmental_data(aHumid, aTemp)
             # a = value1.humidity
