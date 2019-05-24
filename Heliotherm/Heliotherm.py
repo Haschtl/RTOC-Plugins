@@ -154,7 +154,7 @@ class Plugin(LoggerPlugin):
 
         # Data-logger thread
         self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self.updateT)    # Actualize data
+        self.__updater = Thread(target=self._updateT)    # Actualize data
         # self.updater.start()
 
         self.__base_address = ""
@@ -163,16 +163,16 @@ class Plugin(LoggerPlugin):
         self.__s = requests.Session()
 
         self.error = False
-        self.start(HOST)
+        self._start(HOST)
 
     # THIS IS YOUR THREAD
-    def updateT(self):
+    def _updateT(self):
         diff = 0
         while self.run:
             if diff < 1/self.samplerate:
                 time.sleep(1/self.samplerate-diff)
             start_time = time.time()
-            y, name, units = self.helio_get()
+            y, name, units = self._helio_get()
             if y is not None:
 
                 self.stream(y, name, 'Heliotherm', units)
@@ -206,13 +206,13 @@ class Plugin(LoggerPlugin):
             self.__base_address = address
             self.c = ModbusClient(host=self.__base_address, port=502, auto_open=True, auto_close=True)
             self.c.timeout(10)
-            #self.helio_get()
+            #self._helio_get()
             self.run = True
-            self.__updater = Thread(target=self.updateT)
+            self.__updater = Thread(target=self._updateT)
             self.__updater.start()
             self.widget.pushButton.setText("Beenden")
 
-    def start(self, address):
+    def _start(self, address):
         if self.run:
             self.run = False
             self.__base_address = ""
@@ -220,16 +220,16 @@ class Plugin(LoggerPlugin):
             self.__base_address = address
             self.c = ModbusClient(host=self.__base_address, port=502, auto_open=True, auto_close=True)
             self.c.timeout(10)
-            #self.helio_get()
+            #self._helio_get()
             self.run = True
-            self.__updater = Thread(target=self.updateT)
+            self.__updater = Thread(target=self._updateT)
             self.__updater.start()
 
-    def helio_set(self, reg, value):
+    def _helio_set(self, reg, value):
         pass
         #self.c.write_single_register(reg_addr,reg_value)
         #self.c.write_multiple_registers
-    def helio_get(self):
+    def _helio_get(self):
         #client = ModbusTcpClient(self.__base_address)
         #client.write_coil(1, True)
         #result = client.read_coils(0,1)
