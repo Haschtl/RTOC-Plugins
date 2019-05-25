@@ -25,7 +25,7 @@ logging = log.getLogger(__name__)
 
 devicename = "Sensoren"
 ACTIVE_SAMPLERATE = 10
-PASSIVE_SAMPLERATE = 0.1
+PASSIVE_SAMPLERATE = 0.016
 
 #dht22 = Adafruit_DHT.DHT22
 # css811: sudo nano /boot/config.txt for i2c baudrate

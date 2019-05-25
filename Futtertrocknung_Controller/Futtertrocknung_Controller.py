@@ -29,7 +29,7 @@ else:
 devicename = "Controller"
 
 ACTIVE_SAMPLERATE = 10
-PASSIVE_SAMPLERATE = 0.1
+PASSIVE_SAMPLERATE = 0.016
 
 
 class Plugin(LoggerPlugin, controller):
