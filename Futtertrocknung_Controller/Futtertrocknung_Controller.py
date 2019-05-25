@@ -48,7 +48,7 @@ class Plugin(LoggerPlugin, controller):
         self._lastDisplayState = -1
         # self._thread = Thread(target=self._getControllerData)
         # self._thread.start()
-        self._thread = _perpetualTimer(self.samplerate, self._getControllerData)
+        self._thread = _perpetualTimer(1/self.samplerate, self._getControllerData)
         self._thread.start()
         self._displayThread = Thread(target=self._checkDisplayThread)
         self._displayThread.start()
@@ -177,7 +177,7 @@ class Plugin(LoggerPlugin, controller):
                 if self._lastDisplayState != 1:
                     if self._thread:
                         self._thread.cancel()
-                    self._thread = _perpetualTimer(self.samplerate, self._getControllerData)
+                    self._thread = _perpetualTimer(1/self.samplerate, self._getControllerData)
                     self._thread.start()
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 1
@@ -186,7 +186,7 @@ class Plugin(LoggerPlugin, controller):
                 if self._lastDisplayState != 0:
                     if self._thread:
                         self._thread.cancel()
-                    self._thread = _perpetualTimer(self.samplerate, self._getControllerData)
+                    self._thread = _perpetualTimer(1/self.samplerate, self._getControllerData)
                     self._thread.start()
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 0

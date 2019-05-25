@@ -1,5 +1,5 @@
 # This template shows, how to implement plugins in RTOC
-# RTOC version 1.8.4
+# RTOC version 2.0
 
 # A plugin needs to import RTOC.LoggerPlugin to be recognized by RTOC.
 try:
@@ -9,7 +9,6 @@ except ImportError:
 
 import sys
 import time
-from threading import Thread
 from PyQt5 import uic
 from PyQt5 import QtWidgets
 import numpy as np
@@ -33,42 +32,30 @@ class Plugin(LoggerPlugin):
         self.smallGUI = True  # Only cares, if your Plugin has a GUI
 
         # Initialize some Data-logger thread
-        # (this is just an example, which can be used for simple data-readings)
-        self.run = False  # False -> stops thread
-        self.samplerate = SAMPLERATE
         self._firstrun = True
-        self.__updater = Thread(target=self._updateT)
+        self.setPerpetualTimer(self._updateT, samplerate=SAMPLERATE)
         if AUTORUN:
-            self.run = True  # False -> stops thread
-            self.__updater.start()
+            self.start()
 
     # This function is being called in a thread.
     def _updateT(self):
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
+        # Do something, collect data ,...
+        # for example:
+        y1 = np.sin(time.time())
+        y2 = np.cos(time.time())
 
-            # Do something, collect data ,...
-            # for example:
-            y1 = np.sin(time.time())
-            y2 = np.cos(time.time())
+        # Then send your data
+        self.stream([y1, y2], snames=['Sinus', 'Cosinus'],
+                    unit=["kg", "m"])  # send data to RTOC
 
-            # Then send your data
-            self.stream([y1, y2], snames=['Sinus', 'Cosinus'],
-                        unit=["kg", "m"])  # send data to RTOC
+        # You can also plot data like this:
+        self.plot([-10, 0], [2, 1], sname='Plot', unit='Wow')
 
-            # You can also plot data like this:
-            self.plot([-10, 0], [2, 1], sname='Plot', unit='Wow')
-
-            # Or send an event with self.event(text='',sname='')
-            # (but use with caution, it can spam your RTOC plots):
-            if self._firstrun:
-                self.event('Test event', sname='Plot', id='testID')
-                self._firstrun = False
-
-            diff = (time.time() - start_time)
+        # Or send an event with self.event(text='',sname='')
+        # (but use with caution, it can spam your RTOC plots):
+        if self._firstrun:
+            self.event('Test event', sname='Plot', id='testID')
+            self._firstrun = False
 
     # This function is used to initialize a own Plugin-GUI,
     # which will be available in RTOC.

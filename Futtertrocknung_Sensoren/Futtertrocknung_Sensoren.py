@@ -113,7 +113,7 @@ class Plugin(LoggerPlugin):
 
         # self._thread = Thread(target=self._sensorThread)
         # self._thread.start()
-        self._thread = _perpetualTimer(self.samplerate, self._sensorThread)
+        self._thread = _perpetualTimer(1/self.samplerate, self._sensorThread)
         self._thread.start()
 
         self._displayThread = Thread(target=self._checkDisplayThread)
@@ -379,7 +379,7 @@ class Plugin(LoggerPlugin):
                 if self._lastDisplayState != 1:
                     if self._thread:
                         self._thread.cancel()
-                    self._thread = _perpetualTimer(self.samplerate, self._sensorThread)
+                    self._thread = _perpetualTimer(1/self.samplerate, self._sensorThread)
                     self._thread.start()
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 1
@@ -388,7 +388,7 @@ class Plugin(LoggerPlugin):
                 if self._lastDisplayState != 0:
                     if self._thread:
                         self._thread.cancel()
-                    self._thread = _perpetualTimer(self.samplerate, self._sensorThread)
+                    self._thread = _perpetualTimer(1/self.samplerate, self._sensorThread)
                     self._thread.start()
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 0
