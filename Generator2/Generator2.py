@@ -6,13 +6,11 @@ except ImportError:
 import time
 import math
 import random
-from threading import Thread
 from PyQt5 import uic
 from PyQt5 import QtWidgets
 import logging as log
 log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
-
 devicename = "Generator2"
 
 
@@ -23,7 +21,6 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
         self.smallGUI = True
 
-        self.samplerate = 10            # Function frequency in Hz (1/sec)
         self.gen_freq = 1
         self.gen_level = 1           # Gain of function
         self._sname = "Square"
@@ -31,32 +28,23 @@ class Plugin(LoggerPlugin):
         self.phase = 0
         self._lastValue = 0
 
-        # Data-logger thread
-        self.run = True  # False -> stops thread
-        self.__updater = Thread(target=self.__updateT)    # Actualize data
-        self.__updater.start()
-
-    # THIS IS YOUR THREAD
-    def __updateT(self):
-        diff = 0
+        self.setPerpetualTimer(self.__updateT, samplerate=10)
         self.gen_start = time.time()
-        while self.run:  # All should be inside of this while-loop, because self.run == False should stops this plugin
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            if self._sname == "Square":
-                self.__square()
-            elif self._sname == "Sawtooth":
-                self.__sawtooth()
-            elif self._sname == "Random":
-                self.__noise()
-            elif self._sname == "Sinus":
-                self.__sinus()
-            elif self._sname == "AC":
-                self.__ac()
-            elif self._sname == "DC":
-                self.__dc()
-            diff = (time.time() - start_time)
+        self.start()
+
+    def __updateT(self):
+        if self._sname == "Square":
+            self.__square()
+        elif self._sname == "Sawtooth":
+            self.__sawtooth()
+        elif self._sname == "Random":
+            self.__noise()
+        elif self._sname == "Sinus":
+            self.__sinus()
+        elif self._sname == "AC":
+            self.__ac()
+        elif self._sname == "DC":
+            self.__dc()
 
     # loadGUI needs to return a QWidget, which will be implemented into the Plugins-Area
     def loadGUI(self):

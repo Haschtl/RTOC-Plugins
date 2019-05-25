@@ -6,9 +6,7 @@ except ImportError:
 from .holdPeak_VC820.vc820py.vc820 import MultimeterMessage
 import serial
 import sys
-from threading import Thread
 import traceback
-import os
 
 from PyQt5 import uic
 from PyQt5 import QtWidgets
@@ -21,18 +19,19 @@ default_device = 'COM7'
 SERIAL_BAUDRATE = 2400
 SERIAL_BYTESIZE = 8
 SERIAL_TIMEOUT = 1
-
+SAMPLERATE = 1
 
 class Plugin(LoggerPlugin):
-    def __init__(self, stream=None, plot= None, event=None):
+    def __init__(self, stream=None, plot=None, event=None):
         # Plugin setup
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
         self.smallGUI = True
 
+        self._last_value = 0
+        self._jump_allowed = True
         # Data-logger thread
-        self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self._updateT)    # Actualize data
+        self.setPerpetualTimer(self._updateT, samplerate=SAMPLERATE)
         # self.updater.start()
 
     def __openPort(self, portname=default_device):
@@ -65,32 +64,29 @@ class Plugin(LoggerPlugin):
 
     # THIS IS YOUR THREAD
     def _updateT(self):
-        last_value = 0
-        jump_allowed = True
-        while self.run:
-            valid, value, unit = self._get_data()
-            if unit == "V":
-                datanames = ["Spannung"]
-            elif unit == "A":
-                datanames = ["Strom"]
-            elif unit == "Ohm":
-                datanames = ["Widerstand"]
-            elif unit == "°C":
-                datanames = ["Temperatur"]
-            elif unit == "F":
-                datanames = ["Kapazität"]
-            elif unit == "Hz":
-                datanames = ["Frequenz"]
+        valid, value, unit = self._get_data()
+        if unit == "V":
+            datanames = ["Spannung"]
+        elif unit == "A":
+            datanames = ["Strom"]
+        elif unit == "Ohm":
+            datanames = ["Widerstand"]
+        elif unit == "°C":
+            datanames = ["Temperatur"]
+        elif unit == "F":
+            datanames = ["Kapazität"]
+        elif unit == "Hz":
+            datanames = ["Frequenz"]
+        else:
+            datanames = [unit]
+        if valid:
+            if abs(self._last_value-value) >= 2 and not self._jump_allowed:
+                #self.stream([last_value],  datanames,  self.devicename, unit)
+                self._jump_allowed = True
             else:
-                datanames = [unit]
-            if valid:
-                if abs(last_value-value)>=2 and not jump_allowed:
-                    #self.stream([last_value],  datanames,  self.devicename, unit)
-                    jump_allowed = True
-                else:
-                    self.stream([value],  datanames,  self.devicename, unit)
-                    jump_allowed = False
-                last_value = value
+                self.stream([value],  datanames,  self.devicename, unit)
+                self._jump_allowed = False
+            self._last_value = value
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
@@ -103,17 +99,15 @@ class Plugin(LoggerPlugin):
 
     def __openPortCallback(self):
         if self.run:
-            self.run = False
+            self.cancel()
             self.widget.pushButton.setText("Verbinden")
         else:
             port = self.widget.comboBox.currentText()
             if self.__openPort(port):
-                self.run = True
-                self.__updater = Thread(target=self._updateT)    # Actualize data
-                self.__updater.start()
+                self.start()
                 self.widget.pushButton.setText("Beenden")
             else:
-                self.run = False
+                self.cancel()
                 self.widget.pushButton.setText("Fehler")
 
     def _get_data(self):
@@ -127,7 +121,8 @@ class Plugin(LoggerPlugin):
             logging.error("received incorrect data (%s), skipping..." % test.hex(), file=sys.stderr)
             return False, None, None
         if len(data) != MultimeterMessage.MESSAGE_LENGTH:
-            logging.error("received incomplete message (%s), skipping..." % data.hex(), file=sys.stderr)
+            logging.error("received incomplete message (%s), skipping..." %
+                          data.hex(), file=sys.stderr)
             return False, None, None
         try:
             message = MultimeterMessage(data)

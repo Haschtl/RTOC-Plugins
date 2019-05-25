@@ -4,9 +4,7 @@ except ImportError:
     from RTOC.LoggerPlugin import LoggerPlugin
 
 import sys
-from threading import Thread, Lock
 import traceback
-import os
 
 from PyQt5 import uic
 from PyQt5 import QtWidgets
@@ -25,6 +23,7 @@ default_device = '/dev/ttyUSB0'
 SERIAL_BAUDRATE = 9600
 SERIAL_BYTESIZE = 8
 SERIAL_TIMEOUT = 2
+SAMPLERATE = 1
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
@@ -33,7 +32,6 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
         self.smallGUI = True
 
-        self.__lock = Lock()
         self.__data = None
         self.smallGUI = True
         self._locked = False
@@ -44,8 +42,7 @@ class Plugin(LoggerPlugin):
         self._CV = True  # False = CC
 
         # Data-logger thread
-        self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self._updateT)    # Actualize data
+        self.setPerpetualTimer(self._updateT, samplerate=SAMPLERATE)
         # self.updater.start()
 
     def __openPort(self, portname=default_device):
@@ -83,7 +80,6 @@ class Plugin(LoggerPlugin):
 
     # THIS IS YOUR THREAD
     def _updateT(self):
-        while self.run:
             valid, values = self._get_data()
             self.__dataY = values
             if valid:
@@ -106,24 +102,21 @@ class Plugin(LoggerPlugin):
 
     def __openPortCallback(self):
         if self.run:
-            self.run = False
+            self.cancel()
             self.widget.pushButton.setText("Verbinden")
         else:
             port = self.widget.comboBox.currentText()
             if self.__openPort(port):
-                self.run = True
-                self.__updater = Thread(target=self._updateT)    # Actualize data
-                self.__updater.start()
+                self.start()
                 self.widget.pushButton.setText("Beenden")
             else:
-                self.run = False
+                self.cancel()
                 self.widget.pushButton.setText("Fehler")
 
     def _get_data(self):
         try:
-            self.__lock.acquire()
-            self.__data = self.__powerSupply.read_registers(0, 11)
-            self.__lock.release()
+            with self.lockPerpetialTimer:
+                self.__data = self.__powerSupply.read_registers(0, 11)
             # data[0] U-set x100 (R/W)
             # data[1] I-set x100 (R/W)
             # data[2] U-out x100
@@ -160,14 +153,13 @@ class Plugin(LoggerPlugin):
             logging.info("Changing power-state")
             # onoff=self.__powerSupply.read_register(9)
             # self.powerButton.setChecked(bool(onoff))
-            self.__lock.acquire()
-            if value:
-                self.__powerSupply.write_register(9, 1)
-                self.__event("Power on")
-            else:
-                self.__powerSupply.write_register(9, 0)
-                self.__event("Power off")
-            self.__lock.release()
+            with self.lockPerpetialTimer:
+                if value:
+                    self.__powerSupply.write_register(9, 1)
+                    self.__event("Power on")
+                else:
+                    self.__powerSupply.write_register(9, 0)
+                    self.__event("Power off")
             self._power = value
 
     def setLocked(self, value=True):
@@ -175,24 +167,21 @@ class Plugin(LoggerPlugin):
             logging.info("Changing locked-state")
             # onoff=self.__powerSupply.read_register(6)
             # self.powerButton.setChecked(bool(onoff))
-            self.__lock.acquire()
-            if value:
-                self.__powerSupply.write_register(6, 1)
-            else:
-                self.__powerSupply.write_register(6, 0)
+            with self.lockPerpetialTimer:
+                if value:
+                    self.__powerSupply.write_register(6, 1)
+                else:
+                    self.__powerSupply.write_register(6, 0)
             self._locked = value
-            self.__lock.release()
 
     def setVoltage(self, value=0):
         if self.run:
-            self.__lock.acquire()
-            self.__powerSupply.write_register(0, int(value*100))
-            self.__lock.release()
+            with self.lockPerpetialTimer:
+                self.__powerSupply.write_register(0, int(value*100))
 
     def setCurrent(self, value=0):
-        self.__lock.acquire()
-        self.__powerSupply.write_register(1, int(value*100))
-        self.__lock.release()
+        with self.lockPerpetialTimer:
+            self.__powerSupply.write_register(1, int(value*100))
 
     def _setCurrAction(self):
         value = self.widget.currBox.value()

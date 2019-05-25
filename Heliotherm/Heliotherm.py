@@ -2,15 +2,9 @@ try:
     from LoggerPlugin import LoggerPlugin
 except ImportError:
     from RTOC.LoggerPlugin import LoggerPlugin
-import time
-from threading import Thread
-import traceback
 import requests
 from PyQt5 import uic
 from PyQt5 import QtWidgets
-import socket
-import threading
-import os
 
 devicename = "Heliotherm"
 
@@ -153,12 +147,11 @@ class Plugin(LoggerPlugin):
         self.smallGUI = True
 
         # Data-logger thread
-        self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self._updateT)    # Actualize data
+
+        self.setPerpetualTimer(self._updateT, samplerate=0.2)
         # self.updater.start()
 
         self.__base_address = ""
-        self.samplerate = 0.2
         self.__s = requests.Session()
 
         self._error = False
@@ -166,23 +159,16 @@ class Plugin(LoggerPlugin):
 
     # THIS IS YOUR THREAD
     def _updateT(self):
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            y, name, units = self._helio_get()
-            if y is not None:
+        y, name, units = self._helio_get()
+        if y is not None:
 
-                self.stream(y, name, 'Heliotherm', units)
-                if self._error == True:
-                    self.event('Wärmepumpe: Werte werden wieder empfangen', sname="Status", dname=devicename, priority=0)
-                    self._error = False
-            elif self._error == False:
-                self._error = True
-                self.event('Wärmepumpe: Messwerte können nicht empfangen werden', sname="Status", dname=devicename, priority=1)
-
-            diff = (time.time() - start_time)
+            self.stream(y, name, 'Heliotherm', units)
+            if self._error == True:
+                self.event('Wärmepumpe: Werte werden wieder empfangen', sname="Status", dname=devicename, priority=0)
+                self._error = False
+        elif self._error == False:
+            self._error = True
+            self.event('Wärmepumpe: Messwerte können nicht empfangen werden', sname="Status", dname=devicename, priority=1)
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
@@ -197,7 +183,7 @@ class Plugin(LoggerPlugin):
 
     def __openConnectionCallback(self):
         if self.run:
-            self.run = False
+            self.cancel()
             self.widget.pushButton.setText("Verbinden")
             self.__base_address = ""
         else:
@@ -206,23 +192,19 @@ class Plugin(LoggerPlugin):
             self.c = ModbusClient(host=self.__base_address, port=502, auto_open=True, auto_close=True)
             self.c.timeout(10)
             #self._helio_get()
-            self.run = True
-            self.__updater = Thread(target=self._updateT)
-            self.__updater.start()
+            self.start()
             self.widget.pushButton.setText("Beenden")
 
     def _start(self, address):
         if self.run:
-            self.run = False
+            self.cancel()
             self.__base_address = ""
         else:
             self.__base_address = address
             self.c = ModbusClient(host=self.__base_address, port=502, auto_open=True, auto_close=True)
             self.c.timeout(10)
             #self._helio_get()
-            self.run = True
-            self.__updater = Thread(target=self._updateT)
-            self.__updater.start()
+            self.start()
 
     def _helio_set(self, reg, value):
         pass

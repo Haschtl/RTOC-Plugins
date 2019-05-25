@@ -3,14 +3,10 @@ try:
 except ImportError:
     from RTOC.LoggerPlugin import LoggerPlugin
 
-import os
-import time
-from threading import Thread
 import traceback
 import requests
 from PyQt5 import uic
 from PyQt5 import QtWidgets
-import os
 import logging as log
 log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
@@ -30,30 +26,21 @@ class Plugin(LoggerPlugin):
         self._dataunits = ["°C", "°C"]
 
         self.__base_address = ""
-        self.samplerate = 1
         self._temp_des = 0
         self.__s = requests.Session()
 
         # Data-logger thread
-        self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self._updateT)    # Actualize data
+        self.setPerpetualTimer(self._updateT, samplerate=1)
         # self.updater.start()
 
     # THIS IS YOUR THREAD
     def _updateT(self):
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            valid, values = self.__get_data()
-            if valid:
-                self._dataY = values
-                self._temp_des = values[1]
-                self.widget.spinBox.setValue(self._temp_des)
-                self.stream(self._dataY,  self._datanames,  self.devicename, self._dataunits)
-
-            diff = (time.time() - start_time)
+        valid, values = self.__get_data()
+        if valid:
+            self._dataY = values
+            self._temp_des = values[1]
+            self.widget.spinBox.setValue(self._temp_des)
+            self.stream(self._dataY,  self._datanames,  self.devicename, self._dataunits)
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
@@ -73,19 +60,18 @@ class Plugin(LoggerPlugin):
 
     def __openConnectionCallback(self):
         if self.run:
-            self.run = False
+            self.cancel()
             self.widget.pushButton.setText("Verbinden")
             self.__base_address = ""
         else:
             address = self.widget.comboBox.currentText()
             self.__base_address = "http://"+address+"/"
             if self.__openConnection(address):
-                self.run = True
-                self.__updater.start()
+                self.start()
                 self.widget.pushButton.setText("Beenden")
             else:
                 self.__base_address = ""
-                self.run = False
+                self.cancel()
                 self.widget.pushButton.setText("Fehler")
 
     def __get_data(self):

@@ -5,13 +5,11 @@ except ImportError:
 
 import time
 from threading import Thread
-import traceback
 import requests
 from PyQt5 import uic
 from PyQt5 import QtWidgets
 import socket
 import threading
-import os
 
 devicename = "Deneb"
 
@@ -49,8 +47,7 @@ def C_client(data, host=HOST, port=PORT):
             return response
     return "error: connection timed out"
 
-############################# DO NOT EDIT FROM HERE ################################################
-
+SAMPLERATE = 1
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
@@ -60,44 +57,35 @@ class Plugin(LoggerPlugin):
         self.smallGUI = True
 
         # Data-logger thread
-        self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self._updateT)    # Actualize data
+        self.setPerpetualTimer(self._updateT, samplerate=SAMPLERATE)
         # self.updater.start()
 
         self.__base_address = ""
-        self.samplerate = 1
         self.temp_des = 0
         self.__s = requests.Session()
 
     # THIS IS YOUR THREAD
     def _updateT(self):
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            name, y = self._deneb_get_all()
-            name0, y0, devname0 = [],[],"Engine0"
-            name1, y1, devname1 = [],[],"Engine1"
-            nameX, yX, devnameX = [],[], "Deneb"
-            for idx, n in enumerate(name):
-                if "engine0" in n:
-                    name0.append(n.replace("engine0:",""))
-                    y0.append(y[idx])
-                elif "engine1" in n:
-                    name1.append(n.replace("engine1:",""))
-                    y1.append(y[idx])
-                else:
-                    nameX.append(n)
-                    yX.append(y[idx])
-            if len(y0)>0:
-                self.stream(y0, name0, devname0, [""]*len(y0))
-            if len(y1)>0:
-                self.stream(y1, name1, devname1, [""]*len(y1))
-            if len(yX)>0:
-                self.stream(yX, nameX, devnameX, [""]*len(yX))
-
-            diff = (time.time() - start_time)
+        name, y = self._deneb_get_all()
+        name0, y0, devname0 = [],[],"Engine0"
+        name1, y1, devname1 = [],[],"Engine1"
+        nameX, yX, devnameX = [],[], "Deneb"
+        for idx, n in enumerate(name):
+            if "engine0" in n:
+                name0.append(n.replace("engine0:",""))
+                y0.append(y[idx])
+            elif "engine1" in n:
+                name1.append(n.replace("engine1:",""))
+                y1.append(y[idx])
+            else:
+                nameX.append(n)
+                yX.append(y[idx])
+        if len(y0)>0:
+            self.stream(y0, name0, devname0, [""]*len(y0))
+        if len(y1)>0:
+            self.stream(y1, name1, devname1, [""]*len(y1))
+        if len(yX)>0:
+            self.stream(yX, nameX, devnameX, [""]*len(yX))
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
@@ -112,7 +100,7 @@ class Plugin(LoggerPlugin):
 
     def __openConnectionCallback(self):
         if self.run:
-            self.run = False
+            self.cancel()
             self.widget.pushButton.setText("Verbinden")
             self.__base_address = ""
         else:
@@ -124,13 +112,11 @@ class Plugin(LoggerPlugin):
             except Exception:
                 ok = False
             if ok:
-                self.run = True
-                self.__updater = Thread(target=self._updateT)
-                self.__updater.start()
+                self.start()
                 self.widget.pushButton.setText("Beenden")
             else:
                 self.__base_address = ""
-                self.run = False
+                self.cancel()
                 self.widget.pushButton.setText("Fehler")
 
     def _deneb_get_all(self):

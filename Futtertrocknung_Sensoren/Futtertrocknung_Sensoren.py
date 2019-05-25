@@ -5,11 +5,8 @@ except ImportError:
 
 import time
 from threading import Thread, Timer
-#import Adafruit_DHT
 import board
 import busio
-#import ccs811 as adafruit_ccs811
-#import adafruit_dht
 try:
     from .bib import ccs811 as adafruit_ccs811
     from .bib import dht22
@@ -27,11 +24,8 @@ devicename = "Sensoren"
 ACTIVE_SAMPLERATE = 10
 PASSIVE_SAMPLERATE = 0.016
 
-#dht22 = Adafruit_DHT.DHT22
 # css811: sudo nano /boot/config.txt for i2c baudrate
 i2c = busio.I2C(board.SCL, board.SDA)
-
-#DHT_pins = {"A": 24, "B": 23, "C": 27, "D": 17}
 
 DHT_A = dht22.DHTBase(False, board.D24, 10)
 DHT_B = dht22.DHTBase(False, board.D23, 10)
@@ -84,9 +78,6 @@ class Plugin(LoggerPlugin):
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
 
-        self.run = True
-        self.samplerate = ACTIVE_SAMPLERATE
-
         try:
             self.ccs2 = adafruit_ccs811.CCS811(i2c)
         except Exception:
@@ -113,9 +104,8 @@ class Plugin(LoggerPlugin):
 
         # self._thread = Thread(target=self._sensorThread)
         # self._thread.start()
-        self._thread = _perpetualTimer(1/self.samplerate, self._sensorThread)
-        self._thread.start()
-
+        self.setPerpetualTimer(self._sensorThread, samplerate=ACTIVE_SAMPLERATE)
+        self.start()
         self._displayThread = Thread(target=self._checkDisplayThread)
         self._displayThread.start()
 
@@ -348,16 +338,9 @@ class Plugin(LoggerPlugin):
 
     def _sensorThread(self):
         self._waitForSensors()
-        # time.sleep(2)
-        #diff = 0
-        #while self.run:
-            #if diff < 1/self.samplerate:
-            #    time.sleep(1/self.samplerate-diff)
-            # start_time = time.time()
         sensor_data = self._getAllSensors()
         if self._logging:
             self.stream(list=sensor_data)
-            #diff = (time.time() - start_time)
 
     def _get_cpu_temperature(self):
         tFile = open('/sys/class/thermal/thermal_zone0/temp')
@@ -377,46 +360,17 @@ class Plugin(LoggerPlugin):
             if state == '1\n':
                 self.samplerate = PASSIVE_SAMPLERATE
                 if self._lastDisplayState != 1:
-                    if self._thread:
-                        self._thread.cancel()
-                    self._thread = _perpetualTimer(1/self.samplerate, self._sensorThread)
-                    self._thread.start()
+                    self.setSamplerate(self.samplerate)
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 1
             else:
                 self.samplerate = ACTIVE_SAMPLERATE
                 if self._lastDisplayState != 0:
-                    if self._thread:
-                        self._thread.cancel()
-                    self._thread = _perpetualTimer(1/self.samplerate, self._sensorThread)
-                    self._thread.start()
+                    self.setSamplerate(self.samplerate)
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 0
             time.sleep(0.2)
 
-    def close(self):
-        self.run = False
-        if self._thread:
-            self._thread.cancel()
-
-
-class _perpetualTimer():  # Sollte optional noch QTimer sin!!!
-
-    def __init__(self, t, hFunction):
-        self._t = t
-        self._hFunction = hFunction
-        self._thread = Timer(self._t, self._handle_function)
-
-    def _handle_function(self):
-        self._hFunction()
-        self._thread = Timer(self._t, self._handle_function)
-        self._thread.start()
-
-    def start(self):
-        self._thread.start()
-
-    def cancel(self):
-        self._thread.cancel()
 
 if __name__ == '__main__':
     dev = Plugin(stream=None, plot=None, event=None)

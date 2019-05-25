@@ -1,16 +1,14 @@
 from RTOC.LoggerPlugin import LoggerPlugin
 
-import time
-from threading import Thread
 from PyQt5 import uic
 from PyQt5 import QtWidgets
-import os
 
 from .Octotouch.OctoprintApi import OctoprintAPI
 
 devicename = "Octotouch"
 apikey = ""
 SAMPLERATE = 1
+
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
@@ -23,29 +21,18 @@ class Plugin(LoggerPlugin):
         self._datanames = ["Hotend0", "Hotend0Des", "Hotend1", "Hotend1Des", "Heatbed", "HeatbedDes"]
         self._dataunits = ["°C", "°C", "°C", "°C", "°C", "°C"]
 
-        self.samplerate = SAMPLERATE
-
         # Data-logger thread
-        self.run = False  # False -> stops thread
-        self.__updater = Thread(target=self._updateT)    # Actualize data
-        # self.updater.start()
+        self.setPerpetualTimer(self._updateT, samplerate=SAMPLERATE)
 
     # THIS IS YOUR THREAD
     def _updateT(self):
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            valid, values = self.__get_data()
-            if valid:
-                self._dataY = values
-                self.widget.spinBox0.setValue(values[1])
-                self.widget.spinBox1.setValue(values[3])
-                self.widget.spinBoxB.setValue(values[5])
-                self.stream(self._dataY,  self._datanames,  self.devicename, self._dataunits)
-
-            diff = (time.time() - start_time)
+        valid, values = self.__get_data()
+        if valid:
+            self._dataY = values
+            self.widget.spinBox0.setValue(values[1])
+            self.widget.spinBox1.setValue(values[3])
+            self.widget.spinBoxB.setValue(values[5])
+            self.stream(self._dataY,  self._datanames,  self.devicename, self._dataunits)
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
@@ -68,15 +55,14 @@ class Plugin(LoggerPlugin):
 
     def __openConnectionCallback(self):
         if self.run:
-            self.run = False
+            self.cancel()
             self.widget.pushButton.setText("Verbinden")
         else:
             if self.__openConnection():
-                self.run = True
-                self.__updater.start()
+                self.start()
                 self.widget.pushButton.setText("Beenden")
             else:
-                self.run = False
+                self.cancel()
                 self.widget.pushButton.setText("Fehler")
 
     def __get_data(self):

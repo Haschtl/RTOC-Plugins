@@ -3,8 +3,6 @@ try:
 except ImportError:
     from RTOC.LoggerPlugin import LoggerPlugin
 
-import time
-from threading import Thread
 import numpy as np
 import logging as log
 log.basicConfig(level=log.INFO)
@@ -20,9 +18,6 @@ class Plugin(LoggerPlugin):
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
 
-        self.run = True
-        self.samplerate = ACTIVE_SAMPLERATE
-
         self._sensor_data = {
             'A': {'Temperatur': [None, '°C'], 'CO2-Gehalt': [None, 'ppm'], 'TVOC-Gehalt': [None, 'ppm'], 'Temperatur2': [None, '°C'], 'Feuchtigkeit': [None, '%']},
             'B': {'Temperatur': [None, '°C'], 'CO2-Gehalt': [None, 'ppm'], 'TVOC-Gehalt': [None, 'ppm'], 'Temperatur': [None, '°C'], 'Feuchtigkeit': [None, '%']},
@@ -31,8 +26,8 @@ class Plugin(LoggerPlugin):
             'Bedienelement': {'CPU-Temperatur': [None, '°C']},
         }
 
-        self._thread = Thread(target=self._sensorThread)
-        self._thread.start()
+        self.setPerpetualTimer(self._sensorThread, samplerate=ACTIVE_SAMPLERATE)
+        self.start()
 
     def r(self):
         return np.random.random()
@@ -50,14 +45,8 @@ class Plugin(LoggerPlugin):
         return self._sensor_data
 
     def _sensorThread(self):
-        diff = 0
-        while self.run:
-            if diff < 1/self.samplerate:
-                time.sleep(1/self.samplerate-diff)
-            start_time = time.time()
-            sensor_data = self._getAllSensors()
-            self.stream(list=sensor_data)
-            diff = (time.time() - start_time)
+        sensor_data = self._getAllSensors()
+        self.stream(list=sensor_data)
 
 
 if __name__ == '__main__':
