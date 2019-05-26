@@ -355,9 +355,9 @@ class Plugin(LoggerPlugin):
         while self.run:
             with open("/sys/class/backlight/rpi_backlight/bl_power", "r") as f:
                 text = f.read()
-            state = bool(text)
+            state = str(text)
             logging.debug(state)
-            if state == True:
+            if state == '1\n':
                 self.samplerate = PASSIVE_SAMPLERATE
                 if self._lastDisplayState != 1:
                     self.setSamplerate(self.samplerate)
