@@ -162,7 +162,7 @@ class Plugin(LoggerPlugin):
         y, name, units = self._helio_get()
         if y is not None:
 
-            self.stream(y, name, 'Heliotherm', units)
+            self.stream(y=y, snames=name, unit=units)
             if self._error == True:
                 self.event('Wärmepumpe: Werte werden wieder empfangen', sname="Status", dname=devicename, priority=0)
                 self._error = False
