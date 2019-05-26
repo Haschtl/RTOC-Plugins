@@ -24,18 +24,22 @@ class Plugin(LoggerPlugin):
         # Plugin configuration
         # Call this to initialize RTOC.LoggerPlugin
         super(Plugin, self).__init__(stream, plot, event)
-        # Set a devicename.
+        # Set a default devicename.
         # This will be used for all signals sent by this plugin as default
         self.setDeviceName(DEVICENAME)
 
         # GUI configuration
         self.smallGUI = True  # Only cares, if your Plugin has a GUI
 
-        # Initialize some Data-logger thread
         self._firstrun = True
+
+        # set the function, which will collect data periodically
         self.setPerpetualTimer(self._updateT, samplerate=SAMPLERATE)
         if AUTORUN:
+            # start the configured perpetual timer. It can be stopped with 'self.cancel()'
             self.start()
+
+        # Instead of this, you can also start a normal thread, which is active in this while loop: 'while self.run:'. This ensures, that this plugin can be stopped.
 
     # This function is being called in a thread.
     def _updateT(self):

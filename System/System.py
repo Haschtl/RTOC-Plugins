@@ -28,7 +28,6 @@ devicename = "System"
 class _toggleTable(QtWidgets.QWidget):
     def __init__(self, name, stream, updateDEF = None, staticDEF=None):
         super(_toggleTable, self).__init__()#
-        self.setDeviceName(devicename)
         self.updateDEF = updateDEF
         self.staticDEF = staticDEF
         self.run = None
