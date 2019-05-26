@@ -160,7 +160,8 @@ class Plugin(LoggerPlugin, controller):
                 text = f.read()
             state = bool(text)
             logging.debug(state)
-            if state == '1\n':
+            print(state)
+            if '1' in str(state):
                 self.samplerate = PASSIVE_SAMPLERATE
                 if self._lastDisplayState != 1:
                     self.setSamplerate(self.samplerate)
