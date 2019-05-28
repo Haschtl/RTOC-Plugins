@@ -47,7 +47,7 @@ mappingWrite = [
 [124, 'Unbekannt', 1, '', False],
 [125, 'Leistungsaufnahmevorgabe', 1, 'W', False],
 [126, 'Verdichterdrehzahlvorgabe', 1, '%°', False],
-[127, 'Ext. Anf', 1, '', False],
+[127, 'Ext Anf', 1, '', False],
 [128, 'Entstoeren', 1, '', False],
 [129, 'Aussentemperatur Wert', 10, '°C', False],
 [130, 'Aussentemperatur aktiv', 1, '', False],
