@@ -90,7 +90,7 @@ class Plugin(LoggerPlugin, controller):
                 if self.controller_timed_out:
                     status = -1 #rot
                     if status != self._lastControllerStatus:
-                        self.event('Regler ist nicht eingeschwungen.', dname='E', sname='Reglerstatus', priority=2, id='regler_instabil')
+                        self.event('Regler ist nicht eingeschwungen.', dname='E', sname='Reglerstatus', priority=1, id='regler_instabil')
                 elif self.set_value_out_of_range:
                     status = -2 #rot
                 else:
