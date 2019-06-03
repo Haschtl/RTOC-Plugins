@@ -161,15 +161,15 @@ class Plugin(LoggerPlugin, controller):
             state = str(text)
             logging.debug(state)
             if state == '1\n':
-                self.samplerate = PASSIVE_SAMPLERATE
                 if self._lastDisplayState != 1:
-                    self.setSamplerate(self.samplerate)
+                    self.samplerate = PASSIVE_SAMPLERATE
+                    #self.setSamplerate(self.samplerate)
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 1
             else:
-                self.samplerate = ACTIVE_SAMPLERATE
                 if self._lastDisplayState != 0:
-                    self.setSamplerate(self.samplerate)
+                    self.samplerate = ACTIVE_SAMPLERATE
+                    #self.setSamplerate(self.samplerate)
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 0
             time.sleep(0.2)
