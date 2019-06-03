@@ -340,7 +340,7 @@ class Plugin(LoggerPlugin):
         self._waitForSensors()
         sensor_data = self._getAllSensors()
         if self._logging:
-            self.stream(list=sensor_data)
+            self.stream(sdict=sensor_data)
 
     def _get_cpu_temperature(self):
         tFile = open('/sys/class/thermal/thermal_zone0/temp')

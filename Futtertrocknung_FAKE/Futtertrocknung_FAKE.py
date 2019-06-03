@@ -46,7 +46,7 @@ class Plugin(LoggerPlugin):
 
     def _sensorThread(self):
         sensor_data = self._getAllSensors()
-        self.stream(list=sensor_data)
+        self.stream(sdict=sensor_data)
 
 
 if __name__ == '__main__':
