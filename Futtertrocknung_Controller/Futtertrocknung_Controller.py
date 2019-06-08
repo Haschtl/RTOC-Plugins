@@ -36,7 +36,7 @@ class Plugin(LoggerPlugin, controller):
         self.setDeviceName(devicename)
 
         self.active_samplerate = 10
-        self.passive_samplerate = 0.016
+        self.passive_samplerate = 1 # 0.016
 
         self._controller_sensor_error = 0
         self._lastControllerStatus = 0

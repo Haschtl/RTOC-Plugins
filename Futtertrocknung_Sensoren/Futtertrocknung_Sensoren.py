@@ -77,7 +77,7 @@ class Plugin(LoggerPlugin):
         self.setDeviceName(devicename)
 
         self.active_samplerate = 10
-        self.passive_samplerate = 0.016
+        self.passive_samplerate = 1  # 0.016
 
         try:
             self.ccs2 = adafruit_ccs811.CCS811(i2c)
