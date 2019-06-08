@@ -13,19 +13,12 @@ import logging as log
 log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
-userpath = os.path.expanduser('~/heutrocknung/Lüftersteuerung/API')
-if not os.path.exists(userpath):
-    logging.error('WRONG DIR TO IMPORT Controller API')
-    sys.exit(1)
-else:
-    try:
-        sys.path.insert(0, userpath)
-        from controller_api import controller
-    except ImportError:
-        logging.error('Could not import Controller API from '+userpath)
-        sys.exit(1)
+from .controller_api import controller
 
 devicename = "Controller"
+
+ACTIVE_SAMPLERATE = 10
+PASSIVE_SAMPLERATE = 0.016
 
 
 class Plugin(LoggerPlugin, controller):
@@ -35,9 +28,6 @@ class Plugin(LoggerPlugin, controller):
         controller.__init__(self)
         self.setDeviceName(devicename)
 
-        self.active_samplerate = 10
-        self.passive_samplerate = 0.016
-
         self._controller_sensor_error = 0
         self._lastControllerStatus = 0
         self._lastSettled = 1
@@ -45,7 +35,7 @@ class Plugin(LoggerPlugin, controller):
         self._lastDisplayState = -1
         # self._thread = Thread(target=self._getControllerData)
         # self._thread.start()
-        self.setPerpetualTimer(self._getControllerData, samplerate=self.active_samplerate)
+        self.setPerpetualTimer(self._getControllerData, samplerate=ACTIVE_SAMPLERATE)
         self.start()
         self._displayThread = Thread(target=self._checkDisplayThread)
         self._displayThread.start()
@@ -156,19 +146,19 @@ class Plugin(LoggerPlugin, controller):
 
     def _checkDisplayThread(self):
         while self.run:
-            with open("/sys/class/backlight/rpi_backlight/bl_power", "r") as f:
+            with open("C:\\Users\\hasch\\.RTOC\\devices\\Futtertrocknung_Controller_FAKE\\bl_power", "r") as f:
                 text = f.read()
             state = str(text)
             logging.debug(state)
             if state == '1\n':
                 if self._lastDisplayState != 1:
-                    self.samplerate = self.passive_samplerate
+                    self.samplerate = PASSIVE_SAMPLERATE
                     #self.setSamplerate(self.samplerate)
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 1
             else:
                 if self._lastDisplayState != 0:
-                    self.samplerate = self.active_samplerate
+                    self.samplerate = ACTIVE_SAMPLERATE
                     #self.setSamplerate(self.samplerate)
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 0

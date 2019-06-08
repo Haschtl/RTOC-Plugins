@@ -21,8 +21,6 @@ log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
 devicename = "Sensoren"
-ACTIVE_SAMPLERATE = 10
-PASSIVE_SAMPLERATE = 0.016
 
 # css811: sudo nano /boot/config.txt for i2c baudrate
 i2c = busio.I2C(board.SCL, board.SDA)
@@ -78,6 +76,9 @@ class Plugin(LoggerPlugin):
         super(Plugin, self).__init__(stream, plot, event)
         self.setDeviceName(devicename)
 
+        self.active_samplerate = 10
+        self.passive_samplerate = 0.016
+
         try:
             self.ccs2 = adafruit_ccs811.CCS811(i2c)
         except Exception:
@@ -104,7 +105,7 @@ class Plugin(LoggerPlugin):
 
         # self._thread = Thread(target=self._sensorThread)
         # self._thread.start()
-        self.setPerpetualTimer(self._sensorThread, samplerate=ACTIVE_SAMPLERATE)
+        self.setPerpetualTimer(self._sensorThread, samplerate=self.active_samplerate)
         self.start()
         self._displayThread = Thread(target=self._checkDisplayThread)
         self._displayThread.start()
@@ -359,13 +360,13 @@ class Plugin(LoggerPlugin):
             logging.debug(state)
             if state == '1\n':
                 if self._lastDisplayState != 1:
-                    self.samplerate = PASSIVE_SAMPLERATE
+                    self.samplerate = self.passive_samplerate
                     #self.setSamplerate(self.samplerate)
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 1
             else:
                 if self._lastDisplayState != 0:
-                    self.samplerate = ACTIVE_SAMPLERATE
+                    self.samplerate = self.active_samplerate
                     #self.setSamplerate(self.samplerate)
                     logging.info('Samplerate changed to'+str(self.samplerate))
                 self._lastDisplayState = 0
