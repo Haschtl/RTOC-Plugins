@@ -19,8 +19,10 @@ logging = log.getLogger(__name__)
 
 ############################# DO NOT EDIT FROM HERE ################################################
 
+GETALL = False
+
 mappingWrite = [
-[100, 'Betriebsart', 1, '', False],
+[100, 'Betriebsart', 1, '', True],
 [101, 'HKR Soll_Raum', 10, '°C', False],
 [102, 'HKR Soll', 10, '°C', False],
 [103, 'HKR Soll aktiv', 1, '', False],
@@ -70,10 +72,10 @@ mappingWrite = [
 ]
 
 mappingRead = [
-[10, 'Temperatur Aussen', 10, '°C', False],
+[10, 'Temperatur Aussen', 10, '°C', True],
 [11, 'Temperatur Brauchwasser', 10, '°C', False],
-[12, 'Temperatur Vorlauf', 10, '°C', False],
-[13, 'Temperatur Ruecklauf', 10, '°C', False],
+[12, 'Temperatur Vorlauf', 10, '°C', True],
+[13, 'Temperatur Ruecklauf', 10, '°C', True],
 [14, 'Temperatur Pufferspeicher', 10, '°C', False],
 [15, 'Temperatur EQ_Eintritt', 10, '°C', True],
 [16, 'Temperatur EQ_Austritt', 10, '°C', True],
@@ -147,10 +149,11 @@ class Plugin(LoggerPlugin):
         self.smallGUI = True
 
         # Data-logger thread
+        self._lastStoerung = False
+        self._lastExtAnf = True
 
         self.setPerpetualTimer(self._updateT, samplerate=0.2)
         # self.updater.start()
-
         self.__base_address = ""
         self.__s = requests.Session()
 
@@ -161,7 +164,21 @@ class Plugin(LoggerPlugin):
     def _updateT(self):
         y, name, units = self._helio_get()
         if y is not None:
-
+            for idx, n in enumerate(name):
+                if n == 'Stoerung':
+                    if y[idx]==1 and self._lastStoerung is False:
+                        self.event('Wärmepumpe: Störung.', sname="Status", dname=devicename, priority=2)
+                        self._lastStoerung = True
+                    else:
+                        self._lastStoerung = False
+                        self.event('Wärmepumpe: Störung behoben.', sname="Status", dname=devicename, priority=0)
+                if n == 'Ext Anf':
+                    if y[idx]==1 and self._lastExtAnf is False:
+                        self._lastExtAnf = True
+                        self.event('Wärmepumpe: Trocknung aktiviert.', sname="Status", dname=devicename, priority=0)
+                    else:
+                        self._lastExtAnf = False
+                        self.event('Wärmepumpe: Trocknung deaktiviert.', sname="Status", dname=devicename, priority=0)
             self.stream(y=y, snames=name, unit=units)
             if self._error == True:
                 self.event('Wärmepumpe: Werte werden wieder empfangen', sname="Status", dname=devicename, priority=0)
@@ -236,13 +253,14 @@ class Plugin(LoggerPlugin):
                         y.append(resultWrite[idx]/mappingWrite[idx][2])
                         units.append(mappingWrite[idx][3])
                 for idx, value in enumerate(resultRead):
-                    if mappingRead[idx][1]=='Unbekannt' or mappingRead[idx][4]==False:
+                    if mappingRead[idx][4]==False and not GETALL:
                         #mappingRead[idx][1] = str(mappingRead[idx][0])
                         pass
                     else:
-                        snames.append(mappingRead[idx][1])
-                        y.append(resultRead[idx]/mappingRead[idx][2])
-                        units.append(mappingRead[idx][3])
+                        if mappingRead[idx][1]!='Unbekannt':
+                            snames.append(mappingRead[idx][1])
+                            y.append(resultRead[idx]/mappingRead[idx][2])
+                            units.append(mappingRead[idx][3])
                 return y, snames, units
             else:
                 self.widget.pushButton.setText("Fehler")
