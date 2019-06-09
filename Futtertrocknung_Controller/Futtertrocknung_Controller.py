@@ -10,6 +10,7 @@ import os
 import sys
 from threading import Thread
 import logging as log
+import datetime as dt
 log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
@@ -186,14 +187,22 @@ class Plugin(LoggerPlugin, controller):
         self.rpm_set = 0
         self.control_manual_selection = 0
 
-    def RemoteAktivieren(self):
+    def RemoteAktivieren(self, timeout=None):
         self.remote_panel = 1
         self.set_control_with_potentiometer = 0
+        if timeout != None:
+            if type(timeout) == int or type(timeout) == float:
+                self.remote_panel_timeout = timeout
+
+        secs = self.remote_panel_timeout
+        secs = dt.timedelta(seconds=secs)
+        return 'Remote-Modus wurde aktiviert.\nNach {} wird der Remote-Modus automatisch deaktiviert'.format(secs)
+
 
     def RemoteDeaktivieren(self):
         self.remote_panel = 0
         self.set_control_with_potentiometer = 1
-
+        return 'Remote-Modus wurde deaktiviert'
 if __name__ == '__main__':
     try:
         a = Plugin(stream=None, plot=None, event=None)
