@@ -81,10 +81,9 @@ class Plugin(LoggerPlugin):
             datanames = [unit]
         if valid:
             if abs(self._last_value-value) >= 2 and not self._jump_allowed:
-                #self.stream([last_value],  datanames,  self.devicename, unit)
                 self._jump_allowed = True
             else:
-                self.stream([value],  datanames,  self.devicename, unit)
+                self.stream(y=[value], snames=datanames,  unit=unit)
                 self._jump_allowed = False
             self._last_value = value
 

@@ -32,7 +32,7 @@ class Plugin(LoggerPlugin):
             self.widget.spinBox0.setValue(values[1])
             self.widget.spinBox1.setValue(values[3])
             self.widget.spinBoxB.setValue(values[5])
-            self.stream(self._dataY,  self._datanames,  self.devicename, self._dataunits)
+            self.stream(y=self._dataY,  snames=self._datanames, unit=self._dataunits)
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()

@@ -83,7 +83,7 @@ class Plugin(LoggerPlugin):
             valid, values = self._get_data()
             self.__dataY = values
             if valid:
-                self.stream(self.__dataY,  self.__datanames,  self.devicename, self.__dataunits)
+                self.stream(y=self.__dataY, snames=self.__datanames, unit=self.__dataunits)
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
