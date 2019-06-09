@@ -169,14 +169,14 @@ class Plugin(LoggerPlugin):
                     if y[idx]==1 and self._lastStoerung is False:
                         self.event('Wärmepumpe: Störung.', sname="Status", dname=devicename, priority=2)
                         self._lastStoerung = True
-                    else:
+                    elif self._lastStoerung is True:
                         self._lastStoerung = False
                         self.event('Wärmepumpe: Störung behoben.', sname="Status", dname=devicename, priority=0)
                 if n == 'Ext Anf':
                     if y[idx]==1 and self._lastExtAnf is False:
                         self._lastExtAnf = True
                         self.event('Wärmepumpe: Trocknung aktiviert.', sname="Status", dname=devicename, priority=0)
-                    else:
+                    elif self._lastExtAnf is True:
                         self._lastExtAnf = False
                         self.event('Wärmepumpe: Trocknung deaktiviert.', sname="Status", dname=devicename, priority=0)
             self.stream(y=y, snames=name, unit=units)
