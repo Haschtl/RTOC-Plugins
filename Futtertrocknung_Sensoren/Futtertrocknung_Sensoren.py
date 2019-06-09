@@ -330,11 +330,12 @@ class Plugin(LoggerPlugin):
                 a = self._processSensor(messtelle, sensor, signal, a)
                 b = self._processSensor(messtelle, sensor, signal2, b)
             self._sensorErrorEvent(messtelle, sensor, False)
-        except Exception:
+        except Exception as error:
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)
-            logging.debug(traceback.format_exc())
+            logging.warning(error)
+            logging.warning(traceback.format_exc())
         return a, b
 
     def _sensorThread(self):
