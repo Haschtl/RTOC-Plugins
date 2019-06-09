@@ -354,22 +354,25 @@ class Plugin(LoggerPlugin):
 
     def _checkDisplayThread(self):
         while self.run:
-            with open("/sys/class/backlight/rpi_backlight/bl_power", "r") as f:
-                text = f.read()
-            state = str(text)
-            logging.debug(state)
-            if state == '1\n':
-                if self._lastDisplayState != 1:
-                    self.samplerate = self.passive_samplerate
-                    #self.setSamplerate(self.samplerate)
-                    logging.info('Samplerate changed to'+str(self.samplerate))
-                self._lastDisplayState = 1
-            else:
-                if self._lastDisplayState != 0:
-                    self.samplerate = self.active_samplerate
-                    #self.setSamplerate(self.samplerate)
-                    logging.info('Samplerate changed to'+str(self.samplerate))
-                self._lastDisplayState = 0
+            try:
+                with open("/sys/class/backlight/rpi_backlight/bl_power", "r") as f:
+                    text = f.read()
+                state = str(text)
+                # logging.debug(state)
+                if state == '1\n':
+                    if self._lastDisplayState != 1:
+                        self.samplerate = self.passive_samplerate
+                        #self.setSamplerate(self.samplerate)
+                        logging.info('Samplerate changed to'+str(self.samplerate))
+                    self._lastDisplayState = 1
+                else:
+                    if self._lastDisplayState != 0:
+                        self.samplerate = self.active_samplerate
+                        #self.setSamplerate(self.samplerate)
+                        logging.info('Samplerate changed to'+str(self.samplerate))
+                    self._lastDisplayState = 0
+            except Exception as error:
+                logging.warning('Could not check Displaystate\n{}'.format(error))
             time.sleep(0.2)
 
 
