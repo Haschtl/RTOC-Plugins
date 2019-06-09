@@ -177,6 +177,23 @@ class Plugin(LoggerPlugin, controller):
                 logging.warning('Could not check Displaystate\n{}'.format(error))
             time.sleep(0.2)
 
+    def Ausschalten(self):
+        self.remote_panel = 1
+        self.set_control_with_potentiometer = 0
+        self.air_pressure_set = 0
+        self.air_pressure_set = 0
+        self.control_enabled = 0
+        self.rpm_set = 0
+        self.control_manual_selection = 0
+
+    def RemoteAktivieren(self):
+        self.remote_panel = 1
+        self.set_control_with_potentiometer = 0
+
+    def RemoteDeaktivieren(self):
+        self.remote_panel = 0
+        self.set_control_with_potentiometer = 1
+
 if __name__ == '__main__':
     try:
         a = Plugin(stream=None, plot=None, event=None)
