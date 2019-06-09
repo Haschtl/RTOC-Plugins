@@ -19,7 +19,7 @@ logging = log.getLogger(__name__)
 
 ############################# DO NOT EDIT FROM HERE ################################################
 
-GETALL = True
+GETALL = False
 
 # mappingWrite = [
 # [100, 'Betriebsart', 1, '', True],
