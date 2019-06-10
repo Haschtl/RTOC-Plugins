@@ -334,8 +334,8 @@ class Plugin(LoggerPlugin):
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)
-            logging.warning(error)
-            logging.warning(traceback.format_exc())
+            #logging.warning(error)
+            #logging.warning(traceback.format_exc())
         return a, b
 
     def _sensorThread(self):
