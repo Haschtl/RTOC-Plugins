@@ -179,20 +179,39 @@ class Plugin(LoggerPlugin, controller):
             time.sleep(0.2)
 
     def Ausschalten(self):
-        self.remote_panel = 1
-        self.set_control_with_potentiometer = 0
+        self.RemoteAktivieren(timeout=None)
         self.air_pressure_set = 0
-        self.air_pressure_set = 0
+        self.flow_rate_set = 0
         self.control_enabled = 0
         self.rpm_set = 0
         self.control_manual_selection = 0
+
+    def Manuell(self, wert=None, timeout=None):
+        self.RemoteAktivieren(timeout=None)
+        self.air_pressure_set = 0
+        self.flow_rate_set = 0
+        self.control_manual_selection = 0
+        if wert != None:
+            self.potentiometer = wert
+
+        self.control_enabled = 1
+
+    def Anschalten(self, poti=None, timeout=None):
+        self.RemoteAktivieren(timeout=None)
+        # self.air_pressure_set = 0
+        # self.flow_rate_set = 0
+        # self.control_manual_selection = 0
+        if poti != None:
+            self.potentiometer = poti
+
+        self.control_enabled = 1
 
     def RemoteAktivieren(self, timeout=None):
         self.remote_panel = 1
         self.set_control_with_potentiometer = 0
         if timeout != None:
             if type(timeout) == int or type(timeout) == float:
-                self.remote_panel_timeout = timeout
+                self.remote_panel_timeout = int(timeout)
 
         secs = self.remote_panel_timeout
         secs = dt.timedelta(seconds=secs)
@@ -203,6 +222,7 @@ class Plugin(LoggerPlugin, controller):
         self.remote_panel = 0
         self.set_control_with_potentiometer = 1
         return 'Remote-Modus wurde deaktiviert'
+        
 if __name__ == '__main__':
     try:
         a = Plugin(stream=None, plot=None, event=None)

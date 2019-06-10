@@ -3,6 +3,9 @@ try:
 except ImportError:
     from RTOC.LoggerPlugin import LoggerPlugin
 
+from PyQt5 import uic
+from PyQt5 import QtWidgets
+
 import numpy as np
 import logging as log
 log.basicConfig(level=log.INFO)
@@ -26,6 +29,8 @@ class Plugin(LoggerPlugin):
             'Bedienelement': {'CPU-Temperatur': [None, '°C']},
         }
 
+        self._modus = 0
+        self._potiValue = 0
         self.setPerpetualTimer(self._sensorThread, samplerate=ACTIVE_SAMPLERATE)
         self.start()
 
@@ -39,7 +44,7 @@ class Plugin(LoggerPlugin):
             'D': {'Temperatur': [self.r(), '°C'], 'Feuchtigkeit': [self.r(), '%']},
             'Bedienelement': {'CPU-Temperatur': [self.r(), '°C']},
             'E': {'Drehzahl': [self.r(), 'Hz'], 'Luftdruck': [self.r(), 'hPa'], 'Temperatur1': [self.r(), '°C'], 'Temperatur2': [self.r(), '°C'], 'Durchfluss': [self.r(), 'm³/s'], 'Solldruck': [self.r(), 'hPa'], 'Sollfluss': [self.r(), 'm³/s'], 'Reglerstatus': [1, ''], 'Sensorfehler': [self.r(),'']},
-            'Bedienelement': {'Modus': [0,''], 'Potentiometer':[0, '%'], 'PotiVerwenden': [0, '']
+            'Bedienelement': {'Modus': [self._modus,''], 'Potentiometer':[self._potiValue, '%'], 'PotiVerwenden': [1, '']
         }}
 
         return self._sensor_data
@@ -48,6 +53,26 @@ class Plugin(LoggerPlugin):
         sensor_data = self._getAllSensors()
         self.stream(sdict=sensor_data)
 
+    def loadGUI(self):
+        self.widget = QtWidgets.QWidget()
+        packagedir = self.getDir(__file__)
+        uic.loadUi(packagedir+"/gui.ui", self.widget)
+        self.widget.dial.valueChanged.connect(self._changeSet)
+        self.widget.checkBox.stateChanged.connect(self._changeModus)
+        self.widget.checkBox_2.stateChanged.connect(self._changeModus)
+        return self.widget
+
+    def _changeSet(self, value):
+        self._potiValue = value
+
+    def _changeModus(self, value):
+        if self.widget.checkBox.isChecked():
+            if self.widget.checkBox_2.isChecked():
+                self._modus = 2
+            else:
+                self._modus = 1
+        else:
+            self._modus = 0
 
 if __name__ == '__main__':
     dev = Plugin(stream=None, plot=None, event=None)
