@@ -1,9 +1,9 @@
 {
-  "version":"1.1",
+  "version":"2.0",
   "name":"Heliotherm",
   "dependencies":["pyModbusTCP"],
-  "files":["Heliotherm.py", "Heliotherm/*"],
-  "Info":"",
+  "files":["Heliotherm.py", "Heliotherm/*", "config.json"],
+  "Info":"Configure heliotherm-adress in config.json\nYou can also configure the ModbusTCP-Mapping in this file.\n'mappingWrite': [Register, Name, LoggingEnabled, WriteEnabled]\n'mappingRead': [Register, Name, LoggingEnabled]",
   "OS":"all",
   "GUI": true
 }

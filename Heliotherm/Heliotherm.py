@@ -2,398 +2,316 @@ try:
     from LoggerPlugin import LoggerPlugin
 except ImportError:
     from RTOC.LoggerPlugin import LoggerPlugin
-import requests
 from PyQt5 import uic
 from PyQt5 import QtWidgets
-
-devicename = "Heliotherm"
-
-#HOST = "192.168.178.72"
-HOST = "192.168.2.104"
-
-#from pymodbus3.client.sync import ModbusTcpClient
-from pyModbusTCP.client import ModbusClient
+import json
 import logging as log
+from pyModbusTCP.client import ModbusClient
+# from pymodbus3.client.sync import ModbusTcpClient
+
+# Betriebsarten:
+# 0= AUS
+# 1= Automatik
+# 2= Kühlen
+# 3= Sommer
+# 4= Dauerbetrieb
+# 5= Absenkung
+# 6=Urlaub
+# 7= Party
+
+# Energiequellen Eintritt Teqe - nicht gefunden
+# Energiequellen Austritt Teqa - nicht gefunden
+# Verdichterfluss Temperatur - nicht gefunden
+# Unterkühlung Temperatur - nicht gefunden
+# Energiequellen Pumpe - ist 0
+# Warmwasser Vorrang - ist 0
+# Carterheizung - ist 0
+# Kuehlen UmV Passiv - ist 0
+# Pumpe Warmwasser - ist 0
+# Mod Status - ist 0
+# BSZ Verdichter Schaltungen - nicht gefunden 672
+# DIP_SW - nicht gefunden 29
+# AO1 HKP - ist 0
+# AO2 Energiequelle - ist 0
+# Anforderung 2. Stufe - ist 0
+# Frischwasserpumpe - ist 0
+# Heissgassollwert - nicht gefunden 45.8
+# Druckdifferenz HD_ND - nicht gefunden 4.8
+# EQ_Temp.differenz - nicht gefunden 1.1
+# VL_RL_Temp.diff. - nicht gefunden -3.2
+# Volt L1-N - ist 0
+# Volt L2-N - ist 0
+# Volt L3-N - ist 0
+# Strom L1 - ist 0
+# Strom L2 - ist 0
+# Strom L3 - ist 0
+# Netzfrequenz - ist 0
+# WMZ_Temp. Ein - nicht gefunden
+# WMZ_Temp. Aus - nicht gefunden
+# OpFrequenz - ist 0
+# OpVerdichter - ist 0
+# Letzter FU Fehler - ist 15
+# OpStromabgabe - ist 0
+# OpAusgangsspannung - ist 0
+# FU Temp - ist 0
+# FU Fehler t-1 - ist 15
+# FU Fehler t-2 - ist 15
+# FU Fehler t-3 - ist 15
+# FU Fehler t-4 - ist 15
+# FU Fehler t-5 - ist 15
+# FU Fehler t-6 - ist 15
+# FU Fehler t-7 - ist 15
+# FU Fehler t-8 - ist 15
+# FU Fehler t-9 - ist 15
+# PV-Status - nicht gefunden -5
+# PV Energie - ist 0
+# WP Energie (calc) - ist 0
+# Soll-Dz (calc)  - ist 8284
+# DC Spannung - ist 0
+
+# BSZ Verdichter Betriebsstungen WW
+# BSZ Verdichter Betriebsstunden HKR
+# BSZ Verdichter Betriebsstunden gesamt
+# BSZ Abtau Betriebsstunden
+# BSZ Abtau Schaltungen
+# BSZ Verdichter Schaltungen WW
+
+# 192.168.178.72, 192.168.2.104
+
 log.basicConfig(level=log.INFO)
 logging = log.getLogger(__name__)
 
-############################# DO NOT EDIT FROM HERE ################################################
-
-GETALL = False
-
-# mappingWrite = [
-# [100, 'Betriebsart', 1, '', True],
-# [101, 'HKR Soll_Raum', 10, '°C', False],
-# [102, 'HKR Soll', 10, '°C', False],
-# [103, 'HKR Soll aktiv', 1, '', False],
-# [104, 'RLT min Kuehlen', 10, '°C', False],
-# [105, 'WW Normaltemperatur', 10, '°C', False],
-# [106, 'WW Minimaltemperatur', 10, '°C', False],
-# [107, 'MKR1 Betriebsart', 1, '', False],
-# [108, 'MKR1 Soll_Raum', 10, '°C', False],
-# [109, 'MKR1 Soll', 10, '°C', False],
-# [110, 'MKR1 Soll aktiv', 1, '', False],
-# [111, 'MKR1 Kuehlen RLT min.', 10, '°C', False],
-# [112, 'MKR2 Betriebsart', 1, '', False],
-# [113, 'MKR2 Soll_Raum', 10, '°C', False],
-# [114, 'MKR2 Soll', 10, '°C', False],
-# [115, 'MKR2 Soll aktiv', 1, '', False],
-# [116, 'MKR2 Kuehlen RLT min.', 10, '°C', False],
-# [117, 'PV Anf', 1, '', False],
-# [118, 'Unbekannt', 1, '', False],
-# [119, 'Unbekannt', 1, '', False],
-# [120, 'Unbekannt', 1, '', False],
-# [121, 'Unbekannt', 1, '', False],
-# [122, 'Unbekannt', 1, '', False],
-# [123, 'Unbekannt', 1, '', False],
-# [124, 'Unbekannt', 1, '', False],
-# [125, 'Leistungsaufnahmevorgabe', 1, 'W', False],
-# [126, 'Verdichterdrehzahlvorgabe', 1, '%°', False],
-# [127, 'Ext Anf', 1, '', True],
-# [128, 'Entstoeren', 1, '', False],
-# [129, 'Aussentemperatur Wert', 10, '°C', False],
-# [130, 'Aussentemperatur aktiv', 1, '', False],
-# [131, 'Puffertemperatur Wert', 10, '°C', False],
-# [132, 'Puffertemperatur aktiv', 1, '', False],
-# [133, 'Brauchwassertemperatur Wert', 10, '°C', False],
-# [134, 'Brauchwassertemperatur aktiv', 1, '', False],
-# [135, 'Unbekannt', 10, '°C', False],
-# [136, 'Unbekannt', 10, '°C', False],
-# [137, 'Unbekannt', 10, '°C', False],
-# [138, 'Unbekannt', 10, '°C', False],
-# [139, 'Unbekannt', 10, '°C', False],
-# [140, 'Unbekannt', 10, '°C', False],
-# [141, 'Unbekannt', 10, '°C', False],
-# [142, 'Unbekannt', 10, '°C', False],
-# [143, 'Unbekannt', 10, '°C', False],
-# [144, 'Unbekannt', 10, '°C', False],
-# [145, 'Unbekannt', 10, '°C', False],
-# [146, 'Unbekannt', 10, '°C', False],
-# ]
-#
-# mappingRead = [
-# [10, 'Temperatur Aussen', 10, '°C', True],
-# [11, 'Temperatur Brauchwasser', 10, '°C', False],
-# [12, 'Temperatur Vorlauf', 10, '°C', True],
-# [13, 'Temperatur Ruecklauf', 10, '°C', True],
-# [14, 'Temperatur Pufferspeicher', 10, '°C', False],
-# [15, 'Temperatur EQ_Eintritt', 10, '°C', True],
-# [16, 'Temperatur EQ_Austritt', 10, '°C', True],
-# [17, 'Temperatur Sauggas', 10, '°C', False],
-# [18, 'Temperatur Verdampfung', 10, '°C', True],
-# [19, 'Temperatur Kondensation', 10, '°C', False],
-# [20, 'Temperatur Heissgas', 10, '°C', False],
-# [21, 'Niederdruck', 10, 'Bar', False],
-# [22, 'Hochdruck', 10, 'Bar', False],
-# [23, 'Heizkreispumpe', 1, '', False],
-# [24, 'Pufferladepumpe', 1, '', False],
-# [25, 'Verdichter', 1, '', False],
-# [26, 'Stoerung', 1, '', True],
-# [27, 'Vierwegeventil Luft', 1, '', False],
-# [28, 'WMZ_Durchfluss', 10, 'l/min', False],
-# [29, 'n-Soll Verdichter', 1, '%°', False],
-# [30, 'COP', 10, '', False],
-# [31, 'Temperatur Frischwasser', 10, '°C', False],
-# [32, 'EVU Sperre', 1, '', False],
-# [33, 'Aussentemperatur verzoegert', 10, '°C', False],
-# [34, 'HKR verzoegert', 10, '°C', False],
-# [35, 'MKR1_Solltemperatur', 10, '°C', False],
-# [36, 'MKR2_Solltemperatur', 10, '°C', False],
-# [37, 'EQ-Ventilator', 1, '', False],
-# [38, 'WW-Vorrat', 1, '', False],
-# [39, 'Kühlen UMV passiv', 1, '', False],
-# [40, 'Expansionsventil', 1, '%°', False],
-# [41, 'Verdichteranforderung', 1, '', False],
-# [42, 'Betriebsstunden im WW-Betrieb', 1, 'h', False],
-# [43, 'Unbekannt', 1, '', False],
-# [44, 'Betriebsstunden im HZG-Betrieb', 1, 'h', False],
-# [45, 'Unbekannt', 1, '', False],
-# [46, 'Unbekannt', 1, '', False],
-# [47, 'Unbekannt', 1, '', False],
-# [48, 'Unbekannt', 1, '', False],
-# [49, 'Unbekannt', 1, '', False],
-# [50, 'Unbekannt', 1, '', False],
-# [51, 'Unbekannt', 1, '', False],
-# [52, 'Unbekannt', 1, '', False],
-# [53, 'Unbekannt', 1, '', False],
-# [54, 'Unbekannt', 1, '', False],
-# [55, 'Unbekannt', 1, '', False],
-# [56, 'Unbekannt', 1, '', False],
-# [57, 'Unbekannt', 1, '', False],
-# [58, 'Unbekannt', 1, '', False],
-# [59, 'Unbekannt', 1, '', False],
-# [60, 'WMZ_Heizung', 1, 'kW/h', False],
-# [61, 'Unbekannt', 1, '', False],
-# [62, 'Stromz_Heizung', 1, 'kW/h', False],
-# [63, 'Unbekannt', 1, '', False],
-# [64, 'WMZ_Brauchwasser', 1, 'kW/h', False],
-# [65, 'Unbekannt', 1, '', False],
-# [66, 'Stromz_Brauchwasser', 1, 'kW/h', False],
-# [67, 'Unbekannt', 1, '', False],
-# [68, 'Stromz_Gesamt', 1, 'kW/h', False],
-# [69, 'Unbekannt', 1, '', False],
-# [70, 'Stromz_Leistung', 1, 'W', False],
-# [71, 'Unbekannt', 1, '', False],
-# [72, 'WMZ_Gesamt', 1, 'kW/h', False],
-# [73, 'Unbekannt', 1, '', False],
-# [74, 'WMZ_Leistung', 1, 'kW', False],
-# [75, 'Unbekannt', 1, '', False],
-#
-# ]
-
-mappingWrite = [
-[100, 'Betriebsart', 1, '', True],
-[101, 'HKR Soll_Raum', 10, '°C', False],
-[102, 'HKR Soll', 10, '°C', False],
-[103, 'HKR Soll aktiv', 1, '', False],
-[104, 'RLT min Kuehlen', 10, '°C', False],
-[105, 'WW Normaltemperatur', 10, '°C', False],
-[106, 'WW Minimaltemperatur', 10, '°C', False],
-[107, 'MKR1 Betriebsart', 1, '', False],
-[108, 'MKR1 Soll_Raum', 10, '°C', False],
-[109, 'MKR1 Soll', 10, '°C', False],
-[110, 'MKR1 Soll aktiv', 1, '', False],
-[111, 'MKR1 Kuehlen RLT min.', 10, '°C', False],
-[112, 'MKR2 Betriebsart', 1, '', False],
-[113, 'MKR2 Soll_Raum', 10, '°C', False],
-[114, 'MKR2 Soll', 10, '°C', False],
-[115, 'MKR2 Soll aktiv', 1, '', False],
-[116, 'MKR2 Kuehlen RLT min.', 10, '°C', False],
-[117, 'PV Anf', 1, '', False],
-[118, 'Hz Offset (PV)', 1, '', False],
-[119, 'Kue Offset (PV)', 1, '', False],
-[120, 'MK1 Hz Offset (PV)', 1, '', False],
-[121, 'MK1 Kue Offset (PV)', 1, '', False],
-[122, 'MK2 Hz Offset (PV)', 1, '', False],
-[123, 'MK2 Kue Offset (PV)', 1, '', False],
-[124, 'WW Normaltemp_Gw_max', 1, '', False],
-[125, 'Leistungsaufnahmevorgabe', 1, 'W', False],
-[126, 'Leistungsvorgabe', 1, '%°', False],
-[127, 'Ext Anf', 1, '', True],
-[128, 'Entstoeren', 1, '', False],
-[129, 'Aussentemperatur Wert', 10, '°C', False],
-[130, 'Aussentemperatur aktiv', 1, '', False],
-[131, 'Puffertemperatur Wert', 10, '°C', False],
-[132, 'Puffertemperatur aktiv', 1, '', False],
-[133, 'Brauchwassertemperatur Wert', 10, '°C', False],
-[134, 'Brauchwassertemperatur aktiv', 1, '', False],
-[135, 'Unbekannt', 10, '°C', False],
-[136, 'Unbekannt', 10, '°C', False],
-[137, 'Unbekannt', 10, '°C', False],
-[138, 'Unbekannt', 10, '°C', False],
-[139, 'Unbekannt', 10, '°C', False],
-[140, 'Unbekannt', 10, '°C', False],
-[141, 'Unbekannt', 10, '°C', False],
-[142, 'Unbekannt', 10, '°C', False],
-[143, 'Unbekannt', 10, '°C', False],
-[144, 'Unbekannt', 10, '°C', False],
-[145, 'Unbekannt', 10, '°C', False],
-[146, 'Unbekannt', 10, '°C', False],
-]
-
-mappingRead = [
-[10, 'Temperatur Aussen', 10, '°C', True],
-[11, 'Temperatur Brauchwasser', 10, '°C', False],
-[12, 'Temperatur Vorlauf', 10, '°C', True],
-[13, 'Temperatur Ruecklauf', 10, '°C', True],
-[14, 'Temperatur Pufferspeicher', 10, '°C', False],
-[15, 'Temperatur EQ_Eintritt', 10, '°C', True],
-[16, 'Temperatur EQ_Austritt', 10, '°C', True],
-[17, 'Temperatur Sauggas', 10, '°C', False],
-[18, 'Temperatur Verdampfung', 10, '°C', True],
-[19, 'Temperatur Kondensation', 10, '°C', False],
-[20, 'Temperatur Heissgas', 10, '°C', False],
-[21, 'Niederdruck', 10, 'Bar', False],
-[22, 'Hochdruck', 10, 'Bar', False],
-[23, 'Heizkreispumpe', 1, '', False],
-[24, 'Pufferladepumpe', 1, '', False],
-[25, 'Verdichter', 1, '', False],
-[26, 'Stoerung', 1, '', True],
-[27, 'Vierwegeventil Luft', 1, '', False],
-[28, 'WMZ_Durchfluss', 10, 'l/min', False],
-[29, 'n-Soll Verdichter', 1, '%°', False],
-[30, 'COP', 10, '', False],
-[31, 'Temperatur Frischwasser', 10, '°C', False],
-[32, 'Unbekannt', 10, '°C', False],
-[33, 'EVU Sperre', 1, '', False],
-[34, 'Aussentemperatur verzoegert', 10, '°C', False],
-[35, 'HKR_Sollwert', 10, '°C', False],
-[36, 'MKR1_Solltemperatur', 10, '°C', False],
-[37, 'MKR2_Solltemperatur', 10, '°C', False],
-[38, 'EQ-Ventilator', 1, '', False],
-[39, 'WW-Vorrat', 1, '', False],
-[40, 'Kühlen UMV passiv', 1, '', False],
-[41, 'Expansionsventil', 1, '%°', False],
-[42, 'Verdichteranforderung', 1, '', False],
-
-[43, 'Betriebsstunden im WW-Betrieb', 1, 'h', False],
-[44, 'Unbekannt', 1, '', False],
-[45, 'Betriebsstunden im HZG-Betrieb', 1, 'h', False],
-[46, 'Unbekannt', 1, '', False],
-[47, 'Unbekannt', 1, '', False],
-[48, 'Unbekannt', 1, '', False],
-[59, 'Unbekannt', 1, '', False],
-[50, 'Unbekannt', 1, '', False],
-[51, 'Unbekannt', 1, '', False],
-[52, 'Unbekannt', 1, '', False],
-[53, 'Unbekannt', 1, '', False],
-[54, 'Unbekannt', 1, '', False],
-[55, 'Unbekannt', 1, '', False],
-[56, 'Unbekannt', 1, '', False],
-[57, 'Unbekannt', 1, '', False],
-[58, 'Unbekannt', 1, '', False],
-[59, 'Unbekannt', 1, '', False],
-[60, 'WMZ_Heizung', 1, 'kW/h', False],
-[61, 'Unbekannt', 1, '', False],
-[62, 'Stromz_Heizung', 1, 'kW/h', False],
-[63, 'Unbekannt', 1, '', False],
-[64, 'WMZ_Brauchwasser', 1, 'kW/h', False],
-[65, 'Unbekannt', 1, '', False],
-[66, 'Stromz_Brauchwasser', 1, 'kW/h', False],
-[67, 'Unbekannt', 1, '', False],
-[68, 'Stromz_Gesamt', 1, 'kW/h', False],
-[69, 'Unbekannt', 1, '', False],
-[70, 'Stromz_Leistung', 1, 'kW/h', False],
-[71, 'Unbekannt', 1, '', False],
-[72, 'WMZ_Gesamt', 1, 'W', False],
-[73, 'Unbekannt', 1, '', False],
-[74, 'WMZ_Leistung', 1, 'kW/h', False],
-[75, 'Unbekannt', 1, '', False],
-[76, 'WMZ_Leistung', 1, 'kW', False],
-[77, 'Unbekannt', 1, '', False],
-
-]
 
 class Plugin(LoggerPlugin):
     def __init__(self, stream=None, plot= None, event=None):
         # Plugin setup
         super(Plugin, self).__init__(stream, plot, event)
-        self.setDeviceName(devicename)
+        self.loadConfig()
+        self.setDeviceName(self._name)
         self.smallGUI = True
 
         # Data-logger thread
+        self._firstStart = True
         self._lastStoerung = False
         self._lastExtAnf = True
+        self._lastMode = 0
+        # self._error = False
+        self._modes = {
+            0: 'AUS',
+            1: 'Automatik',
+            2: 'Kühlen',
+            3: 'Sommer',
+            4: 'Dauerbetrieb',
+            5: 'Absenkung',
+            6: 'Urlaub',
+            7: 'Party',
+        }
+        self._base_address = ""
 
-        self.setPerpetualTimer(self._updateT, samplerate=0.2)
-        # self.updater.start()
-        self.__base_address = ""
-        self.__s = requests.Session()
+        self.setPerpetualTimer(self._helio_alle)
 
-        self._error = False
-        self._start(HOST)
-
-    # THIS IS YOUR THREAD
-    def _updateT(self):
-        y, name, units = self._helio_get()
-        if y is not None:
-            for idx, n in enumerate(name):
-                if n == 'Stoerung':
-                    if y[idx]==1 and self._lastStoerung is False:
-                        self.event('Wärmepumpe: Störung.', sname="Status", dname=devicename, priority=2)
-                        self._lastStoerung = True
-                    elif self._lastStoerung is True:
-                        self._lastStoerung = False
-                        self.event('Wärmepumpe: Störung behoben.', sname="Status", dname=devicename, priority=0)
-                if n == 'Ext Anf':
-                    if y[idx]==1 and self._lastExtAnf is False:
-                        self._lastExtAnf = True
-                        self.event('Wärmepumpe: Trocknung aktiviert.', sname="Status", dname=devicename, priority=0)
-                    elif self._lastExtAnf is True:
-                        self._lastExtAnf = False
-                        self.event('Wärmepumpe: Trocknung deaktiviert.', sname="Status", dname=devicename, priority=0)
-            self.stream(y=y, snames=name, unit=units)
-            if self._error == True:
-                self.event('Wärmepumpe: Werte werden wieder empfangen', sname="Status", dname=devicename, priority=0)
-                self._error = False
-        elif self._error == False:
-            self._error = True
-            self.event('Wärmepumpe: Messwerte können nicht empfangen werden', sname="Status", dname=devicename, priority=1)
+        self._base_address = self.host
+        self.c = ModbusClient(host=self._base_address, port=self.port, auto_open=True, auto_close=True)
+        self.c.timeout(10)
+        self.start()
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
         packagedir = self.getDir(__file__)
         uic.loadUi(packagedir+"/Heliotherm/heliotherm.ui", self.widget)
         # self.setCallbacks()
-        self.widget.pushButton.clicked.connect(self.__openConnectionCallback)
-        self.widget.samplerateSpinBox.valueChanged.connect(self.__changeSamplerate)
-        self.widget.comboBox.setCurrentText(HOST)
-        self.__openConnectionCallback()
+        self.widget.pushButton.clicked.connect(self._openConnectionCallback)
+        self.widget.samplerateSpinBox.valueChanged.connect(self._changeSamplerate)
+        self.widget.comboBox.setCurrentText(self.host)
+        # self._openConnectionCallback()
         return self.widget
 
-    def __openConnectionCallback(self):
+    def _openConnectionCallback(self):
         if self.run:
             self.cancel()
             self.widget.pushButton.setText("Verbinden")
-            self.__base_address = ""
+            self._base_address = ""
         else:
             address = self.widget.comboBox.currentText()
-            self.__base_address = address
-            self.c = ModbusClient(host=self.__base_address, port=502, auto_open=True, auto_close=True)
+            self._base_address = address
+            self.c = ModbusClient(host=self._base_address, port=self.port, auto_open=True, auto_close=True)
             self.c.timeout(10)
             #self._helio_get()
             self.start()
             self.widget.pushButton.setText("Beenden")
 
-    def _start(self, address):
-        if self.run:
-            self.cancel()
-            self.__base_address = ""
-
-        self.__base_address = address
-        self.c = ModbusClient(host=self.__base_address, port=502, auto_open=True, auto_close=True)
-        self.c.timeout(10)
-        #self._helio_get()
-        self.start()
-
-    def _helio_set(self, reg, value):
-        pass
-        #self.c.write_single_register(reg_addr,reg_value)
-        #self.c.write_multiple_registers
-    def _helio_get(self):
-        #client = ModbusTcpClient(self.__base_address)
-        #client.write_coil(1, True)
-        #result = client.read_coils(0,1)
-        resultWrite = self.c.read_holding_registers(100, 47)
-        resultRead = self.c.read_input_registers(10,65)
-        if resultRead is not None:
-            for idx, d in enumerate(resultRead):
-                if d>=2 **16/2:
-                    resultRead[idx] = 2 **16 - d
-            for idx, d in enumerate(resultWrite):
-                if d>=2 **16/2:
-                    resultWrite[idx] = 2 **16 - d
-            if resultWrite is not None and resultRead is not None:
-                y = []
-                units = []
-                snames = []
-                for idx, value in enumerate(resultWrite):
-                    if mappingWrite[idx][1]=='Unbekannt' or mappingWrite[idx][4]==False:
-                        #mappingWrite[idx][1] = str(mappingWrite[idx][0])
-                        pass
-                    else:
-                        snames.append(mappingWrite[idx][1])
-                        y.append(resultWrite[idx]/mappingWrite[idx][2])
-                        units.append(mappingWrite[idx][3])
-                for idx, value in enumerate(resultRead):
-                    if mappingRead[idx][4]==False and not GETALL:
-                        #mappingRead[idx][1] = str(mappingRead[idx][0])
-                        pass
-                    else:
-                        if mappingRead[idx][1]!='Unbekannt':
-                            snames.append(mappingRead[idx][1])
-                            y.append(resultRead[idx]/mappingRead[idx][2])
-                            units.append(mappingRead[idx][3])
-                return y, snames, units
+    def _helio_set(self, reg_addr, reg_value):
+        for element in self.mappingWrite:
+            if element[0] == reg_addr and element[5] == True:
+                ans = self.c.write_single_register(reg_addr,reg_value)
+                if ans == True:
+                    return True
+                else:
+                    return False
             else:
-                self.widget.pushButton.setText("Fehler")
-                return None, None, None
-        else:
-            logging.error('Could not read registers.')
-            return None, None, None
+                raise PermissionError
+        raise KeyError
 
-    def __changeSamplerate(self):
+    def Schreiben(self, reg_name, reg_value):
+        for element in self.mappingWrite:
+            if element[1] == reg_name and element[5] == True:
+                ans = self.c.write_single_register(element[0],reg_value)
+                if ans == True:
+                    return "Wert wurde geändert"
+                else:
+                    return "Wert konnte nicht geändert werden."
+            else:
+                return "Element darf nicht beschrieben werden."
+        return "Element nicht gefunden"
+
+    def Anschalten(self, modus=1):
+        # 0= AUS
+        # 1= Automatik
+        # 2= Kühlen
+        # 3= Sommer
+        # 4= Dauerbetrieb
+        # 5= Absenkung
+        # 6=Urlaub
+        # 7= Party
+        if int(modus) in self._modes.keys():
+            return self.Schreiben(100, modus)
+        else:
+            return 'Wähle einen Modus zwischen 0 und 7\n'+str(self._modes)
+
+    def Ausschalten(self):
+        return self.Schreiben(100, 0)
+
+    def _helio_get_all(self, all=True):
+        for idx, value in enumerate(self.mappingWrite):
+            if self.mappingWrite[idx][4]==True or all:
+                register = self.mappingWrite[idx][0]
+                sname = self.mappingWrite[idx][1]
+                divisor = self.mappingWrite[idx][2]
+                unit = self.mappingWrite[idx][3]
+
+                y = self._helio_get(register, length=1,
+                divisor=divisor, holding=True)
+
+                if y is None:
+                    print('Could not load {} from register {}'.format(sname, register))
+                else:
+                    plot = {sname: [y, unit]}
+                    self.stream(sdict={self._name:plot})
+
+        for idx, value in enumerate(self.mappingRead):
+            if self.mappingRead[idx][4]==True or all:
+                register = self.mappingRead[idx][0]
+                sname = self.mappingRead[idx][1]
+                divisor = self.mappingRead[idx][2]
+                unit=self.mappingRead[idx][3]
+                y = self._helio_get(register, length=1, divisor=divisor, holding=False)
+
+                if y is None:
+                    logging.warning('Could not load {} from register {}'.format(sname, register))
+                else:
+                    plot = {sname: [y, unit]}
+                    self.stream(sdict={self._name:plot})
+
+    def _helio_alle(self, all = False):
+        readStart=10
+        readEnd=75
+        writeStart=100
+        writeEnd=159
+
+        resultWrite = self.c.read_holding_registers(writeStart, writeEnd-writeStart+1)
+        resultRead = self.c.read_input_registers(readStart, readEnd-readStart+1)
+
+        ans = {}
+        if type(resultWrite) == list:
+            for idx, value in enumerate(self.mappingWrite):
+                if self.mappingWrite[idx][4]==True or all:
+                    sname = self.mappingWrite[idx][1]
+                    divisor = self.mappingWrite[idx][2]
+                    unit = self.mappingWrite[idx][3]
+                    y = resultWrite[idx]
+                    if y>=2 **16/2:
+                        y = 2 **16 - y
+                    y = y/divisor
+                    ans[sname]=[y, unit]
+
+                    if self.mappingWrite[idx][0] == 100:
+                        if not self._firstStart and y != self._lastMode:
+                            mode = self._modes[y]
+                            self.event('Betriebsart wurde verändert: {}'.format(mode),'Betriebsart',self._name, 0, 'ModusChanged')
+                        self._lastMode = y
+                    elif self.mappingWrite[idx][0] == 127:
+                        if not self._firstStart and y != self._lastExtAnf:
+                            if y == 1:
+                                self.event('Externe Anforderung angeschaltet','Externe Anforderung',self._name, 0, 'ExtAnfAn')
+                            else:
+                                self.event('Externe Anforderung ausgeschaltet','Externe Anforderung',self._name, 0, 'ExtAnfAus')
+                        self._lastExtAnf = y
+        else:
+            logging.warning('Could not read writeable-registers, {}'.format(resultWrite))
+            if self.widget:
+                self.widget.comboBox.setCurrentText('Fehler')
+
+        if type(resultRead) == list:
+            for idx, value in enumerate(self.mappingRead):
+                if self.mappingRead[idx][4]==True or all:
+                    sname = self.mappingRead[idx][1]
+                    divisor = self.mappingRead[idx][2]
+                    unit = self.mappingRead[idx][3]
+                    y = resultRead[idx]
+                    if y>=2 **16/2:
+                        y = 2 **16 - y
+                    y = y/divisor
+                    ans[sname]=[y, unit]
+
+                    if self.mappingRead[idx][0] == 26:
+                        if not self._firstStart and y != self._lastStoerung:
+                            if y == 1:
+                                self.event('Störung aufgetreten!','Externe Anforderung',self._name, 2, 'StoerungAn')
+                            else:
+                                self.event('Störung wurde behoben!','Externe Anforderung',self._name, 2, 'StoerungAus')
+                        self._lastStoerung = y
+
+            self._firstStart = False
+        else:
+            logging.warning('Could not read read-registers, {}'.format(resultRead))
+            if self.widget:
+                self.widget.comboBox.setCurrentText('Fehler')
+
+        self.stream(sdict={self._name:ans})
+
+    def _helio_get(self, register, length=1, divisor=1, holding=True):
+        if holding: #read writeable-variables
+            result = self.c.read_holding_registers(register, length)
+        else: #read sensor-data
+            result = self.c.read_input_registers(register, length)
+        if type(result) == list:
+            if len(result) == 1:
+                result = result[0]
+                if result>=2 **16/2:
+                    result = 2 **16 - result
+                y = result/divisor
+                return y
+            else:
+                logging.warning('You requested more than one value at once, {}'.format(result))
+                return None
+        else:
+            logging.warning('Could not read registers, {}'.format(result))
+            return None
+
+    def _changeSamplerate(self):
         self.samplerate = self.widget.samplerateSpinBox.value()
+
+    def loadConfig(self):
+        packagedir = self.getDir(__file__)
+        with open(packagedir+"/config.json", encoding="UTF-8") as jsonfile:
+            config = json.load(jsonfile, encoding="UTF-8")
+
+        self.mappingWrite = config['mappingWrite']
+        self.mappingRead = config['mappingRead']
+        self.host = config['hostname']
+        self.port = config ['port']
+        self._name = config['name']
+        self.samplerate = config['samplerate']
 
 
 if __name__ == "__main__":
