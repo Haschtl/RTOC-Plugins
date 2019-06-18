@@ -82,14 +82,16 @@ class Plugin(LoggerPlugin):
         try:
             self.ccs2 = adafruit_ccs811.CCS811(i2c)
         except Exception as error:
-            # self.telegram_send_message(str(error),onlyAdmin=True)
+            tb = traceback.format_exc()
+            self.telegram_send_message('Could not initialize CCS1 sensor \n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
             logging.error('ERROR CCS Sensor Messstelle B')
             logging.debug(traceback.format_exc())
             self.ccs2 = None
         try:
             self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
         except Exception as error:
-            # self.telegram_send_message(str(error),onlyAdmin=True)
+            tb = traceback.format_exc()
+            self.telegram_send_message('Could not initialize CCS2 sensor \n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
             logging.error('ERROR CCS Sensor Messstelle A')
             logging.debug(traceback.format_exc())
             self.ccs1 = None
@@ -135,7 +137,8 @@ class Plugin(LoggerPlugin):
                 temp2 = self.ccs2.temperature
                 self.ccs2.temp_offset = temp2 - 25.0
         except Exception as error:
-            # self.telegram_send_message('Waiting for sensors\n'+str(error),onlyAdmin=True)
+            tb = traceback.format_exc()
+            self.telegram_send_message('Waiting for sensors\n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
             logging.debug(traceback.format_exc())
 
     def saveConfig(self):
@@ -156,7 +159,8 @@ class Plugin(LoggerPlugin):
                 self.sensorCalib = config['sensorCalib']
                 self.sensorRange = config['sensorRange']
             except Exception as error:
-                # self.telegram_send_message('Could not load config\n'+str(error),onlyAdmin=True)
+                tb = traceback.format_exc()
+                self.telegram_send_message('Could not load config file\n'+str(error)+'\n'+str(tb), priority=2, permission='admin')
                 logging.error('Error loading config')
                 self.sensorCalib = sensorCalib
                 self.sensorRange = sensorRange
@@ -280,14 +284,16 @@ class Plugin(LoggerPlugin):
                 self.ccs1 = adafruit_ccs811.CCS811(i2c, 0x5B)
                 self._waitForSensors()
             except Exception as error:
-                # self.telegram_send_message('CCS1 Fehler\n'+str(error),onlyAdmin=True)
+                tb = traceback.format_exc()
+                self.telegram_send_message('Could not initialize CCS1 sensor \n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
                 self.ccs1 = None
         if self.ccs2 is None:
             try:
                 self.ccs2 = adafruit_ccs811.CCS811(i2c)
                 self._waitForSensors()
             except Exception as error:
-                # self.telegram_send_message('CCS2 Fehler\n'+str(error),onlyAdmin=True)
+                tb = traceback.format_exc()
+                self.telegram_send_message('Could not initialize CCS2 sensor \n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
                 self.ccs2 = None
         try:
             #ccs1.set_environmental_data(aHumid, aTemp)
@@ -298,8 +304,8 @@ class Plugin(LoggerPlugin):
                 tvoc_a = self._processSensor('A', 'CCS', 'TVOC-Gehalt', tvoc_a)
                 self._sensorErrorEvent('A', 'CCS', False)
         except Exception as error:
-
-            # self.telegram_send_message('CCS1 Fehler 1\n'+str(error),onlyAdmin=True)
+            tb = traceback.format_exc()
+            self.telegram_send_message('Could not read CCS1 sensor \n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
             co2_a = self._sensor_data["A"]['CO2-Gehalt'][0]
             tvoc_a = self._sensor_data['A']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('A', 'CCS', True)
@@ -313,7 +319,8 @@ class Plugin(LoggerPlugin):
                 tvoc_b = self._processSensor('B', 'CCS', 'TVOC-Gehalt', tvoc_b)
                 self._sensorErrorEvent('B', 'CCS', False)
         except Exception as error:
-            # self.telegram_send_message('CCS2 Fehler 2\n'+str(error),onlyAdmin=True)
+            tb = traceback.format_exc()
+            self.telegram_send_message('Could not read CCS2 sensor \n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
             co2_b = self._sensor_data["B"]['CO2-Gehalt'][0]
             tvoc_b = self._sensor_data['B']['TVOC-Gehalt'][0]
             #self._sensorErrorEvent('B', 'CCS', True)
@@ -340,7 +347,8 @@ class Plugin(LoggerPlugin):
                 b = self._processSensor(messtelle, sensor, signal2, b)
             self._sensorErrorEvent(messtelle, sensor, False)
         except Exception as error:
-            # self.telegram_send_message('DHT22 Fehler:\n'+str(error),onlyAdmin=True)
+            tb = traceback.format_exc()
+            self.telegram_send_message('Could not read DHT sensor at '+str(messtelle)+'\n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)

@@ -112,15 +112,15 @@ class Plugin(LoggerPlugin):
 
     def _teleMessageAction(self):
         text = 'Hello world!'
-        self.telegram_send_message(text, onlyAdmin=False)
+        self.telegram_send_message(text, priority=2, permission='blocked')
 
     def _telePhotoAction(self):
         path = self.getDir(__file__)+'/examplePhoto.png'
-        self.telegram_send_photo(path, onlyAdmin=False)
+        self.telegram_send_photo(path, priority=2, permission='blocked')
 
     def _teleFileAction(self):
         path = self.getDir(__file__)+'/examplePhoto.png'
-        self.telegram_send_document(path, onlyAdmin=False)
+        self.telegram_send_document(path, priority=2, permission='blocked')
 
 
 
