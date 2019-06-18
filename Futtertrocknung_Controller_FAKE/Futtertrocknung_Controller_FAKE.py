@@ -22,9 +22,9 @@ PASSIVE_SAMPLERATE = 0.016
 
 
 class Plugin(LoggerPlugin, controller):
-    def __init__(self, stream=None, plot=None, event=None):
-        #super(Plugin, self).__init__(stream, plot, event)
-        LoggerPlugin.__init__(self, stream, plot, event)
+    def __init__(self, *args, **kwargs):
+        #super(Plugin, self).__init__(*args, **kwargs)
+        LoggerPlugin.__init__(self, *args, **kwargs)
         controller.__init__(self)
         self.setDeviceName(devicename)
 
@@ -166,6 +166,6 @@ class Plugin(LoggerPlugin, controller):
 
 if __name__ == '__main__':
     try:
-        a = Plugin(stream=None, plot=None, event=None)
+        a = Plugin()
     except KeyboardInterrupt:
         a.run = False

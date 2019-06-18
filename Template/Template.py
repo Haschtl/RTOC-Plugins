@@ -26,8 +26,8 @@ SAMPLERATE = 1
 
 
 class Plugin(LoggerPlugin):
-    def __init__(self, stream=None, plot=None, event=None):
-        super(Plugin, self).__init__(stream, plot, event)
+    def __init__(self, *args, **kwargs):
+        super(Plugin, self).__init__(*args, **kwargs)
         """Call this to initialize RTOC.LoggerPlugin"""
 
         self.setDeviceName(DEVICENAME)

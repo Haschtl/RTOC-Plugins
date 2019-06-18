@@ -72,8 +72,8 @@ sensorCalib = {
 
 
 class Plugin(LoggerPlugin):
-    def __init__(self, stream=None, plot=None, event=None):
-        super(Plugin, self).__init__(stream, plot, event)
+    def __init__(self, *args, **kwargs):
+        super(Plugin, self).__init__(*args, **kwargs)
         self.setDeviceName(devicename)
 
         self.active_samplerate = 10
@@ -378,4 +378,4 @@ class Plugin(LoggerPlugin):
 
 
 if __name__ == '__main__':
-    dev = Plugin(stream=None, plot=None, event=None)
+    dev = Plugin()

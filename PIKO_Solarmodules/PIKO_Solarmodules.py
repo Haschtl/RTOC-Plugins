@@ -18,8 +18,8 @@ NAMES = ['wh5','wh10','stadel10','stadel4']
 
 
 class Plugin(LoggerPlugin):
-    def __init__(self, stream=None, plot= None, event=None):
-        super(Plugin, self).__init__(stream, plot, event)
+    def __init__(self, *args, **kwargs):
+        super(Plugin, self).__init__(*args, **kwargs)
         self.setDeviceName(devicename)
 
         self._pikoservers = []

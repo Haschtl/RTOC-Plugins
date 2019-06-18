@@ -90,9 +90,9 @@ class _toggleTable(QtWidgets.QWidget):
                     self.table.setItem(r, c, newitem)
 
 class Plugin(LoggerPlugin):
-    def __init__(self, stream=None, plot= None, event=None):
+    def __init__(self, *args, **kwargs):
         # Plugin setup
-        super(Plugin, self).__init__(stream, plot, event)
+        super(Plugin, self).__init__(*args, **kwargs)
         self.setDeviceName(devicename)
         self.smallGUI = None
 

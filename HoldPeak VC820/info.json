@@ -1,5 +1,5 @@
 {
-  "version":"1.1",
+  "version":"1.2",
   "name":"HoldPeak VC820",
   "dependencies":["serial"],
   "files":["HoldPeak VC820.py", "holdPeak_VC820/*"],

@@ -1,5 +1,5 @@
 {
-  "version":"1.1",
+  "version":"1.2",
   "name":"INA219_Modul",
   "dependencies":["pi-ina219"],
   "files":["INA219_Modul.py"],

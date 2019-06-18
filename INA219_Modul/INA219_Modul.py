@@ -19,8 +19,8 @@ I2C_ADDRESS = 0x41
 
 
 class Plugin(LoggerPlugin):
-    def __init__(self, stream=None, plot= None, event=None):
-        super(Plugin, self).__init__(stream, plot, event)
+    def __init__(self, *args, **kwargs):
+        super(Plugin, self).__init__(*args, **kwargs)
         self.setDeviceName(devicename)
         self._ina = INA219(SHUNT_OHMS, MAX_EXPECTED_AMPS, address=I2C_ADDRESS)
         self._ina.configure(self._ina.RANGE_16V)

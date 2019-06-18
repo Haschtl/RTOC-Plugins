@@ -1,5 +1,5 @@
 {
-  "version":"1.2",
+  "version":"1.3",
   "name":"Template",
   "dependencies":[],
   "files":["Template.py", "Template/template.ui"],

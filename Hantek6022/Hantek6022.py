@@ -21,9 +21,9 @@ SAMPLERATE = 10
 
 
 class Plugin(LoggerPlugin):
-    def __init__(self, stream=None, plot=None, event=None):
+    def __init__(self, *args, **kwargs):
         # Plugin setup
-        super(Plugin, self).__init__(stream, plot, event)
+        super(Plugin, self).__init__(*args, **kwargs)
         self.setDeviceName(DEVICENAME)
         self.smallGUI = False
 

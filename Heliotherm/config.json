@@ -4,7 +4,7 @@
   "name": "Heliotherm",
   "version": "RCG 2.0",
   "port": 502,
-  "samplerate": 1,
+  "samplerate": 0.2,
   "mappingWrite" : [
     [100, "Betriebsart", 1, "", true, true],
     [101, "HKR Soll_Raum", 10, "°C", true, true],
