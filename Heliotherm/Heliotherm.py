@@ -111,8 +111,8 @@ class Plugin(LoggerPlugin):
         self.setPerpetualTimer(self._helio_alle)
 
         self._base_address = self.host
-        self.c = ModbusClient(host=self._base_address, port=self.port, auto_open=True, auto_close=True)
-        self.c.timeout(10)
+        self._c = ModbusClient(host=self._base_address, port=self.port, auto_open=True, auto_close=True)
+        self._c.timeout(10)
         self.start()
 
     def loadGUI(self):
@@ -134,8 +134,8 @@ class Plugin(LoggerPlugin):
         else:
             address = self.widget.comboBox.currentText()
             self._base_address = address
-            self.c = ModbusClient(host=self._base_address, port=self.port, auto_open=True, auto_close=True)
-            self.c.timeout(10)
+            self._c = ModbusClient(host=self._base_address, port=self.port, auto_open=True, auto_close=True)
+            self._c.timeout(10)
             #self._helio_get()
             self.start()
             self.widget.pushButton.setText("Beenden")
@@ -143,7 +143,7 @@ class Plugin(LoggerPlugin):
     def _helio_set(self, reg_addr, reg_value):
         for element in self.mappingWrite:
             if element[0] == reg_addr and element[5] == True:
-                ans = self.c.write_single_register(reg_addr,reg_value)
+                ans = self._c.write_single_register(reg_addr,reg_value)
                 if ans == True:
                     return True
                 else:
@@ -155,7 +155,7 @@ class Plugin(LoggerPlugin):
     def Schreiben(self, reg_name, reg_value):
         for element in self.mappingWrite:
             if element[1] == reg_name and element[5] == True:
-                ans = self.c.write_single_register(element[0],reg_value)
+                ans = self._c.write_single_register(element[0],reg_value)
                 if ans == True:
                     return "Wert wurde geändert"
                 else:
@@ -218,8 +218,8 @@ class Plugin(LoggerPlugin):
         writeStart=100
         writeEnd=159
 
-        resultWrite = self.c.read_holding_registers(writeStart, writeEnd-writeStart+1)
-        resultRead = self.c.read_input_registers(readStart, readEnd-readStart+1)
+        resultWrite = self._c.read_holding_registers(writeStart, writeEnd-writeStart+1)
+        resultRead = self._c.read_input_registers(readStart, readEnd-readStart+1)
 
         ans = {}
         if type(resultWrite) == list:
@@ -281,9 +281,9 @@ class Plugin(LoggerPlugin):
 
     def _helio_get(self, register, length=1, divisor=1, holding=True):
         if holding: #read writeable-variables
-            result = self.c.read_holding_registers(register, length)
+            result = self._c.read_holding_registers(register, length)
         else: #read sensor-data
-            result = self.c.read_input_registers(register, length)
+            result = self._c.read_input_registers(register, length)
         if type(result) == list:
             if len(result) == 1:
                 result = result[0]
