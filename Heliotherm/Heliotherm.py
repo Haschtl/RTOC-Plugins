@@ -218,12 +218,16 @@ class Plugin(LoggerPlugin):
     def _helio_alle(self, all = False):
         readStart=10
         readEnd=75
+        resultWrite = self._c.read_holding_registers(writeStart, writeEnd-writeStart+1)
+
         writeStart=100
         writeEnd=159
-
-        resultWrite = self._c.read_holding_registers(writeStart, writeEnd-writeStart+1)
         resultRead = self._c.read_input_registers(readStart, readEnd-readStart+1)
-
+        id resultRead == None:
+            writeStart=100
+            writeEnd=134
+            resultRead = self._c.read_input_registers(readStart, readEnd-readStart+1)
+            
         ans = {}
         if type(resultWrite) == list:
             for idx, value in enumerate(self.mappingWrite):
