@@ -102,7 +102,26 @@ class Plugin(LoggerPlugin):
         """
         This example will load a QWidget designed with QDesigner
         """
+        self.widget.teleMessageButton.clicked.connect(self._teleMessageAction)
+        self.widget.telePhotoButton.clicked.connect(self._telePhotoAction)
+        self.widget.teleFileButton.clicked.connect(self._teleFileAction)
+        """
+        Connect GUI-buttons with python-functions
+        """
         return self.widget  # This function needs to return a QWidget
+
+    def _teleMessageAction(self):
+        text = 'Hello world!'
+        self.telegram_send_message(text, onlyAdmin=False)
+
+    def _telePhotoAction(self):
+        path = self.getDir(__file__)+'/examplePhoto.png'
+        self.telegram_send_photo(path, onlyAdmin=False)
+
+    def _teleFileAction(self):
+        path = self.getDir(__file__)+'/examplePhoto.png'
+        self.telegram_send_document(path, onlyAdmin=False)
+
 
 
 hasGUI = True  # If your plugin has a widget do this

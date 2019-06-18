@@ -27,6 +27,29 @@
       <attribute name="title">
        <string>Tab 1</string>
       </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QPushButton" name="teleMessageButton">
+         <property name="text">
+          <string>Send Telegram Message</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="telePhotoButton">
+         <property name="text">
+          <string>Send Telegram Photo</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="teleFileButton">
+         <property name="text">
+          <string>Send Telegram File</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
