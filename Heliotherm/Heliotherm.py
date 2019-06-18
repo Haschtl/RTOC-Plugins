@@ -105,6 +105,9 @@ class Plugin(LoggerPlugin):
             5: 'Absenkung',
             6: 'Urlaub',
             7: 'Party',
+            8: 'Ausheizen',
+            9: 'EVU Sperre',
+            10: 'Hauptschalter aus'
         }
         self._base_address = ""
 
@@ -173,7 +176,7 @@ class Plugin(LoggerPlugin):
         # 5= Absenkung
         # 6=Urlaub
         # 7= Party
-        if int(modus) in self._modes.keys():
+        if int(modus) in self._modes.keys() and int(modus)<=7:
             return self.Schreiben(100, modus)
         else:
             return 'Wähle einen Modus zwischen 0 und 7\n'+str(self._modes)
