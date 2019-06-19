@@ -231,6 +231,8 @@ class Plugin(LoggerPlugin):
         ans = {}
         if type(resultWrite) == list:
             for idx, value in enumerate(self.mappingWrite):
+                if idx >= len(resultWrite):
+                    break
                 if self.mappingWrite[idx][4]==True or all:
                     sname = self.mappingWrite[idx][1]
                     divisor = self.mappingWrite[idx][2]
