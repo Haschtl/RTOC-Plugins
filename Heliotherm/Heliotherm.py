@@ -226,7 +226,7 @@ class Plugin(LoggerPlugin):
         if type(resultWrite) != list:
             writeStart=100
             writeEnd=134
-            resultWrite = self._c.read_holding_registers(readStart, readEnd-readStart+1)
+            resultWrite = self._c.read_holding_registers(writeStart, writeEnd-writeStart+1)
 
         ans = {}
         if type(resultWrite) == list:
