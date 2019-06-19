@@ -348,7 +348,7 @@ class Plugin(LoggerPlugin):
             self._sensorErrorEvent(messtelle, sensor, False)
         except Exception as error:
             tb = traceback.format_exc()
-            self.telegram_send_message('Could not read DHT sensor at '+str(messtelle)+'\n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
+            # self.telegram_send_message('Could not read DHT sensor at '+str(messtelle)+'\n'+str(error)+'\n'+str(tb), priority=1, permission='admin')
             a = self._sensor_data[messtelle][signal][0]
             b = self._sensor_data[messtelle][signal2][0]
             #self._sensorErrorEvent(messtelle, sensor, True)
