@@ -21,6 +21,9 @@ SAMPLERATE = 10
 
 
 class Plugin(LoggerPlugin):
+    """
+    Diese Gerät zeichnet die Daten eines Hantek6022 (und möglicherweise anderer) Oszilloskops auf.
+    """
     def __init__(self, *args, **kwargs):
         # Plugin setup
         super(Plugin, self).__init__(*args, **kwargs)
@@ -281,7 +284,7 @@ class Plugin(LoggerPlugin):
                     self._yData2Triggered.extend(
                         voltage_data[0:self._recordLength-len(self._yData2Triggered)])
 
-    def changeLength(self, newlen=10000):
+    def changeLength(self, newlen:int=10000):
         self._recordLength = newlen
         self._yData1 = deque(maxlen=self._recordLength)
         self._yData2 = deque(maxlen=self._recordLength)

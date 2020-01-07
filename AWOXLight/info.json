@@ -1,0 +1,9 @@
+{
+  "version":"1.0",
+  "name":"AWOXLight",
+  "dependencies":["bluepy", "pycrypto", "https://github.com/Leiaz/python-awox-mesh-light", "webcolors"],
+  "files":["AWOXLight.py"],
+  "Info":"This plugin allows you to control AWOX Light bulbs via bluetooth",
+  "OS":"all",
+  "GUI": false
+}

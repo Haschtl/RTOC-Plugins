@@ -26,6 +26,9 @@ SERIAL_TIMEOUT = 2
 SAMPLERATE = 1
 
 class Plugin(LoggerPlugin):
+    """
+    Dieses Gerät zeichnet Spannung, Strom und Leistung von einem DPS5020-Schaltnetzteil über USB aus.
+    """
     def __init__(self, *args, **kwargs):
         # Plugin setup
         super(Plugin, self).__init__(*args, **kwargs)
@@ -149,6 +152,9 @@ class Plugin(LoggerPlugin):
             return False, []
 
     def setPower(self, value=False):
+        """
+        Schaltet das Netzteil ein bzw. aus
+        """
         if self.run:
             logging.info("Changing power-state")
             # onoff=self.__powerSupply.read_register(9)
@@ -163,6 +169,9 @@ class Plugin(LoggerPlugin):
             self._power = value
 
     def setLocked(self, value=True):
+        """
+        Sperrt das Netzteil
+        """
         if self.run:
             logging.info("Changing locked-state")
             # onoff=self.__powerSupply.read_register(6)
@@ -175,11 +184,17 @@ class Plugin(LoggerPlugin):
             self._locked = value
 
     def setVoltage(self, value=0):
+        """
+        Stellt eine Ausgangs-Spannung ein
+        """
         if self.run:
             with self.lockPerpetialTimer:
                 self.__powerSupply.write_register(0, int(value*100))
 
     def setCurrent(self, value=0):
+        """
+        Stellt einen Ausgangs-Strom ein
+        """
         with self.lockPerpetialTimer:
             self.__powerSupply.write_register(1, int(value*100))
 

@@ -18,12 +18,16 @@ NAMES = ['wh5','wh10','stadel10','stadel4']
 
 
 class Plugin(LoggerPlugin):
+    """
+Speichert die Messdaten von mehreren PIKO-Solarmodulen.
+"""
     def __init__(self, *args, **kwargs):
         super(Plugin, self).__init__(*args, **kwargs)
         self.setDeviceName(devicename)
-
+        self.adresses = self.loadPersistentVariable('adresses', ADRESSES)
+        self.names = self.loadPersistentVariable('names', NAMES)
         self._pikoservers = []
-        for a in ADRESSES:
+        for a in self.adresses:
             self._pikoservers.append(Piko(a))
         self.setPerpetualTimer(self._streamData, samplerate=SAMPLERATE)
         self.start()
@@ -33,7 +37,7 @@ class Plugin(LoggerPlugin):
             try:
                 data, datanames, dataunits = s.get_data()
                 if data != False:
-                    self.stream(data, datanames, devicename+'_'+NAMES[idx], dataunits)
+                    self.stream(data, datanames, devicename+'_'+self.names[idx], dataunits)
             except Exception:
                 logging.debug(traceback.format_exc())
                 logging.error('Problem with getting data from '+ADRESSES[idx])

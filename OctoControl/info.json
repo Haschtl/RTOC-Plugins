@@ -1,0 +1,9 @@
+{
+  "version":"1.1",
+  "name":"OctoControl",
+  "dependencies":[],
+  "files":[ "OctoControl.py"],
+  "Info":"This plugin comes WITHOUT the API and is just used together with my OctoTouch.",
+  "OS":"all",
+  "GUI": true
+}

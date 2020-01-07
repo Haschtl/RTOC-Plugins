@@ -15,6 +15,9 @@ devicename = "ReflowOfen"
 
 
 class Plugin(LoggerPlugin):
+    """
+Dieses Gerät greift auf das Webinterface des ReflowOfens im Hobbyraum zu.
+    """
     def __init__(self, *args, **kwargs):
         # Plugin setup
         super(Plugin, self).__init__(*args, **kwargs)

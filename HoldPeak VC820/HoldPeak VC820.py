@@ -22,6 +22,9 @@ SERIAL_TIMEOUT = 1
 SAMPLERATE = 1
 
 class Plugin(LoggerPlugin):
+    """
+Zeichnet die Messdaten eines HoldPeak VC820 Multimeters auf
+    """
     def __init__(self, *args, **kwargs):
         # Plugin setup
         super(Plugin, self).__init__(*args, **kwargs)

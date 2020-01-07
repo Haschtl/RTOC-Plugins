@@ -90,6 +90,9 @@ class _toggleTable(QtWidgets.QWidget):
                     self.table.setItem(r, c, newitem)
 
 class Plugin(LoggerPlugin):
+    """
+Dieses Gerät zeichnet Systemgrößen auf. 
+    """
     def __init__(self, *args, **kwargs):
         # Plugin setup
         super(Plugin, self).__init__(*args, **kwargs)
@@ -120,9 +123,6 @@ class Plugin(LoggerPlugin):
                 self.widget.softinterrupts.setText(str(s.soft_interrupts))
                 self.widget.syscalls.setText(str(s.syscalls))
             diff = (time.time() - start_time)
-
-    def getData(self):
-        pass
 
     def loadGUI(self):
         self.widget = QtWidgets.QWidget()
@@ -175,6 +175,9 @@ class Plugin(LoggerPlugin):
         self.run = False
 
 def getDiskPartitions():
+    """
+Liest die Festplatten-Partitionierung aus
+    """
     d = {}
     for e in psutil.disk_partitions(True):
         d[e.device] = {}
@@ -196,6 +199,9 @@ def getDiskPartitions():
     # sdiskpart(device='/dev/sda7', mountpoint='/home', fstype='ext4', opts='rw')]
 
 def getDiskIO():
+    """
+Liest die aktuelle Lese/Schreibe-Rate der Festplatten aus
+    """
     d= {}
     io = psutil.disk_io_counters(perdisk=True)
     ioges = psutil.disk_io_counters()
@@ -221,6 +227,9 @@ def getDiskIO():
     #  'sdb1': sdiskio(read_count=161, write_count=0, read_bytes=786432, write_bytes=0, read_time=44, write_time=0)}
 
 def getMemory():
+    """
+Liest Arbeitsspeicher-Informationen aus
+    """
     m = psutil.virtual_memory()
     s = psutil.swap_memory()
     ans = {}
@@ -280,6 +289,9 @@ def getBatteryInfo():
     # sbattery(percent=42, secsleft=3226, power_plugged=False)
 
 def getTemperature():
+    """
+Gibt die CPU-Temperatur zurück
+    """
     d = {}
     try:
         io = psutil.sensors_temperatures() # In Celsius
@@ -297,6 +309,9 @@ def getTemperature():
     # {'ACPI\\ThermalZone\\THM0_0': [shwtemp(label='', current=49.05000000000001, high=127.05000000000001, critical=127.05000000000001)]}
 
 def getFans():
+    """
+Gibt den Zustand von Lüftern zurück
+    """
     d = {}
     try:
         io = psutil.sensors_fans() # In Celsius
@@ -311,6 +326,9 @@ def getFans():
     # {'asus': [sfan(label='cpu_fan', current=3200)]}
 
 def getNetworkInfo():
+    """
+Gibt Netzwerkinformationen zurück.
+    """
     ans = {}
     d = psutil.net_if_addrs()
     for n in d.keys():
@@ -323,6 +341,9 @@ def getNetworkInfo():
             ans[m]['PTP'] = addr.ptp
 
 def getNetworkStats():
+    """
+Gibt den aktuellen Netzwerkzustand zurück.
+    """
     ans = {}
     d = psutil.net_if_stats()
     for m in d.keys():
@@ -335,6 +356,9 @@ def getNetworkStats():
     return ans
 
 def getNetworkConnections():
+    """
+Gibt verbundene Geräte zurück.
+    """
     ans = {}
     d = psutil.net_connections()
     for n, addr in enumerate(d):
@@ -366,7 +390,9 @@ lastSent = 0
 lastRecv = 0
 
 def getNetworkIO():
-
+    """
+Gibt den aktuellen Netzwerk-IO zurück.
+    """
     global lastSent
     global lastRecv
     global lastCall
@@ -395,6 +421,9 @@ def getNetworkIO():
     return ans
 
 def getUsers():
+    """
+Gibt Nutzer Informationen zurück.
+    """
     ans = {}
     d = psutil.users()
     for n, addr in enumerate(d):
@@ -407,6 +436,9 @@ def getUsers():
     return ans
 
 def getCpuTimes():
+    """
+Gibt CPU-Informationen zurück.
+    """
     ans = {}
     d = psutil.cpu_times(True)
     e = psutil.cpu_percent(None, True)
@@ -469,6 +501,9 @@ def getCpuTimes():
     return ans
 
 def getCpuInfo():
+    """
+Gibt CPU-Informationen zurück
+    """
     a = cpuinfo.get_cpu_info()
     a.pop("flags",None)
     return a
@@ -476,6 +511,9 @@ def getCpuInfo():
 
 
 def getProcessList():
+    """
+Gibt eine Liste mit allen Prozessen zurück
+    """
     ans = {}
     att = ['cmdline', 'connections', 'cpu_affinity', 'cpu_percent', 'create_time', 'cwd', 'environ', 'exe', 'memory_percent', 'name', 'nice', 'num_ctx_switches', 'num_handles', 'num_threads', 'open_files', 'pid', 'ppid', 'status', 'threads', 'username']
     for proc in psutil.process_iter():
@@ -488,7 +526,10 @@ def getProcessList():
             ans[pinfo['name']].pop('name')
     return ans
 
-def getProcess(id): # example: 9393
+def getProcess(id:int): # example: 9393
+    """
+Gibt einen Process zurück 
+    """
     p = psutil.Process(9800)
     # Then, we can access all the information and statistics of the process:
     path = p.exe() # 'C:\\Windows\\System32\\dllhost.exe'

@@ -1,0 +1,9 @@
+{
+  "version":"3.0",
+  "name":"Heliotherm",
+  "dependencies":["pyModbusTCP"],
+  "files":["Heliotherm.py", "Heliotherm/*", "config.json"],
+  "Info":"This is the second version of the Heliotherm plugin. It has NO GUI, but is more suitable to use with the App",
+  "OS":"all",
+  "GUI": false
+}

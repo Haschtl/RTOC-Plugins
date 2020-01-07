@@ -1,5 +1,5 @@
 {
-  "version":"1.4",
+  "version":"1.5",
   "name":"Hantek6022",
   "dependencies":["libusb1"],
   "files":["Hantek6022API-master/*", "Hantek6022/*", "Hantek6022.py"],
